@@ -41,8 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Orders.cs" />
+    <Compile Include="Exchange.cs" />
+    <Compile Include="Account.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="Location.cs" />
+    <Compile Include="OrderBook.cs" />
     <Compile Include="Owner.cs" />
     <Compile Include="Gate.cs" />
     <Compile Include="Good.cs" />

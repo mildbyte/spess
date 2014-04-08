@@ -12,8 +12,7 @@ namespace spess
         Location location;
         ProductionRule production;
         int storageSpace;
-        Inventory buysStock;
-        Inventory sellsStock;
+        Inventory inventory;
         List<Ship> dockedShips;
         int productionProgress;
 
@@ -21,15 +20,14 @@ namespace spess
         public Location Location { get { return location; } set { location = value; } }
         public ProductionRule Production { get { return production; } }
         public int StorageSpace { get { return storageSpace; } }
-        public Inventory BuysStock { get { return buysStock; } }
-        public Inventory SellsStock { get { return sellsStock; } }
+        public Inventory Inventory { get { return inventory; } }
         public List<Ship> DockedShips { get { return dockedShips; } }
 
         public Station(string name, Location location, ProductionRule production, int storageSpace)
         {
             this.name = name; this.location = location;
             this.production = production; this.storageSpace = storageSpace;
-            this.buysStock = new Inventory(); this.sellsStock = new Inventory();
+            this.inventory = new Inventory();
             dockedShips = new List<Ship>();
         }
 
@@ -37,8 +35,7 @@ namespace spess
         {
             int sum = 0;
 
-            foreach (KeyValuePair<Good, int> stock in buysStock) sum += stock.Value * stock.Key.Size;
-            foreach (KeyValuePair<Good, int> stock in sellsStock) sum += stock.Value * stock.Key.Size;
+            foreach (KeyValuePair<Good, int> stock in inventory) sum += stock.Value * stock.Key.Size;
 
             return sum;
         }
@@ -46,7 +43,7 @@ namespace spess
         public bool CanProduce()
         {
             foreach (KeyValuePair<Good, int> required in production.Input)
-                if (buysStock.GetItemCount(required.Key) < required.Value) return false;
+                if (inventory.GetItemCount(required.Key) < required.Value) return false;
 
             return true;
         }
@@ -54,13 +51,13 @@ namespace spess
         void ConsumeProductionResources()
         {
             foreach (KeyValuePair<Good, int> required in production.Input)
-                buysStock.RemoveItem(required.Key, required.Value);
+                inventory.RemoveItem(required.Key, required.Value);
         }
 
         void AddProductionResult()
         {
             foreach (KeyValuePair<Good, int> result in production.Output)
-                sellsStock.AddItem(result.Key, result.Value);
+                inventory.AddItem(result.Key, result.Value);
         }
 
         public void Tick(int ticks) {
