@@ -8,15 +8,18 @@ namespace spess
 {
     class Ship
     {
-        Dictionary<Good, int> cargo;
+        Inventory cargo;
         Location location;
+        Owner owner;
 
         public Location Location { get { return location; } set { location = value; } }
-        public Dictionary<Good, int> Cargo { get { return cargo; } }
+        public Inventory Cargo { get { return cargo; } }
+        public Owner Owner { get { return owner; } }
 
-        public Ship()
+        public Ship(Owner owner)
         {
-            cargo = new Dictionary<Good, int>();
+            cargo = new Inventory();
+            this.owner = owner;
         }
     }
 }
