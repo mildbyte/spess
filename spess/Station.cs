@@ -25,8 +25,7 @@ namespace spess
         public Inventory SellsStock { get { return sellsStock; } }
         public List<Ship> DockedShips { get { return dockedShips; } }
 
-        public Station(string name, Location location, ProductionRule production, int storageSpace,
-            Dictionary<Good, int> buysStock, Dictionary<Good, int> sellsStock)
+        public Station(string name, Location location, ProductionRule production, int storageSpace)
         {
             this.name = name; this.location = location;
             this.production = production; this.storageSpace = storageSpace;
@@ -79,6 +78,16 @@ namespace spess
                     break;
                 }
             }
+        }
+
+        public void DockShip(Ship ship)
+        {
+            dockedShips.Add(ship);
+        }
+
+        public void UndockShip(Ship ship)
+        {
+            dockedShips.Remove(ship);
         }
     }
 }

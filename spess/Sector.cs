@@ -22,5 +22,14 @@ namespace spess
             ships = new List<Ship>();
             gates = new List<Gate>();
         }
+
+        public void RemoveShip(Ship ship) {
+            ships.Remove(ship);
+        }
+
+        public void AddShip(Ship ship)
+        {
+            ships.Add(ship);
+        }
     }
 }

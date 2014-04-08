@@ -17,5 +17,20 @@ namespace spess
         {
             this.x = x; this.y = y; this.z = z;
         }
+
+        public double Distance(Vector v)
+        {
+            return Math.Sqrt((x - v.x) * (x - v.x) + (y - v.y) * (y - v.y) + (z - v.z) * (z - v.z));
+        }
+
+        public static Vector operator +(Vector v1, Vector v2) { return new Vector(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z); }
+
+        public static Vector operator -(Vector v1, Vector v2) { return new Vector(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z); }
+
+        public static Vector operator *(double c, Vector v) { return new Vector(c * v.x, c * v.y, c * v.z); }
+
+        public static Vector operator *(Vector v, double c) { return c * v; }
+
+        public double Magnitude() { return Math.Sqrt(x * x + y * y + z * z); }
     }
 }
