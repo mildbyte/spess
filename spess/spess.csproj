@@ -41,14 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entity.cs" />
+    <Compile Include="Location.cs" />
+    <Compile Include="Owner.cs" />
     <Compile Include="Gate.cs" />
     <Compile Include="Good.cs" />
+    <Compile Include="ProductionRule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sector.cs" />
     <Compile Include="Ship.cs" />
     <Compile Include="Station.cs" />
+    <Compile Include="Vector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
