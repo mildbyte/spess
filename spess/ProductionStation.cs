@@ -6,29 +6,21 @@ using System.Threading.Tasks;
 
 namespace spess
 {
-    class Station
+    class ProductionStation : Building
     {
-        string name;
-        Location location;
         ProductionRule production;
         int storageSpace;
         Inventory inventory;
-        List<Ship> dockedShips;
         int productionProgress;
 
-        public string Name { get { return name; } set { name = value; } }
-        public Location Location { get { return location; } set { location = value; } }
         public ProductionRule Production { get { return production; } }
         public int StorageSpace { get { return storageSpace; } }
         public Inventory Inventory { get { return inventory; } }
-        public List<Ship> DockedShips { get { return dockedShips; } }
 
-        public Station(string name, Location location, ProductionRule production, int storageSpace)
+        public ProductionStation(string name, Location location, ProductionRule production, int storageSpace) : base(name, location)
         {
-            this.name = name; this.location = location;
             this.production = production; this.storageSpace = storageSpace;
             this.inventory = new Inventory();
-            dockedShips = new List<Ship>();
         }
 
         public int OccupiedSpace()
@@ -75,16 +67,6 @@ namespace spess
                     break;
                 }
             }
-        }
-
-        public void DockShip(Ship ship)
-        {
-            dockedShips.Add(ship);
-        }
-
-        public void UndockShip(Ship ship)
-        {
-            dockedShips.Remove(ship);
         }
     }
 }

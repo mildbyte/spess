@@ -9,18 +9,18 @@ namespace spess
     class Owner
     {
         string name;
-        List<Station> ownedStations;
+        List<ProductionStation> ownedStations;
         List<Ship> ownedShips;
         int accountBalance;
 
         public string Name { get { return name; } set { name = value; } }
         public int Balance { get { return accountBalance; } set { accountBalance = value; }}
         public List<Ship> Ships { get { return ownedShips; } }
-        public List<Station> Stations { get { return ownedStations; } }
+        public List<ProductionStation> Stations { get { return ownedStations; } }
 
         public Owner()
         {
-            ownedStations = new List<Station>();
+            ownedStations = new List<ProductionStation>();
             ownedShips = new List<Ship>();
         }
     }

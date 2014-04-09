@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace spess
 {
-    class Ship
+    class Ship : SpaceBody
     {
         Inventory cargo;
-        Location location;
         Owner owner;
-        Station dockedStation;
+        Building dockedStation;
         Vector velocity;
         double maxSpeed;
 
-        public Location Location { get { return location; } set { location = value; } }
         public Inventory Cargo { get { return cargo; } }
         public Owner Owner { get { return owner; } }
         public double MaxSpeed { get { return maxSpeed; } }
+        public Building DockedStation { get { return dockedStation; } }
+
         public Vector Velocity
         {
             get { return velocity; }
@@ -29,7 +29,7 @@ namespace spess
             }
         }
 
-        public Ship(Owner owner, double maxSpeed)
+        public Ship(string name, Location location, Owner owner, double maxSpeed) : base(name, location)
         {
             cargo = new Inventory();
             this.owner = owner;
@@ -54,12 +54,12 @@ namespace spess
             location.Sector.AddShip(this);
         }
 
-        bool CanDock(Station station)
+        bool CanDock(ProductionStation station)
         {
             return (station.Location.Sector == location.Sector && location.Coordinates.Distance(station.Location.Coordinates) < 100.0);
         }
 
-        void Dock(Station station)
+        void Dock(ProductionStation station)
         {
             if (CanDock(station)) {
                 station.DockShip(this);
