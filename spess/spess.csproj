@@ -57,6 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Building.cs" />
+    <Compile Include="Goal.cs" />
+    <Compile Include="GoalQueue.cs" />
+    <Compile Include="ShipGoals.cs" />
     <Compile Include="Orders.cs" />
     <Compile Include="Exchange.cs" />
     <Compile Include="Account.cs" />
