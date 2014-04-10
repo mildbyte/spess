@@ -37,12 +37,12 @@ namespace spess
             this.maxSpeed = maxSpeed;
         }
 
-        bool CanUseGate(Gate gate)
+        public bool CanUseGate(Gate gate)
         {
             return (gate.Location.Sector == location.Sector && location.Coordinates.Distance(gate.Location.Coordinates) < 100.0);
         }
 
-        void UseGate(Gate gate)
+        public void UseGate(Gate gate)
         {
             if (!CanUseGate(gate)) return;
 
@@ -54,20 +54,20 @@ namespace spess
             location.Sector.AddShip(this);
         }
 
-        bool CanDock(ProductionStation station)
+        public bool CanDock(Building building)
         {
-            return (station.Location.Sector == location.Sector && location.Coordinates.Distance(station.Location.Coordinates) < 100.0);
+            return (building.Location.Sector == location.Sector && location.Coordinates.Distance(building.Location.Coordinates) < 100.0);
         }
 
-        void Dock(ProductionStation station)
+        public void Dock(Building building)
         {
-            if (CanDock(station)) {
-                station.DockShip(this);
-                dockedStation = station;
+            if (CanDock(building)) {
+                building.DockShip(this);
+                dockedStation = building;
             }
         }
 
-        void Undock()
+        public void Undock()
         {
             if (dockedStation != null)
             {

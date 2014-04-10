@@ -76,8 +76,63 @@ namespace spess.AI
 
         public override IEnumerable<Goal> Execute()
         {
+            yield return new Undock(Ship);
             yield return new MoveToSector(Ship, location.Sector);
             yield return new MoveInSector(Ship, location.Coordinates);
+        }
+    }
+
+    class Undock : ShipGoal
+    {
+        public Undock(Ship ship) : base ("Undock...", ship) {}
+
+        public override bool IsComplete() { return true; }
+
+        public override IEnumerable<Goal> Execute()
+        {
+            Ship.Undock();
+            return Enumerable.Empty<Goal>();
+        }
+    }
+
+    class DockAt : ShipGoal
+    {
+        Building building;
+        public Building Building { get { return building; } }
+
+        public DockAt(Ship ship, Building building)
+            : base("Dock...", ship)
+        {
+            this.building = building;
+        }
+
+        public override bool IsComplete() { return true; }
+
+        public override IEnumerable<Goal> Execute()
+        {
+            Ship.Dock(building);
+
+            return Enumerable.Empty<Goal>();
+        }
+    }
+
+    class MoveAndDockAt : ShipGoal
+    {
+        Building building;
+        public Building Building { get { return building; } }
+
+        public MoveAndDockAt(Ship ship, Building building)
+            : base("Move and dock at...", ship)
+        {
+            this.building = building;
+        }
+
+        public override bool IsComplete() { return true; }
+
+        public override IEnumerable<Goal> Execute()
+        {
+            yield return new MoveTo(Ship, building.Location);
+            yield return new DockAt(Ship, building);
         }
     }
 }
