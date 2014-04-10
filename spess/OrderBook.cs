@@ -53,5 +53,15 @@ namespace spess.Exchange
                 yield return new Match(currBid, currAsk, fillVolume);
             }
         }
+
+        public IEnumerable<BuyOrder> GetUserBuyOrders(Owner o)
+        {
+            return bids.Where(b => b.Owner == o);
+        }
+
+        public IEnumerable<SellOrder> GetUserSellOrders(Owner o)
+        {
+            return asks.Where(b => b.Owner == o);
+        }
     }
 }
