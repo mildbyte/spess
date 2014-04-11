@@ -18,6 +18,69 @@ namespace spess
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont font;
+        BasicEffect basicEffect;
+
+        Vector3 cameraPosition = new Vector3(0, 0, 0);
+        float leftrightRot = MathHelper.PiOver2;
+        float updownRot = -MathHelper.Pi / 10.0f;
+        const float rotationSpeed = 0.3f;
+        const float moveSpeed = 30.0f;
+        MouseState originalMouseState;
+        Matrix viewMatrix;
+        Matrix projectionMatrix;
+
+        private void UpdateViewMatrix()
+        {
+            Matrix cameraRotation = Matrix.CreateRotationX(updownRot) * Matrix.CreateRotationY(leftrightRot);
+
+            Vector3 cameraOriginalTarget = new Vector3(0, 0, -1);
+            Vector3 cameraRotatedTarget = Vector3.Transform(cameraOriginalTarget, cameraRotation);
+            Vector3 cameraFinalTarget = cameraPosition + cameraRotatedTarget;
+
+            Vector3 cameraOriginalUpVector = new Vector3(0, 1, 0);
+            Vector3 cameraRotatedUpVector = Vector3.Transform(cameraOriginalUpVector, cameraRotation);
+
+            viewMatrix = Matrix.CreateLookAt(cameraPosition, cameraFinalTarget, cameraRotatedUpVector);
+        }
+
+        private void ProcessInput(float amount)
+        {
+            MouseState currentMouseState = Mouse.GetState();
+            if (currentMouseState != originalMouseState)
+            {
+                float xDifference = currentMouseState.X - originalMouseState.X;
+                float yDifference = currentMouseState.Y - originalMouseState.Y;
+                leftrightRot -= rotationSpeed * xDifference * amount;
+                updownRot -= rotationSpeed * yDifference * amount;
+                Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+                UpdateViewMatrix();
+            }
+
+            Vector3 moveVector = new Vector3(0, 0, 0);
+            KeyboardState keyState = Keyboard.GetState();
+            if (keyState.IsKeyDown(Keys.Up) || keyState.IsKeyDown(Keys.W))
+                moveVector += new Vector3(0, 0, -1);
+            if (keyState.IsKeyDown(Keys.Down) || keyState.IsKeyDown(Keys.S))
+                moveVector += new Vector3(0, 0, 1);
+            if (keyState.IsKeyDown(Keys.Right) || keyState.IsKeyDown(Keys.D))
+                moveVector += new Vector3(1, 0, 0);
+            if (keyState.IsKeyDown(Keys.Left) || keyState.IsKeyDown(Keys.A))
+                moveVector += new Vector3(-1, 0, 0);
+            if (keyState.IsKeyDown(Keys.Q))
+                moveVector += new Vector3(0, 1, 0);
+            if (keyState.IsKeyDown(Keys.Z))
+                moveVector += new Vector3(0, -1, 0);
+            AddToCameraPosition(moveVector * amount);
+        }
+
+        private void AddToCameraPosition(Vector3 vectorToAdd)
+        {
+            Matrix cameraRotation = Matrix.CreateRotationX(updownRot) * Matrix.CreateRotationY(leftrightRot);
+            Vector3 rotatedVector = Vector3.Transform(vectorToAdd, cameraRotation);
+            cameraPosition += moveSpeed * rotatedVector;
+            UpdateViewMatrix();
+        }
 
         public SpessGame()
             : base()
@@ -48,7 +111,19 @@ namespace spess
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            font = Content.Load<SpriteFont>("Arial");
+
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
+            UpdateViewMatrix();
+
+            basicEffect = new BasicEffect(GraphicsDevice)
+            {
+                TextureEnabled = true,
+                VertexColorEnabled = true,
+            };
+
+            Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            originalMouseState = Mouse.GetState();
         }
 
         /// <summary>
@@ -72,6 +147,10 @@ namespace spess
 
             // TODO: Add your update logic here
 
+            float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
+            ProcessInput(timeDifference);
+ 
+
             base.Update(gameTime);
         }
 
@@ -81,9 +160,38 @@ namespace spess
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
+            //Owner testOwner = new Owner();
+            //Sector testSector = new Sector();
+            //Ship testShip = new Ship("SHIP!!1", new Location(testSector, new Vector3(0, 0, 0)), testOwner, 10.0);
+            //testSector.AddShip(testShip);
+
+            //VertexPositionTexture[] vertices = new VertexPositionTexture[6];
+            //int i = 0;
+
+            //Vector3 center = testShip.Location.Coordinates;
+
+            //vertices[i++] = new VertexPositionTexture(center, new Vector2(1, 1));
+            //vertices[i++] = new VertexPositionTexture(center, new Vector2(0, 0));
+            //vertices[i++] = new VertexPositionTexture(center, new Vector2(1, 0));
+            //vertices[i++] = new VertexPositionTexture(center, new Vector2(1, 1));
+            //vertices[i++] = new VertexPositionTexture(center, new Vector2(0, 1));
+            //vertices[i++] = new VertexPositionTexture(center, new Vector2(0, 0));
+
+            Vector3 textPosition = new Vector3(0, 0, 10);
+            
+            basicEffect.World = Matrix.CreateConstrainedBillboard(textPosition, cameraPosition, Vector3.Up, null, null);
+            basicEffect.View = viewMatrix;
+            basicEffect.Projection = projectionMatrix;
+
+            const string message = "hello, world!";
+            Vector2 textOrigin = font.MeasureString(message) / 2;
+            const float textSize = 0.75f;
+
+            spriteBatch.Begin(0, null, null, DepthStencilState.DepthRead, RasterizerState.CullNone, basicEffect);
+            spriteBatch.DrawString(font, message, Vector2.Zero, Color.White, 0, textOrigin, textSize, 0, 0);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }

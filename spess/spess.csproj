@@ -83,6 +83,10 @@
     <Compile Include="ProductionStation.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\Arial.xnb">
+      <Link>Content\Arial.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +106,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
