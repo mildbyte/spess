@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Building.cs" />
+    <Compile Include="Camera.cs" />
     <Compile Include="SpessGame.cs" />
     <Compile Include="Goal.cs" />
     <Compile Include="GoalQueue.cs" />

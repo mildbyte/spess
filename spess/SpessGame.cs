@@ -20,68 +20,10 @@ namespace spess
         SpriteBatch spriteBatch;
         SpriteFont font;
         BasicEffect basicEffect;
-
-        Vector3 cameraPosition = new Vector3(0, 0, 0);
-        float leftrightRot = MathHelper.PiOver2;
-        float updownRot = -MathHelper.Pi / 10.0f;
-        const float rotationSpeed = 0.3f;
-        const float moveSpeed = 30.0f;
-        MouseState originalMouseState;
-        Matrix viewMatrix;
+        Camera camera;
         Matrix projectionMatrix;
+
         Texture2D shipTex;
-
-        private void UpdateViewMatrix()
-        {
-            Matrix cameraRotation = Matrix.CreateRotationX(updownRot) * Matrix.CreateRotationY(leftrightRot);
-
-            Vector3 cameraOriginalTarget = new Vector3(0, 0, -1);
-            Vector3 cameraRotatedTarget = Vector3.Transform(cameraOriginalTarget, cameraRotation);
-            Vector3 cameraFinalTarget = cameraPosition + cameraRotatedTarget;
-
-            Vector3 cameraOriginalUpVector = new Vector3(0, 1, 0);
-            Vector3 cameraRotatedUpVector = Vector3.Transform(cameraOriginalUpVector, cameraRotation);
-
-            viewMatrix = Matrix.CreateLookAt(cameraPosition, cameraFinalTarget, cameraRotatedUpVector);
-        }
-
-        private void ProcessInput(float amount)
-        {
-            MouseState currentMouseState = Mouse.GetState();
-            if (currentMouseState != originalMouseState)
-            {
-                float xDifference = currentMouseState.X - originalMouseState.X;
-                float yDifference = currentMouseState.Y - originalMouseState.Y;
-                leftrightRot -= rotationSpeed * xDifference * amount;
-                updownRot -= rotationSpeed * yDifference * amount;
-                Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-                UpdateViewMatrix();
-            }
-
-            Vector3 moveVector = new Vector3(0, 0, 0);
-            KeyboardState keyState = Keyboard.GetState();
-            if (keyState.IsKeyDown(Keys.Up) || keyState.IsKeyDown(Keys.W))
-                moveVector += new Vector3(0, 0, -1);
-            if (keyState.IsKeyDown(Keys.Down) || keyState.IsKeyDown(Keys.S))
-                moveVector += new Vector3(0, 0, 1);
-            if (keyState.IsKeyDown(Keys.Right) || keyState.IsKeyDown(Keys.D))
-                moveVector += new Vector3(1, 0, 0);
-            if (keyState.IsKeyDown(Keys.Left) || keyState.IsKeyDown(Keys.A))
-                moveVector += new Vector3(-1, 0, 0);
-            if (keyState.IsKeyDown(Keys.Q))
-                moveVector += new Vector3(0, 1, 0);
-            if (keyState.IsKeyDown(Keys.Z))
-                moveVector += new Vector3(0, -1, 0);
-            AddToCameraPosition(moveVector * amount);
-        }
-
-        private void AddToCameraPosition(Vector3 vectorToAdd)
-        {
-            Matrix cameraRotation = Matrix.CreateRotationX(updownRot) * Matrix.CreateRotationY(leftrightRot);
-            Vector3 rotatedVector = Vector3.Transform(vectorToAdd, cameraRotation);
-            cameraPosition += moveSpeed * rotatedVector;
-            UpdateViewMatrix();
-        }
 
         public SpessGame()
             : base()
@@ -116,12 +58,11 @@ namespace spess
             shipTex = Content.Load<Texture2D>("ship");
 
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
-            UpdateViewMatrix();
 
             basicEffect = new BasicEffect(GraphicsDevice);
 
-            Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            originalMouseState = Mouse.GetState();
+            camera = new Camera(GraphicsDevice);
+
         }
 
         /// <summary>
@@ -143,11 +84,8 @@ namespace spess
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-
             float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
-            ProcessInput(timeDifference);
-
+            camera.ProcessInput(timeDifference);
 
             base.Update(gameTime);
         }
@@ -183,8 +121,8 @@ namespace spess
                                 new Vector2(1,0))
                         };
 
-            basicEffect.World = Matrix.Identity;
-            basicEffect.View = viewMatrix;
+            basicEffect.World = Matrix.CreateConstrainedBillboard(new Vector3(0.5f, 0.5f, 0.0f), camera.Position, Vector3.Up, null, null);
+            basicEffect.View = camera.ViewMatrix;
             basicEffect.Projection = projectionMatrix;
             basicEffect.TextureEnabled = true;
             basicEffect.Texture = shipTex;
