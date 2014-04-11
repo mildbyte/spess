@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace spess
 {
@@ -11,7 +12,7 @@ namespace spess
         Inventory cargo;
         Owner owner;
         Building dockedStation;
-        Vector velocity;
+        Vector3 velocity;
         double maxSpeed;
 
         public Inventory Cargo { get { return cargo; } }
@@ -19,12 +20,12 @@ namespace spess
         public double MaxSpeed { get { return maxSpeed; } }
         public Building DockedStation { get { return dockedStation; } }
 
-        public Vector Velocity
+        public Vector3 Velocity
         {
             get { return velocity; }
             set
             {
-                if (value.Magnitude() > maxSpeed) return;
+                if (value.Length() > maxSpeed) return;
                 velocity = value;
             }
         }
@@ -39,7 +40,7 @@ namespace spess
 
         public bool CanUseGate(Gate gate)
         {
-            return (gate.Location.Sector == location.Sector && location.Coordinates.Distance(gate.Location.Coordinates) < 100.0);
+            return (gate.Location.Sector == location.Sector && (location.Coordinates - gate.Location.Coordinates).Length() < 100.0);
         }
 
         public void UseGate(Gate gate)
@@ -56,7 +57,7 @@ namespace spess
 
         public bool CanDock(Building building)
         {
-            return (building.Location.Sector == location.Sector && location.Coordinates.Distance(building.Location.Coordinates) < 100.0);
+            return (building.Location.Sector == location.Sector && (location.Coordinates - building.Location.Coordinates).Length() < 100.0);
         }
 
         public void Dock(Building building)

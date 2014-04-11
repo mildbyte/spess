@@ -81,7 +81,6 @@
     <Compile Include="Ship.cs" />
     <Compile Include="SpaceBody.cs" />
     <Compile Include="ProductionStation.cs" />
-    <Compile Include="Vector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace spess.AI
 {
@@ -42,10 +43,10 @@ namespace spess.AI
 
     class MoveInSector : ShipGoal
     {
-        Vector position;
-        public Vector Position { get { return position; } }
+        Vector3 position;
+        public Vector3 Position { get { return position; } }
 
-        public MoveInSector(Ship ship, Vector position)
+        public MoveInSector(Ship ship, Vector3 position)
             : base("Move to position in sector...", ship)
         {
             this.position = position;
@@ -55,7 +56,7 @@ namespace spess.AI
 
         public override IEnumerable<Goal> Execute()
         {
-            if (Ship.Location.Coordinates.Distance(position) < 1.0) return Enumerable.Empty<Goal>();
+            if ((Ship.Location.Coordinates - position).Length() < 1.0) return Enumerable.Empty<Goal>();
 
             Ship.Location.Coordinates = position;
             return Enumerable.Empty<Goal>();

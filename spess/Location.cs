@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace spess
 {
     class Location
     {
         Sector sector;
-        Vector coordinates;
+        Vector3 coordinates;
 
         public Sector Sector { get { return sector; } set { sector = value; } }
-        public Vector Coordinates { get { return coordinates; } set { coordinates = value; } }
+        public Vector3 Coordinates { get { return coordinates; } set { coordinates = value; } }
 
-        public Location(Sector sector, Vector coordinates)
+        public Location(Sector sector, Vector3 coordinates)
         {
             this.sector = sector; this.coordinates = coordinates;
         }
