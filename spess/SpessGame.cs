@@ -70,8 +70,8 @@ namespace spess
             font = Content.Load<SpriteFont>("Arial");
             shipTex = Content.Load<Texture2D>("ship");
 
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
-            //projectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width/10, GraphicsDevice.Viewport.Height/10, 0.3f, 1000.0f);
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 100.0f);
+            //projectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width/10, GraphicsDevice.Viewport.Height/10, 0.1f, 1000.0f);
 
             basicEffect = new BasicEffect(GraphicsDevice);
 
@@ -116,6 +116,33 @@ namespace spess
         }
 
         /// <summary>
+        /// Draws a grid at y = 0 in the xz plane
+        /// </summary>
+        void DrawGrid()
+        {
+
+            VertexPositionColor[] vertices = new VertexPositionColor[201 * 2 * 2];
+
+            int i = 0;
+            for (int ix = -100; ix <= 100; ix += 10) {
+                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, -100), Color.Black);
+                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, 100), Color.Black);
+                vertices[i++] = new VertexPositionColor(new Vector3(-100, 0, ix), Color.Black);
+                vertices[i++] = new VertexPositionColor(new Vector3(100, 0, ix), Color.Black);
+            }
+
+            foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                for (int x = -100; x < 100; x += 10)
+                {
+                    GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 201 * 2);
+                }
+            }
+        }
+
+        /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
@@ -143,13 +170,16 @@ namespace spess
             basicEffect.TextureEnabled = true;
             basicEffect.Texture = shipTex;
 
+            DrawGrid();
+
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
 
             for (int i = 0; i < shipCount; i++)
             {
-                //basicEffect.World = Matrix.CreateConstrainedBillboard(testSector.Ships[i].Location.Coordinates, camera.Position, Vector3.Up, null, null);
+                Vector3 shipCoords = testSector.Ships[i].Location.Coordinates;
+                //basicEffect.World = Matrix.CreateConstrainedBillboard(shipCoords, camera.Position, Vector3.Up, null, null);
                 foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
