@@ -190,7 +190,7 @@ namespace spess
             const float textSize = 0.75f;
 
             spriteBatch.Begin(0, null, null, DepthStencilState.DepthRead, RasterizerState.CullNone, basicEffect);
-            spriteBatch.DrawString(font, message, Vector2.Zero, Color.White, 0, textOrigin, textSize, 0, 0);
+            spriteBatch.DrawString(font, message, Vector2.Zero, Color.White, 0, textOrigin, textSize, SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically, 0);
             spriteBatch.End();
 
             base.Draw(gameTime);
