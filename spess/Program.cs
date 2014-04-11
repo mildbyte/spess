@@ -10,6 +10,8 @@ namespace spess
     {
         static void Main(string[] args)
         {
+            using (var game = new SpessGame())
+                game.Run();
         }
     }
 }
