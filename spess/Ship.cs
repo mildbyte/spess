@@ -76,5 +76,10 @@ namespace spess
                 dockedStation = null;
             }
         }
+
+        public void Update(float timePassed)
+        {
+            location.Coordinates += velocity * timePassed;
+        }
     }
 }

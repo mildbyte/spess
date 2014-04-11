@@ -25,6 +25,11 @@ namespace spess
 
         Texture2D shipTex;
 
+        Owner testOwner;
+        Sector testSector;
+
+        Random rand = new Random();
+
         public SpessGame()
             : base()
         {
@@ -40,7 +45,15 @@ namespace spess
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            testOwner = new Owner();
+            testSector = new Sector();
+
+            for (int i = 0; i < 10; i++)
+            {
+                Ship testShip = new Ship(i.ToString(), new Location(testSector, RandomVector(20.0f)), testOwner, 10.0);
+                testShip.Velocity = RandomVector(1.0f);
+                testSector.AddShip(testShip);
+            }
 
             base.Initialize();
         }
@@ -58,6 +71,7 @@ namespace spess
             shipTex = Content.Load<Texture2D>("ship");
 
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
+            //projectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width/10, GraphicsDevice.Viewport.Height/10, 0.3f, 1000.0f);
 
             basicEffect = new BasicEffect(GraphicsDevice);
 
@@ -87,7 +101,18 @@ namespace spess
             float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
             camera.ProcessInput(timeDifference);
 
+            foreach (Ship s in testSector.Ships) {
+                s.Update(timeDifference);
+            }
+
             base.Update(gameTime);
+        }
+
+        private Vector3 RandomVector(float max)
+        {
+            return new Vector3((float)(rand.NextDouble() - 0.5f),
+                (float)(rand.NextDouble() - 0.5f),
+                (float)(rand.NextDouble() - 0.5f)) * max;
         }
 
         /// <summary>
@@ -98,42 +123,41 @@ namespace spess
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            Owner testOwner = new Owner();
-            Sector testSector = new Sector();
-            Ship testShip = new Ship("SHIP!!1", new Location(testSector, new Vector3(0, 0, 0)), testOwner, 10.0);
-            testSector.AddShip(testShip);
+            int shipCount = testSector.Ships.Count;
+            VertexPositionTexture[] vertices = new VertexPositionTexture[shipCount * 4];
 
-            Vector3 center = testShip.Location.Coordinates;
+            int currVertex = 0;
+            foreach (Ship s in testSector.Ships)
+            {
+                Vector3 center = s.Location.Coordinates;
 
-            VertexPositionTexture[] vertices = new VertexPositionTexture[]
-                        {
-                            new VertexPositionTexture(
-                                new Vector3(0,1,0),
-                                new Vector2(0,1)),
-                            new VertexPositionTexture(
-                                new Vector3(0,0,0),
-                                new Vector2(0,0)),
-                            new VertexPositionTexture(
-                                new Vector3(1,1,0),
-                                new Vector2(1,1)),
-                            new VertexPositionTexture(
-                                new Vector3(1,0,0),
-                                new Vector2(1,0))
-                        };
+                vertices[currVertex++] = new VertexPositionTexture(center + new Vector3(-0.5f, 0.5f, 0), new Vector2(0, 1));
+                vertices[currVertex++] = new VertexPositionTexture(center + new Vector3(-0.5f, -0.5f, 0), new Vector2(0, 0));
+                vertices[currVertex++] = new VertexPositionTexture(center + new Vector3(0.5f, 0.5f, 0), new Vector2(1, 1));
+                vertices[currVertex++] = new VertexPositionTexture(center + new Vector3(0.5f, -0.5f, 0), new Vector2(1, 0));
+            }
 
-            basicEffect.World = Matrix.CreateConstrainedBillboard(new Vector3(0.5f, 0.5f, 0.0f), camera.Position, Vector3.Up, null, null);
+            basicEffect.World = Matrix.Identity;
             basicEffect.View = camera.ViewMatrix;
             basicEffect.Projection = projectionMatrix;
             basicEffect.TextureEnabled = true;
             basicEffect.Texture = shipTex;
 
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
-            foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+
+            for (int i = 0; i < shipCount; i++)
             {
-                pass.Apply();
-                GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, vertices, 0, 2);
+                //basicEffect.World = Matrix.CreateConstrainedBillboard(testSector.Ships[i].Location.Coordinates, camera.Position, Vector3.Up, null, null);
+                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, vertices, i * 4, 2);
+                }
             }
+
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
             base.Draw(gameTime);
         }
