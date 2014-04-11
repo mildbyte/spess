@@ -87,6 +87,10 @@
       <Link>Content\Arial.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\ship.xnb">
+      <Link>Content\ship.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
