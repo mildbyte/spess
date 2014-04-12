@@ -204,6 +204,7 @@ namespace spess
                 World = Matrix.Identity,
                 Projection = orthoProjectionMatrix,
                 TextureEnabled = true,
+                VertexColorEnabled = false,
                 View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0)),
             };
 
@@ -244,7 +245,12 @@ namespace spess
             spriteBatch.Begin();
             spriteBatch.DrawString(font, "FPS: " + fps, new Vector2(10, 10), Color.White);
             spriteBatch.End();
-            
+
+            //Restore the state changed by the SpriteBatch
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+
             base.Draw(gameTime);
         }
     }
