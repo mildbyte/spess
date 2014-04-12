@@ -1,6 +1,7 @@
 ﻿#region Using Statements
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,9 +18,7 @@ namespace spess
     public class SpessGame : Game
     {
         GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
         SpriteFont font;
-        BasicEffect basicEffect;
         Camera camera;
         Matrix perspProjectionMatrix;
         Matrix orthoProjectionMatrix;
@@ -85,9 +84,6 @@ namespace spess
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
             font = Content.Load<SpriteFont>("Arial");
             shipTex = Content.Load<Texture2D>("ship");
             gateTex = Content.Load<Texture2D>("gate");
@@ -96,10 +92,7 @@ namespace spess
             perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 100.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1);
 
-            basicEffect = new BasicEffect(GraphicsDevice);
-
             camera = new Camera(GraphicsDevice, this);
-
         }
 
         /// <summary>
@@ -179,37 +172,35 @@ namespace spess
             }
         }
 
-        //TODO: generalize rendering.
-
-        void RenderShips(List<Ship> ships)
+        void BatchDrawIcons(IEnumerable<Vector3> coords, int iconCount, Matrix projectionMatrix, Matrix viewMatrix, Matrix worldMatrix, Texture2D texture, float size)
         {
-            int shipCount = ships.Count;
-            VertexPositionTexture[] vertices = new VertexPositionTexture[shipCount * 4];
+            VertexPositionTexture[] vertices = new VertexPositionTexture[iconCount * 4];
 
             int currVertex = 0;
-            foreach (Ship s in ships)
+            float halfSide = size * 0.5f;
+            foreach (Vector3 v in coords)
             {
-                Vector3 shipCoords = GraphicsDevice.Viewport.Project(s.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
+                Vector3 vProj = GraphicsDevice.Viewport.Project(v, projectionMatrix, viewMatrix, worldMatrix);
 
-                float halfSide = 24.0f;
-
-                vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
-                vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
-                vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
-                vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
+                vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
+                vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
+                vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
+                vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
             }
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
-
-            basicEffect.World = Matrix.Identity;
-            basicEffect.Projection = orthoProjectionMatrix;
-            basicEffect.TextureEnabled = true;
-            basicEffect.Texture = shipTex;
-
             Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
-            basicEffect.View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
 
-            for (int i = 0; i < shipCount; i++)
+            BasicEffect basicEffect = new BasicEffect(GraphicsDevice)
+            {
+                World = Matrix.Identity,
+                Projection = orthoProjectionMatrix,
+                TextureEnabled = true,
+                Texture = texture,
+                View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0)),
+            };
+
+            for (int i = 0; i < iconCount; i++)
             {
                 foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
                 {
@@ -219,86 +210,21 @@ namespace spess
             }
 
             GraphicsDevice.BlendState = BlendState.Opaque;
+        }
+
+        void RenderShips(List<Ship> ships)
+        {
+            BatchDrawIcons(ships.Select(s => s.Location.Coordinates), ships.Count, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, shipTex, 48);
         }
 
         void RenderStations(List<ProductionStation> stations)
         {
-            int stationCount = stations.Count;
-            VertexPositionTexture[] vertices = new VertexPositionTexture[stationCount * 4];
-
-            int currVertex = 0;
-            foreach (ProductionStation s in stations)
-            {
-                Vector3 stationCoords = GraphicsDevice.Viewport.Project(s.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
-
-                float halfSide = 24.0f;
-
-                vertices[currVertex++] = new VertexPositionTexture(stationCoords + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
-                vertices[currVertex++] = new VertexPositionTexture(stationCoords + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
-                vertices[currVertex++] = new VertexPositionTexture(stationCoords + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
-                vertices[currVertex++] = new VertexPositionTexture(stationCoords + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
-            }
-
-            GraphicsDevice.BlendState = BlendState.AlphaBlend;
-
-            basicEffect.World = Matrix.Identity;
-            basicEffect.Projection = orthoProjectionMatrix;
-            basicEffect.TextureEnabled = true;
-            basicEffect.Texture = stationTex;
-
-            Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
-            basicEffect.View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
-
-            for (int i = 0; i < stationCount; i++)
-            {
-                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                    GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, vertices, i * 4, 2);
-                }
-            }
-
-            GraphicsDevice.BlendState = BlendState.Opaque;
+            BatchDrawIcons(stations.Select(s => s.Location.Coordinates), stations.Count, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, stationTex, 48);
         }
 
         void RenderGates(List<Gate> gates)
         {
-            int gateCount = gates.Count;
-            VertexPositionTexture[] vertices = new VertexPositionTexture[gateCount * 4];
-
-            int currVertex = 0;
-            foreach (Gate g in gates)
-            {
-                Vector3 gateCoords = GraphicsDevice.Viewport.Project(g.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
-
-                float halfSide = 24.0f;
-
-                vertices[currVertex++] = new VertexPositionTexture(gateCoords + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
-                vertices[currVertex++] = new VertexPositionTexture(gateCoords + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
-                vertices[currVertex++] = new VertexPositionTexture(gateCoords + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
-                vertices[currVertex++] = new VertexPositionTexture(gateCoords + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
-            }
-
-            GraphicsDevice.BlendState = BlendState.AlphaBlend;
-
-            basicEffect.World = Matrix.Identity;
-            basicEffect.Projection = orthoProjectionMatrix;
-            basicEffect.TextureEnabled = true;
-            basicEffect.Texture = gateTex;
-
-            Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
-            basicEffect.View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
-
-            for (int i = 0; i < gateCount; i++)
-            {
-                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                    GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, vertices, i * 4, 2);
-                }
-            }
-
-            GraphicsDevice.BlendState = BlendState.Opaque;
+            BatchDrawIcons(gates.Select(g => g.Location.Coordinates), gates.Count, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, gateTex, 48);
         }
         
 
