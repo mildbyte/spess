@@ -29,6 +29,8 @@ namespace spess
         int totalFrames = 0;
 
         Texture2D shipTex;
+        Texture2D gateTex;
+        Texture2D stationTex;
 
         Owner testOwner;
         Sector testSector;
@@ -60,6 +62,20 @@ namespace spess
                 testSector.AddShip(testShip);
             }
 
+            for (int i = 0; i < 5; i++)
+            {
+                ProductionStation testStation = new ProductionStation(i.ToString(), new Location(testSector, RandomVector(30.0f)), null, 100);
+                testSector.Stations.Add(testStation);
+            }
+
+            testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(-30, 0, -30)), null));
+            testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(-30, 0, 30)), null));
+            testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(30, 0, -30)), null));
+            testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(30, 0, 30)), null));
+
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 760;
+
             base.Initialize();
         }
 
@@ -74,6 +90,8 @@ namespace spess
 
             font = Content.Load<SpriteFont>("Arial");
             shipTex = Content.Load<Texture2D>("ship");
+            gateTex = Content.Load<Texture2D>("gate");
+            stationTex = Content.Load<Texture2D>("station");
 
             perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 100.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1);
@@ -161,26 +179,18 @@ namespace spess
             }
         }
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
+        //TODO: generalize rendering.
+
+        void RenderShips(List<Ship> ships)
         {
-            GraphicsDevice.Clear(Color.Black);
-
-            totalFrames++;
-
-            DrawGrid(Color.White);
-
-            int shipCount = testSector.Ships.Count;
+            int shipCount = ships.Count;
             VertexPositionTexture[] vertices = new VertexPositionTexture[shipCount * 4];
 
             int currVertex = 0;
-            foreach (Ship s in testSector.Ships)
+            foreach (Ship s in ships)
             {
                 Vector3 shipCoords = GraphicsDevice.Viewport.Project(s.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
-                
+
                 float halfSide = 24.0f;
 
                 vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
@@ -197,7 +207,7 @@ namespace spess
             basicEffect.Texture = shipTex;
 
             Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
-            basicEffect.View = Matrix.CreateLookAt( new Vector3( center, 0 ), new Vector3( center, 1 ), new Vector3( 0, -1, 0 ) );
+            basicEffect.View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
 
             for (int i = 0; i < shipCount; i++)
             {
@@ -209,7 +219,106 @@ namespace spess
             }
 
             GraphicsDevice.BlendState = BlendState.Opaque;
+        }
 
+        void RenderStations(List<ProductionStation> stations)
+        {
+            int stationCount = stations.Count;
+            VertexPositionTexture[] vertices = new VertexPositionTexture[stationCount * 4];
+
+            int currVertex = 0;
+            foreach (ProductionStation s in stations)
+            {
+                Vector3 stationCoords = GraphicsDevice.Viewport.Project(s.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
+
+                float halfSide = 24.0f;
+
+                vertices[currVertex++] = new VertexPositionTexture(stationCoords + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
+                vertices[currVertex++] = new VertexPositionTexture(stationCoords + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
+                vertices[currVertex++] = new VertexPositionTexture(stationCoords + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
+                vertices[currVertex++] = new VertexPositionTexture(stationCoords + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
+            }
+
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
+
+            basicEffect.World = Matrix.Identity;
+            basicEffect.Projection = orthoProjectionMatrix;
+            basicEffect.TextureEnabled = true;
+            basicEffect.Texture = stationTex;
+
+            Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
+            basicEffect.View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
+
+            for (int i = 0; i < stationCount; i++)
+            {
+                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, vertices, i * 4, 2);
+                }
+            }
+
+            GraphicsDevice.BlendState = BlendState.Opaque;
+        }
+
+        void RenderGates(List<Gate> gates)
+        {
+            int gateCount = gates.Count;
+            VertexPositionTexture[] vertices = new VertexPositionTexture[gateCount * 4];
+
+            int currVertex = 0;
+            foreach (Gate g in gates)
+            {
+                Vector3 gateCoords = GraphicsDevice.Viewport.Project(g.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
+
+                float halfSide = 24.0f;
+
+                vertices[currVertex++] = new VertexPositionTexture(gateCoords + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
+                vertices[currVertex++] = new VertexPositionTexture(gateCoords + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
+                vertices[currVertex++] = new VertexPositionTexture(gateCoords + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
+                vertices[currVertex++] = new VertexPositionTexture(gateCoords + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
+            }
+
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
+
+            basicEffect.World = Matrix.Identity;
+            basicEffect.Projection = orthoProjectionMatrix;
+            basicEffect.TextureEnabled = true;
+            basicEffect.Texture = gateTex;
+
+            Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
+            basicEffect.View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
+
+            for (int i = 0; i < gateCount; i++)
+            {
+                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, vertices, i * 4, 2);
+                }
+            }
+
+            GraphicsDevice.BlendState = BlendState.Opaque;
+        }
+        
+
+        void RenderSector(Sector sector)
+        {
+            RenderShips(sector.Ships);
+            RenderStations(sector.Stations);
+            RenderGates(sector.Gates);
+        }
+
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.Black);
+            totalFrames++;
+            DrawGrid(Color.White);
+            RenderSector(testSector);
             base.Draw(gameTime);
         }
     }

@@ -88,8 +88,24 @@
       <Link>Content\Arial.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\empty.xnb">
+      <Link>Content\empty.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\gate.xnb">
+      <Link>Content\gate.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\satellite.xnb">
+      <Link>Content\satellite.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\spessContent\spessContent\bin\PSM\Content\ship.xnb">
       <Link>Content\ship.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\station.xnb">
+      <Link>Content\station.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
