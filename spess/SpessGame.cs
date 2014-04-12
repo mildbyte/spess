@@ -119,27 +119,31 @@ namespace spess
         /// <summary>
         /// Draws a grid at y = 0 in the xz plane
         /// </summary>
-        void DrawGrid()
+        void DrawGrid(Color color)
         {
+            BasicEffect gridEffect = new BasicEffect(GraphicsDevice)
+            {
+                World = Matrix.Identity,
+                View = camera.ViewMatrix,
+                Projection = perspProjectionMatrix,
+                VertexColorEnabled = true,
+            };
 
             VertexPositionColor[] vertices = new VertexPositionColor[201 * 2 * 2];
 
             int i = 0;
             for (int ix = -100; ix <= 100; ix += 10) {
-                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, -100), Color.Black);
-                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, 100), Color.Black);
-                vertices[i++] = new VertexPositionColor(new Vector3(-100, 0, ix), Color.Black);
-                vertices[i++] = new VertexPositionColor(new Vector3(100, 0, ix), Color.Black);
+                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, -100), color);
+                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, 100), color);
+                vertices[i++] = new VertexPositionColor(new Vector3(-100, 0, ix), color);
+                vertices[i++] = new VertexPositionColor(new Vector3(100, 0, ix), color);
             }
 
-            foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+            foreach (EffectPass pass in gridEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
 
-                for (int x = -100; x < 100; x += 10)
-                {
-                    GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 201 * 2);
-                }
+                GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 201 * 2);
             }
         }
 
@@ -149,7 +153,9 @@ namespace spess
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
+
+            DrawGrid(Color.White);
 
             int shipCount = testSector.Ships.Count;
             VertexPositionTexture[] vertices = new VertexPositionTexture[shipCount * 4];
@@ -158,9 +164,7 @@ namespace spess
             foreach (Ship s in testSector.Ships)
             {
                 Vector3 shipCoords = GraphicsDevice.Viewport.Project(s.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
-                //center.Z *= -1;
-                //Vector3 center = GraphicsDevice.Viewport.Project(s.Location.Coordinates, Matrix.Identity, Matrix.Identity, Matrix.Identity);
-
+                
                 float halfSide = 24.0f;
 
                 vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
@@ -169,18 +173,12 @@ namespace spess
                 vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
             }
 
-            basicEffect.World = Matrix.Identity;
-            basicEffect.View = camera.ViewMatrix;
-            basicEffect.Projection = perspProjectionMatrix;
-
-            DrawGrid();
-
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
+            basicEffect.World = Matrix.Identity;
+            basicEffect.Projection = orthoProjectionMatrix;
             basicEffect.TextureEnabled = true;
             basicEffect.Texture = shipTex;
-            basicEffect.Projection = orthoProjectionMatrix;
 
             Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
             basicEffect.View = Matrix.CreateLookAt( new Vector3( center, 0 ), new Vector3( center, 1 ), new Vector3( 0, -1, 0 ) );
