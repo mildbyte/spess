@@ -21,7 +21,8 @@ namespace spess
         SpriteFont font;
         BasicEffect basicEffect;
         Camera camera;
-        Matrix projectionMatrix;
+        Matrix perspProjectionMatrix;
+        Matrix orthoProjectionMatrix;
 
         Texture2D shipTex;
 
@@ -70,8 +71,8 @@ namespace spess
             font = Content.Load<SpriteFont>("Arial");
             shipTex = Content.Load<Texture2D>("ship");
 
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 100.0f);
-            //projectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width/10, GraphicsDevice.Viewport.Height/10, 0.1f, 1000.0f);
+            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 100.0f);
+            orthoProjectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1);
 
             basicEffect = new BasicEffect(GraphicsDevice);
 
@@ -156,30 +157,36 @@ namespace spess
             int currVertex = 0;
             foreach (Ship s in testSector.Ships)
             {
-                Vector3 center = s.Location.Coordinates;
+                Vector3 shipCoords = GraphicsDevice.Viewport.Project(s.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
+                //center.Z *= -1;
+                //Vector3 center = GraphicsDevice.Viewport.Project(s.Location.Coordinates, Matrix.Identity, Matrix.Identity, Matrix.Identity);
 
-                vertices[currVertex++] = new VertexPositionTexture(center + new Vector3(-0.5f, 0.5f, 0), new Vector2(0, 1));
-                vertices[currVertex++] = new VertexPositionTexture(center + new Vector3(-0.5f, -0.5f, 0), new Vector2(0, 0));
-                vertices[currVertex++] = new VertexPositionTexture(center + new Vector3(0.5f, 0.5f, 0), new Vector2(1, 1));
-                vertices[currVertex++] = new VertexPositionTexture(center + new Vector3(0.5f, -0.5f, 0), new Vector2(1, 0));
+                float halfSide = 24.0f;
+
+                vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
+                vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
+                vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
+                vertices[currVertex++] = new VertexPositionTexture(shipCoords + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
             }
 
             basicEffect.World = Matrix.Identity;
             basicEffect.View = camera.ViewMatrix;
-            basicEffect.Projection = projectionMatrix;
-            basicEffect.TextureEnabled = true;
-            basicEffect.Texture = shipTex;
+            basicEffect.Projection = perspProjectionMatrix;
 
             DrawGrid();
 
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
+            basicEffect.TextureEnabled = true;
+            basicEffect.Texture = shipTex;
+            basicEffect.Projection = orthoProjectionMatrix;
+
+            Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
+            basicEffect.View = Matrix.CreateLookAt( new Vector3( center, 0 ), new Vector3( center, 1 ), new Vector3( 0, -1, 0 ) );
 
             for (int i = 0; i < shipCount; i++)
             {
-                Vector3 shipCoords = testSector.Ships[i].Location.Coordinates;
-                //basicEffect.World = Matrix.CreateConstrainedBillboard(shipCoords, camera.Position, Vector3.Up, null, null);
                 foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
