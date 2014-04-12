@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace spess.Exchange
 {
@@ -11,7 +12,7 @@ namespace spess.Exchange
         Dictionary<Owner, Account> users;
         Dictionary<Good, OrderBook> orderBooks;
 
-        public Exchange(string name, Location location) : base(name, location)
+        public Exchange(string name, Location location, Texture2D texture) : base(name, location, texture, 48.0f)
         {
             users = new Dictionary<Owner, Account>();
             orderBooks = new Dictionary<Good, OrderBook>();

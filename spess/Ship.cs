@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
@@ -30,7 +31,7 @@ namespace spess
             }
         }
 
-        public Ship(string name, Location location, Owner owner, double maxSpeed) : base(name, location)
+        public Ship(string name, Location location, Owner owner, double maxSpeed, Texture2D texture) : base(name, location, texture, 48.0f)
         {
             cargo = new Inventory();
             this.owner = owner;

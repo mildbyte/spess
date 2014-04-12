@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
-    class Gate
+    class Gate : SpaceBody
     {
-        Location location;
         Location destination;
 
-        public Location Location { get { return location; } }
         public Location Destination { get { return destination; } }
 
-        public Gate(Location location, Location destination)
+        public Gate(string name, Location location, Location destination, Texture2D texture) : base(name, location, texture, 48.0f)
         {
-            this.location = location;
             this.destination = destination;
         }
     }

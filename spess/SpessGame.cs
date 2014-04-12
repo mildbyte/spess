@@ -52,32 +52,14 @@ namespace spess
         /// </summary>
         protected override void Initialize()
         {
-            testOwner = new Owner();
-            testSector = new Sector();
-
-            for (int i = 0; i < 10; i++)
-            {
-                Ship testShip = new Ship(i.ToString(), new Location(testSector, RandomVector(20.0f)), testOwner, 10.0);
-                testShip.Velocity = RandomVector(1.0f);
-                testSector.AddShip(testShip);
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                ProductionStation testStation = new ProductionStation(i.ToString(), new Location(testSector, RandomVector(30.0f)), null, 100);
-                testSector.Stations.Add(testStation);
-            }
-
-            testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(-30, 0, -30)), null));
-            testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(-30, 0, 30)), null));
-            testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(30, 0, -30)), null));
-            testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(30, 0, 30)), null));
-
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height;
-            graphics.IsFullScreen = true;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
+            //graphics.IsFullScreen = true;
+            IsFixedTimeStep = true;
             graphics.ApplyChanges();
+
+            
 
             base.Initialize();
         }
@@ -97,6 +79,28 @@ namespace spess
             orthoProjectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1);
 
             camera = new Camera(GraphicsDevice, this);
+
+            //Initialize the test sector here because we only here have access to the textures
+            testOwner = new Owner();
+            testSector = new Sector();
+
+            for (int i = 0; i < 10; i++)
+            {
+                Ship testShip = new Ship(i.ToString(), new Location(testSector, RandomVector(20.0f)), testOwner, 10.0, shipTex);
+                testShip.Velocity = RandomVector(1.0f);
+                testSector.AddShip(testShip);
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                ProductionStation testStation = new ProductionStation(i.ToString(), new Location(testSector, RandomVector(30.0f)), null, 100, stationTex);
+                testSector.Stations.Add(testStation);
+            }
+
+            testSector.Gates.Add(new Gate("", new Location(testSector, new Vector3(-30, 0, -30)), null, gateTex));
+            testSector.Gates.Add(new Gate("", new Location(testSector, new Vector3(-30, 0, 30)), null, gateTex));
+            testSector.Gates.Add(new Gate("", new Location(testSector, new Vector3(30, 0, -30)), null, gateTex));
+            testSector.Gates.Add(new Gate("", new Location(testSector, new Vector3(30, 0, 30)), null, gateTex));
         }
 
         /// <summary>
@@ -132,6 +136,7 @@ namespace spess
                 fps = totalFrames;
                 totalFrames = 0;
                 timePassed = 0;
+                Window.Title = "spess (" + fps + " FPS)";
             }
 
             base.Update(gameTime);
@@ -175,15 +180,15 @@ namespace spess
             }
         }
 
-        void BatchDrawIcons(IEnumerable<Vector3> coords, int iconCount, Matrix projectionMatrix, Matrix viewMatrix, Matrix worldMatrix, Texture2D texture, float size)
+        void BatchDrawIcons(List<SpaceBody> items, Matrix projectionMatrix, Matrix viewMatrix, Matrix worldMatrix)
         {
-            VertexPositionTexture[] vertices = new VertexPositionTexture[iconCount * 4];
+            VertexPositionTexture[] vertices = new VertexPositionTexture[items.Count * 4];
 
             int currVertex = 0;
-            float halfSide = size * 0.5f;
-            foreach (Vector3 v in coords)
+            foreach (SpaceBody item in items)
             {
-                Vector3 vProj = GraphicsDevice.Viewport.Project(v, projectionMatrix, viewMatrix, worldMatrix);
+                float halfSide = item.IconSize * 0.5f;
+                Vector3 vProj = GraphicsDevice.Viewport.Project(item.Location.Coordinates, projectionMatrix, viewMatrix, worldMatrix);
 
                 vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
                 vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
@@ -199,12 +204,12 @@ namespace spess
                 World = Matrix.Identity,
                 Projection = orthoProjectionMatrix,
                 TextureEnabled = true,
-                Texture = texture,
                 View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0)),
             };
 
-            for (int i = 0; i < iconCount; i++)
+            for (int i = 0; i < items.Count; i++)
             {
+                basicEffect.Texture = items[i].IconTexture;
                 foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
@@ -214,28 +219,15 @@ namespace spess
 
             GraphicsDevice.BlendState = BlendState.Opaque;
         }
-
-        void RenderShips(List<Ship> ships)
-        {
-            BatchDrawIcons(ships.Select(s => s.Location.Coordinates), ships.Count, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, shipTex, 48);
-        }
-
-        void RenderStations(List<ProductionStation> stations)
-        {
-            BatchDrawIcons(stations.Select(s => s.Location.Coordinates), stations.Count, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, stationTex, 48);
-        }
-
-        void RenderGates(List<Gate> gates)
-        {
-            BatchDrawIcons(gates.Select(g => g.Location.Coordinates), gates.Count, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, gateTex, 48);
-        }
         
-
         void RenderSector(Sector sector)
         {
-            RenderShips(sector.Ships);
-            RenderStations(sector.Stations);
-            RenderGates(sector.Gates);
+            List<SpaceBody> bodies = new List<SpaceBody>();
+            bodies.AddRange(sector.Gates.Cast<SpaceBody>());
+            bodies.AddRange(sector.Ships.Cast<SpaceBody>());
+            bodies.AddRange(sector.Stations.Cast<SpaceBody>());
+
+            BatchDrawIcons(bodies, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
         }
 
         /// <summary>

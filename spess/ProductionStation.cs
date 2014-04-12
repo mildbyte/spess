@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
@@ -17,7 +18,7 @@ namespace spess
         public int StorageSpace { get { return storageSpace; } }
         public Inventory Inventory { get { return inventory; } }
 
-        public ProductionStation(string name, Location location, ProductionRule production, int storageSpace) : base(name, location)
+        public ProductionStation(string name, Location location, ProductionRule production, int storageSpace, Texture2D texture) : base(name, location, texture, 48.0f)
         {
             this.production = production; this.storageSpace = storageSpace;
             this.inventory = new Inventory();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
@@ -22,7 +23,7 @@ namespace spess
             dockedShips.Remove(ship);
         }
 
-        public Building(string name, Location location) : base (name, location)
+        public Building(string name, Location location, Texture2D iconTexture, float iconSize) : base (name, location, iconTexture, iconSize)
         {
             dockedShips = new List<Ship>();
         }
