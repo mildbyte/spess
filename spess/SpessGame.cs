@@ -18,6 +18,7 @@ namespace spess
     public class SpessGame : Game
     {
         GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
         SpriteFont font;
         Camera camera;
         Matrix perspProjectionMatrix;
@@ -72,8 +73,11 @@ namespace spess
             testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(30, 0, -30)), null));
             testSector.Gates.Add(new Gate(new Location(testSector, new Vector3(30, 0, 30)), null));
 
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 760;
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height;
+            graphics.IsFullScreen = true;
+            graphics.ApplyChanges();
 
             base.Initialize();
         }
@@ -128,7 +132,6 @@ namespace spess
                 fps = totalFrames;
                 totalFrames = 0;
                 timePassed = 0;
-                Window.Title = "spess (" + fps + " FPS)";
             }
 
             base.Update(gameTime);
@@ -245,6 +248,11 @@ namespace spess
             totalFrames++;
             DrawGrid(Color.White);
             RenderSector(testSector);
+
+            spriteBatch.Begin();
+            spriteBatch.DrawString(font, "FPS: " + fps, new Vector2(10, 10), Color.White);
+            spriteBatch.End();
+            
             base.Draw(gameTime);
         }
     }
