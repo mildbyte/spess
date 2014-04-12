@@ -12,6 +12,8 @@ namespace spess
         float updownRot = -MathHelper.Pi / 10.0f;
         GraphicsDevice graphics;
         Matrix viewMatrix;
+        bool isFreeLookMode = false;
+        Game game;
         
         MouseState originalMouseState;
 
@@ -21,31 +23,52 @@ namespace spess
         public Matrix ViewMatrix { get { return viewMatrix; } }
         public Vector3 Position { get { return cameraPosition; } }
 
-        public Camera(GraphicsDevice graphics)
+        public Camera(GraphicsDevice graphics, Game game)
         {
             this.graphics = graphics;
+            this.game = game;
             RotationSpeed = 0.3f;
             MoveSpeed = 20.0f;
 
             Mouse.SetPosition(graphics.Viewport.Width / 2, graphics.Viewport.Height / 2);
             originalMouseState = Mouse.GetState();
+            game.IsMouseVisible = true;
         }
 
         public void ProcessInput(float amount)
         {
-            MouseState currentMouseState = Mouse.GetState();
-            if (currentMouseState != originalMouseState)
+            KeyboardState keyState = Keyboard.GetState();
+
+            if (keyState.IsKeyDown(Keys.Space))
             {
-                float xDifference = currentMouseState.X - originalMouseState.X;
-                float yDifference = currentMouseState.Y - originalMouseState.Y;
-                leftrightRot -= RotationSpeed * xDifference * amount;
-                updownRot -= RotationSpeed * yDifference * amount;
-                Mouse.SetPosition(graphics.Viewport.Width / 2, graphics.Viewport.Height / 2);
-                UpdateViewMatrix();
+                if (!isFreeLookMode)
+                {
+                    isFreeLookMode = true;
+                    Mouse.SetPosition(graphics.Viewport.Width / 2, graphics.Viewport.Height / 2);
+                    game.IsMouseVisible = false;
+                }    
+
+                MouseState currentMouseState = Mouse.GetState();
+                if (currentMouseState != originalMouseState)
+                {
+                    float xDifference = currentMouseState.X - originalMouseState.X;
+                    float yDifference = currentMouseState.Y - originalMouseState.Y;
+                    leftrightRot -= RotationSpeed * xDifference * amount;
+                    updownRot -= RotationSpeed * yDifference * amount;
+                    Mouse.SetPosition(graphics.Viewport.Width / 2, graphics.Viewport.Height / 2);
+                    UpdateViewMatrix();
+                }
+            }
+            else
+            {
+                if (isFreeLookMode)
+                {
+                    isFreeLookMode = false;
+                    game.IsMouseVisible = true;
+                }
             }
 
             Vector3 moveVector = new Vector3(0, 0, 0);
-            KeyboardState keyState = Keyboard.GetState();
             if (keyState.IsKeyDown(Keys.Up) || keyState.IsKeyDown(Keys.W))
                 moveVector += new Vector3(0, 0, -1);
             if (keyState.IsKeyDown(Keys.Down) || keyState.IsKeyDown(Keys.S))

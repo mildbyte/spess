@@ -24,6 +24,10 @@ namespace spess
         Matrix perspProjectionMatrix;
         Matrix orthoProjectionMatrix;
 
+        double timePassed = 0;
+        int fps = 0;
+        int totalFrames = 0;
+
         Texture2D shipTex;
 
         Owner testOwner;
@@ -76,7 +80,7 @@ namespace spess
 
             basicEffect = new BasicEffect(GraphicsDevice);
 
-            camera = new Camera(GraphicsDevice);
+            camera = new Camera(GraphicsDevice, this);
 
         }
 
@@ -104,6 +108,16 @@ namespace spess
 
             foreach (Ship s in testSector.Ships) {
                 s.Update(timeDifference);
+            }
+
+            timePassed += gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            if (timePassed >= 1000.0)
+            {
+                fps = totalFrames;
+                totalFrames = 0;
+                timePassed = 0;
+                Window.Title = "spess (" + fps + " FPS)";
             }
 
             base.Update(gameTime);
@@ -154,6 +168,8 @@ namespace spess
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
+
+            totalFrames++;
 
             DrawGrid(Color.White);
 
