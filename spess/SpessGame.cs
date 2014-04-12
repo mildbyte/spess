@@ -24,6 +24,9 @@ namespace spess
         Matrix perspProjectionMatrix;
         Matrix orthoProjectionMatrix;
 
+        BasicEffect gridEffect;
+        BasicEffect iconEffect;
+
         double timePassed = 0;
         int fps = 0;
         int totalFrames = 0;
@@ -64,8 +67,6 @@ namespace spess
             IsFixedTimeStep = true;
             graphics.ApplyChanges();
 
-            
-
             base.Initialize();
         }
 
@@ -81,10 +82,27 @@ namespace spess
             stationTex = Content.Load<Texture2D>("station");
             satelliteTex = Content.Load<Texture2D>("satellite");
 
+            camera = new Camera(GraphicsDevice, this);
+
             perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 200.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1);
 
-            camera = new Camera(GraphicsDevice, this);
+            gridEffect = new BasicEffect(GraphicsDevice)
+            {
+                World = Matrix.Identity,
+                Projection = perspProjectionMatrix,
+                VertexColorEnabled = true,
+            };
+
+            Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
+            iconEffect = new BasicEffect(GraphicsDevice)
+            {
+                World = Matrix.Identity,
+                Projection = orthoProjectionMatrix,
+                TextureEnabled = true,
+                VertexColorEnabled = false,
+                View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0)),
+            };
 
             //Initialize the test sector here because we only here have access to the textures
             testOwner = new Owner();
@@ -202,14 +220,6 @@ namespace spess
         /// </summary>
         void DrawGrid(Color color)
         {
-            BasicEffect gridEffect = new BasicEffect(GraphicsDevice)
-            {
-                World = Matrix.Identity,
-                View = camera.ViewMatrix,
-                Projection = perspProjectionMatrix,
-                VertexColorEnabled = true,
-            };
-
             VertexPositionColor[] vertices = new VertexPositionColor[201 * 2 * 2];
 
             int i = 0;
@@ -219,6 +229,8 @@ namespace spess
                 vertices[i++] = new VertexPositionColor(new Vector3(-100, 0, ix), color);
                 vertices[i++] = new VertexPositionColor(new Vector3(100, 0, ix), color);
             }
+
+            gridEffect.View = camera.ViewMatrix;
 
             foreach (EffectPass pass in gridEffect.CurrentTechnique.Passes)
             {
@@ -245,21 +257,11 @@ namespace spess
             }
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
-            Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
-
-            BasicEffect basicEffect = new BasicEffect(GraphicsDevice)
-            {
-                World = Matrix.Identity,
-                Projection = orthoProjectionMatrix,
-                TextureEnabled = true,
-                VertexColorEnabled = false,
-                View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0)),
-            };
 
             for (int i = 0; i < spaceBodies.Count; i++)
             {
-                basicEffect.Texture = spaceBodies[i].IconTexture;
-                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+                iconEffect.Texture = spaceBodies[i].IconTexture;
+                foreach (EffectPass pass in iconEffect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
                     GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, iconVertices, i * 4, 2);

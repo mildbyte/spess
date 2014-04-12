@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spess", "spess.csproj", "{F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spessContent", "..\spessContent\spessContent\spessContent.csproj", "{9489B549-B8C8-449A-948B-731EF19C3775}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "spessContentContent", "..\spessContent\spessContentContent\spessContentContent.contentproj", "{046E6C01-2E48-433E-8785-270549234A47}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spessContentContent", "..\spessContent\spessContentContent\spessContentContent.contentproj", "{046E6C01-2E48-433E-8785-270549234A47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,5 +70,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
