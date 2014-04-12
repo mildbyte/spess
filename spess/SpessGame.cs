@@ -31,11 +31,16 @@ namespace spess
         Texture2D shipTex;
         Texture2D gateTex;
         Texture2D stationTex;
+        Texture2D satelliteTex;
 
         Owner testOwner;
         Sector testSector;
 
         Random rand = new Random();
+
+        //Bodies and corresponding quads for picking
+        List<SpaceBody> spaceBodies;
+        VertexPositionTexture[] iconVertices;
 
         public SpessGame()
             : base()
@@ -74,8 +79,9 @@ namespace spess
             shipTex = Content.Load<Texture2D>("ship");
             gateTex = Content.Load<Texture2D>("gate");
             stationTex = Content.Load<Texture2D>("station");
+            satelliteTex = Content.Load<Texture2D>("satellite");
 
-            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 100.0f);
+            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 200.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1);
 
             camera = new Camera(GraphicsDevice, this);
@@ -139,6 +145,17 @@ namespace spess
                 Window.Title = "spess (" + fps + " FPS)";
             }
 
+            MouseState ms = Mouse.GetState();
+
+            if (ms.LeftButton == ButtonState.Pressed)
+            {
+                SpaceBody mouseOverBody = PickBody(new Vector2(Mouse.GetState().Position.X, Mouse.GetState().Position.Y));
+                if (mouseOverBody != null)
+                {
+                    mouseOverBody.IconTexture = satelliteTex;
+                }
+            }
+
             base.Update(gameTime);
         }
 
@@ -147,6 +164,37 @@ namespace spess
             return new Vector3((float)(rand.NextDouble() - 0.5f),
                 (float)(rand.NextDouble() - 0.5f),
                 (float)(rand.NextDouble() - 0.5f)) * max;
+        }
+
+        private SpaceBody PickBody(Vector2 mousePos) {
+            Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
+            Matrix viewMatrix = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
+
+            Vector3 nearPoint = GraphicsDevice.Viewport.Unproject(new Vector3(mousePos, 0), orthoProjectionMatrix, viewMatrix, Matrix.Identity);
+            Vector3 farPoint = GraphicsDevice.Viewport.Unproject(new Vector3(mousePos, 1), orthoProjectionMatrix, viewMatrix, Matrix.Identity);
+
+            Vector3 direction = farPoint - nearPoint;
+            direction.Normalize();
+
+            Ray ray = new Ray(nearPoint, direction);
+
+            SpaceBody closestBody = null;
+            float closestBodyDist = 0.0f;
+
+            for (int i = 0; i < spaceBodies.Count; i++)
+            {
+                BoundingBox bb = new BoundingBox(iconVertices[i * 4 + 1].Position, iconVertices[i * 4 + 2].Position);
+
+                float? interDist = ray.Intersects(bb);
+                if (interDist == null) continue;
+                if (closestBody == null || closestBodyDist > interDist)
+                {
+                    closestBody = spaceBodies[i];
+                    closestBodyDist = (float)interDist;
+                }
+            }
+
+            return closestBody;
         }
 
         /// <summary>
@@ -180,20 +228,20 @@ namespace spess
             }
         }
 
-        void BatchDrawIcons(List<SpaceBody> items, Matrix projectionMatrix, Matrix viewMatrix, Matrix worldMatrix)
+        void BatchDrawIcons(Matrix projectionMatrix, Matrix viewMatrix, Matrix worldMatrix)
         {
-            VertexPositionTexture[] vertices = new VertexPositionTexture[items.Count * 4];
+            iconVertices = new VertexPositionTexture[spaceBodies.Count * 4];
 
             int currVertex = 0;
-            foreach (SpaceBody item in items)
+            foreach (SpaceBody item in spaceBodies)
             {
                 float halfSide = item.IconSize * 0.5f;
                 Vector3 vProj = GraphicsDevice.Viewport.Project(item.Location.Coordinates, projectionMatrix, viewMatrix, worldMatrix);
 
-                vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
-                vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
-                vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
-                vertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
+                iconVertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
+                iconVertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, -halfSide, 0), new Vector2(0, 0));
+                iconVertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(halfSide, halfSide, 0), new Vector2(1, 1));
+                iconVertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
             }
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
@@ -208,13 +256,13 @@ namespace spess
                 View = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0)),
             };
 
-            for (int i = 0; i < items.Count; i++)
+            for (int i = 0; i < spaceBodies.Count; i++)
             {
-                basicEffect.Texture = items[i].IconTexture;
+                basicEffect.Texture = spaceBodies[i].IconTexture;
                 foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
-                    GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, vertices, i * 4, 2);
+                    GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, iconVertices, i * 4, 2);
                 }
             }
 
@@ -223,12 +271,12 @@ namespace spess
         
         void RenderSector(Sector sector)
         {
-            List<SpaceBody> bodies = new List<SpaceBody>();
-            bodies.AddRange(sector.Gates.Cast<SpaceBody>());
-            bodies.AddRange(sector.Ships.Cast<SpaceBody>());
-            bodies.AddRange(sector.Stations.Cast<SpaceBody>());
+            spaceBodies = new List<SpaceBody>();
+            spaceBodies.AddRange(sector.Gates.Cast<SpaceBody>());
+            spaceBodies.AddRange(sector.Ships.Cast<SpaceBody>());
+            spaceBodies.AddRange(sector.Stations.Cast<SpaceBody>());
 
-            BatchDrawIcons(bodies, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
+            BatchDrawIcons(perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
         }
 
         /// <summary>
