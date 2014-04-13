@@ -52,13 +52,14 @@ namespace spess.AI
             this.position = position;
         }
 
-        public override bool IsComplete() { return true; }
+        public override bool IsComplete() { return (Ship.Location.Coordinates - position).Length() < 1.0; }
 
         public override IEnumerable<Goal> Execute()
         {
-            if ((Ship.Location.Coordinates - position).Length() < 1.0) return Enumerable.Empty<Goal>();
+            Ship.Velocity = position - Ship.Location.Coordinates;
+            Ship.Velocity.Normalize();
+            Ship.Velocity *= (float)Ship.MaxSpeed;
 
-            Ship.Location.Coordinates = position;
             return Enumerable.Empty<Goal>();
         }
     }
@@ -73,7 +74,10 @@ namespace spess.AI
             this.location = location;
         }
 
-        public override bool IsComplete() { return true; }
+        public override bool IsComplete() {
+            return location.Sector == Ship.Location.Sector &&
+                (Ship.Location.Coordinates - Ship.Location.Coordinates).Length() < 1.0;
+        }
 
         public override IEnumerable<Goal> Execute()
         {
@@ -87,7 +91,7 @@ namespace spess.AI
     {
         public Undock(Ship ship) : base ("Undock...", ship) {}
 
-        public override bool IsComplete() { return true; }
+        public override bool IsComplete() { return Ship.DockedStation == null; }
 
         public override IEnumerable<Goal> Execute()
         {
@@ -107,7 +111,7 @@ namespace spess.AI
             this.building = building;
         }
 
-        public override bool IsComplete() { return true; }
+        public override bool IsComplete() { return Building == Ship.DockedStation; }
 
         public override IEnumerable<Goal> Execute()
         {
@@ -128,12 +132,53 @@ namespace spess.AI
             this.building = building;
         }
 
-        public override bool IsComplete() { return true; }
+        public override bool IsComplete() { return Building == Ship.DockedStation; }
 
         public override IEnumerable<Goal> Execute()
         {
             yield return new MoveTo(Ship, building.Location);
             yield return new DockAt(Ship, building);
+        }
+    }
+
+    class UseGate : ShipGoal
+    {
+        Gate gate;
+        public Gate Gate { get { return gate; } }
+
+        public UseGate(Ship ship, Gate gate)
+            : base("Use gate...", ship)
+        {
+            this.gate = gate;
+        }
+
+        public override bool IsComplete() { return Ship.Location.Sector == Gate.Destination.Sector; }
+
+        public override IEnumerable<Goal> Execute()
+        {
+            Ship.UseGate(gate);
+
+            return Enumerable.Empty<Goal>();
+        }
+    }
+
+    class MoveAndUseGate : ShipGoal
+    {
+        Gate gate;
+        public Gate Gate { get { return gate; } }
+
+        public MoveAndUseGate(Ship ship, Gate gate)
+            : base("Use gate...", ship)
+        {
+            this.gate = gate;
+        }
+
+        public override bool IsComplete() { return Ship.Location.Sector == Gate.Destination.Sector; }
+
+        public override IEnumerable<Goal> Execute()
+        {
+            yield return new MoveTo(Ship, Gate.Location);
+            yield return new UseGate(Ship, Gate);
         }
     }
 }
