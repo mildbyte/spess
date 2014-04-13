@@ -23,7 +23,7 @@ namespace spess
             dockedShips.Remove(ship);
         }
 
-        public Building(string name, Location location) : base (name, location)
+        public Building(string name, Location location, Universe universe) : base (name, location, universe)
         {
             dockedShips = new List<Ship>();
         }

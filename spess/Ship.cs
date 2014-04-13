@@ -35,7 +35,7 @@ namespace spess
             }
         }
 
-        public Ship(string name, Location location, Owner owner, float maxSpeed) : base(name, location)
+        public Ship(string name, Location location, Owner owner, float maxSpeed, Universe universe) : base(name, location, universe)
         {
             cargo = new Inventory();
             this.owner = owner;

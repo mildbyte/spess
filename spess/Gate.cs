@@ -13,7 +13,7 @@ namespace spess
 
         public Location Destination { get { return destination; } }
 
-        public Gate(string name, Location location, Location destination) : base(name, location)
+        public Gate(string name, Location location, Location destination, Universe universe) : base(name, location, universe)
         {
             this.destination = destination;
             this.iconTexture = TextureProvider.gateTex;

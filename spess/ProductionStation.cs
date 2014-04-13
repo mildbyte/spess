@@ -18,7 +18,7 @@ namespace spess
         public int StorageSpace { get { return storageSpace; } }
         public Inventory Inventory { get { return inventory; } }
 
-        public ProductionStation(string name, Location location, ProductionRule production, int storageSpace) : base(name, location)
+        public ProductionStation(string name, Location location, ProductionRule production, int storageSpace, Universe universe) : base(name, location, universe)
         {
             this.production = production; this.storageSpace = storageSpace;
             this.inventory = new Inventory();

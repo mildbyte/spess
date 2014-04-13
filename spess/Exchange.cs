@@ -12,7 +12,7 @@ namespace spess.Exchange
         Dictionary<Owner, Account> users;
         Dictionary<Good, OrderBook> orderBooks;
 
-        public Exchange(string name, Location location) : base(name, location)
+        public Exchange(string name, Location location, Universe universe) : base(name, location, universe)
         {
             users = new Dictionary<Owner, Account>();
             orderBooks = new Dictionary<Good, OrderBook>();

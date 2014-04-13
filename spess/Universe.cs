@@ -97,6 +97,13 @@ namespace spess
             sectors = new List<Sector>();
             owners = new List<Owner>();
             owners.Add(new Owner());
+            ownerKnownGates = new Dictionary<Owner, List<Gate>>();
+        }
+
+        public void DiscoverGate(Owner o, Gate g)
+        {
+            if (!ownerKnownGates.ContainsKey(o)) ownerKnownGates[o] = new List<Gate>();
+            ownerKnownGates[o].Add(g);
         }
 
         public Sector AddSector()
@@ -108,13 +115,13 @@ namespace spess
 
         public Ship AddShip(Sector sector, Vector3 position, Owner owner, float maxSpeed)
         {
-            Ship ship = new Ship("", new Location(sector, position), owner, maxSpeed);
+            Ship ship = new Ship("", new Location(sector, position), owner, maxSpeed, this);
             sector.AddShip(ship);
             return ship;
         }
 
         public ProductionStation AddProductionStation(Sector sector, Vector3 position, ProductionRule production, int storageSpace) {
-            ProductionStation station = new ProductionStation("", new Location(sector, position), production, storageSpace);
+            ProductionStation station = new ProductionStation("", new Location(sector, position), production, storageSpace, this);
             sector.Stations.Add(station);
             return station;
         }
@@ -124,8 +131,8 @@ namespace spess
             Location s1Loc = new Location(sector1, sector1GateLoc);
             Location s2Loc = new Location(sector2, sector2GateLoc);
 
-            Gate s1Gate = new Gate("", s1Loc, s2Loc);
-            Gate s2Gate = new Gate("", s2Loc, s1Loc);
+            Gate s1Gate = new Gate("", s1Loc, s2Loc, this);
+            Gate s2Gate = new Gate("", s2Loc, s1Loc, this);
 
             sector1.Gates.Add(s1Gate);
             sector2.Gates.Add(s2Gate);
