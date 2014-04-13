@@ -19,7 +19,7 @@ namespace spess.AI
 
     }
 
-    class MoveToSector : ShipGoal, IBaseGoal
+    class MoveToSector : ShipGoal, ICompositeGoal
     {
         Sector sector;
         public Sector Sector { get { return sector; } }
@@ -30,11 +30,13 @@ namespace spess.AI
             this.sector = sector;
         }
 
-        public bool IsComplete() { return Ship.Location.Sector == sector; }
 
-        public void Execute()
+        public IEnumerable<Goal> GetSubgoals()
         {
-            Ship.Location.Sector = sector;
+            List<Gate> route = Ship.Universe.GetGateAwareRoute(Ship.Owner, Ship.Location.Sector, sector);
+            if (route == null) return Enumerable.Empty<Goal>();
+
+            return route.Select(g => new MoveAndUseGate(Ship, g));
         }
     }
 

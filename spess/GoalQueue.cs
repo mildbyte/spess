@@ -27,6 +27,11 @@ namespace spess.AI
 
         public void Update()
         {
+            // TODO: problem: if a subgoal fails, the rest continue to be executed.
+            // For example, MoveTo consists of MoveToSector and MoveInSector.
+            // If MoveToSector fails (ship can't find a route), MoveInSector is still
+            // executed, so the ships move to the target position in the same sector.
+
             // Keep removing complete goals from the pending goal queue
             while (pendingGoals.Any() && pendingGoals.First.Value.IsComplete()) pendingGoals.RemoveFirst();
             

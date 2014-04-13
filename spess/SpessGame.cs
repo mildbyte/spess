@@ -116,14 +116,15 @@ namespace spess
 
             ProductionStation destStation = universe.AddProductionStation(testSector2, Vector3.Zero, null, 100);
 
+            universe.DiscoverGate(universe.GetPlayer(), testSector1.Gates[0]);
 
             for (int i = 0; i < 10; i++)
             {
                 Ship testShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
                 testShip.Velocity = RandomVector(1.0f);
-                testShip.GoalQueue.AddGoal(new AI.MoveAndUseGate(testShip, testSector1.Gates[0]));
                 testShip.GoalQueue.AddGoal(new AI.MoveAndDockAt(testShip, destStation));
             }
+
         }
 
         /// <summary>
