@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using spess.AI;
 
 namespace spess
 {
@@ -15,11 +16,13 @@ namespace spess
         Building dockedStation;
         Vector3 velocity;
         double maxSpeed;
+        GoalQueue goalQueue;
 
         public Inventory Cargo { get { return cargo; } }
         public Owner Owner { get { return owner; } }
         public double MaxSpeed { get { return maxSpeed; } }
         public Building DockedStation { get { return dockedStation; } }
+        public GoalQueue GoalQueue { get { return goalQueue; } }
 
         public Vector3 Velocity
         {
@@ -37,6 +40,7 @@ namespace spess
             this.owner = owner;
             dockedStation = null;
             this.maxSpeed = maxSpeed;
+            this.goalQueue = new GoalQueue();
         }
 
         public bool CanUseGate(Gate gate)

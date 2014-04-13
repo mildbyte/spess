@@ -16,10 +16,16 @@ namespace spess.AI
         {
             if (!goals.Any()) return;
             var currentGoal = goals.First.Value;
-            goals.RemoveFirst();
 
-            var newGoals = currentGoal.Execute();
-            goals = new LinkedList<Goal>(newGoals.Concat(goals));
+            if (currentGoal.IsComplete())
+            {
+                goals.RemoveFirst();
+            }
+            else
+            {
+                var newGoals = currentGoal.Execute();
+                goals = new LinkedList<Goal>(newGoals.Concat(goals));
+            }
         }
     }
 }
