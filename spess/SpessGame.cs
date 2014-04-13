@@ -103,13 +103,9 @@ namespace spess
             Sector testSector1 = universe.AddSector();
             Sector testSector2 = universe.AddSector();
 
-            currSector = testSector1;
+            universe.JoinSectors(testSector1, testSector2, new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
 
-            for (int i = 0; i < 10; i++)
-            {
-                Ship testShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 10.0f);
-                testShip.Velocity = RandomVector(1.0f);
-            }
+            currSector = testSector2;
 
             for (int i = 0; i < 5; i++)
             {
@@ -118,11 +114,16 @@ namespace spess
                 ProductionStation testStation = universe.AddProductionStation(testSector1, RandomVector(10.0f), null, 100);
             }
 
-            universe.JoinSectors(testSector1, testSector2, new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
+            ProductionStation destStation = universe.AddProductionStation(testSector2, Vector3.Zero, null, 100);
 
-            Ship aiTestShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 10.0f);
-            aiTestShip.GoalQueue.AddGoal(new AI.MoveAndUseGate(aiTestShip, testSector1.Gates[0]));
-            aiTestShip.IconTexture = TextureProvider.satelliteTex;
+
+            for (int i = 0; i < 10; i++)
+            {
+                Ship testShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
+                testShip.Velocity = RandomVector(1.0f);
+                testShip.GoalQueue.AddGoal(new AI.MoveAndUseGate(testShip, testSector1.Gates[0]));
+                testShip.GoalQueue.AddGoal(new AI.MoveAndDockAt(testShip, destStation));
+            }
         }
 
         /// <summary>

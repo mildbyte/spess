@@ -103,6 +103,7 @@ namespace spess.AI
 
         public void Execute()
         {
+            Ship.Velocity = Vector3.Zero;
             Ship.Dock(building);
         }
     }
