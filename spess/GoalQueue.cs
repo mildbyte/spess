@@ -12,6 +12,16 @@ namespace spess.AI
 
         public IEnumerable<Goal> Goals { get { return goals; } }
 
+        public void AddGoal(Goal g)
+        {
+            goals.AddFirst(g);
+        }
+
+        public GoalQueue()
+        {
+            goals = new LinkedList<Goal>();
+        }
+
         public void Update()
         {
             if (!goals.Any()) return;

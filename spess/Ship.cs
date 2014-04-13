@@ -84,7 +84,9 @@ namespace spess
 
         public void Update(float timePassed)
         {
+            //TODO: if timePassed is large, can overshoot the goal point
             location.Coordinates += velocity * timePassed;
+            goalQueue.Update();
         }
     }
 }

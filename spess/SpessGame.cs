@@ -134,6 +134,11 @@ namespace spess
             testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(-30, 0, 30)), ts2Gate.Location, gateTex));
             testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(30, 0, -30)), ts2Gate.Location, gateTex));
             testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(30, 0, 30)), ts2Gate.Location, gateTex));
+
+            Ship aiTestShip = new Ship("ai ship", new Location(testSector1, RandomVector(20.0f)), testOwner, 10.0, satelliteTex);
+            testSector1.AddShip(aiTestShip);
+
+            aiTestShip.GoalQueue.AddGoal(new AI.MoveAndUseGate(aiTestShip, testSector1.Gates[0]));
         }
 
         /// <summary>
