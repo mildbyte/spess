@@ -18,10 +18,11 @@ namespace spess
         public int StorageSpace { get { return storageSpace; } }
         public Inventory Inventory { get { return inventory; } }
 
-        public ProductionStation(string name, Location location, ProductionRule production, int storageSpace, Texture2D texture) : base(name, location, texture, 48.0f)
+        public ProductionStation(string name, Location location, ProductionRule production, int storageSpace) : base(name, location)
         {
             this.production = production; this.storageSpace = storageSpace;
             this.inventory = new Inventory();
+            this.iconTexture = TextureProvider.stationTex;
         }
 
         public int OccupiedSpace()

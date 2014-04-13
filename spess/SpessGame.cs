@@ -31,14 +31,7 @@ namespace spess
         int fps = 0;
         int totalFrames = 0;
 
-        Texture2D shipTex;
-        Texture2D gateTex;
-        Texture2D stationTex;
-        Texture2D satelliteTex;
-
-        Owner testOwner;
-        Sector testSector1;
-        Sector testSector2;
+        Universe universe;
 
         Sector currSector;
 
@@ -80,10 +73,7 @@ namespace spess
         protected override void LoadContent()
         {
             font = Content.Load<SpriteFont>("Arial");
-            shipTex = Content.Load<Texture2D>("ship");
-            gateTex = Content.Load<Texture2D>("gate");
-            stationTex = Content.Load<Texture2D>("station");
-            satelliteTex = Content.Load<Texture2D>("satellite");
+            TextureProvider.LoadTextures(Content);
 
             camera = new Camera(GraphicsDevice, this);
 
@@ -108,37 +98,31 @@ namespace spess
             };
 
             //Initialize the test sector here because we only here have access to the textures
-            testOwner = new Owner();
-            testSector1 = new Sector();
-            testSector2 = new Sector();
+            universe = new Universe();
+
+            Sector testSector1 = universe.AddSector();
+            Sector testSector2 = universe.AddSector();
 
             currSector = testSector1;
 
             for (int i = 0; i < 10; i++)
             {
-                Ship testShip = new Ship(i.ToString(), new Location(testSector1, RandomVector(20.0f)), testOwner, 10.0f, shipTex);
+                Ship testShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 10.0f);
                 testShip.Velocity = RandomVector(1.0f);
-                testSector1.AddShip(testShip);
             }
 
             for (int i = 0; i < 5; i++)
             {
-                ProductionStation testStation = new ProductionStation(i.ToString(), new Location(testSector1, RandomVector(30.0f)), null, 100, stationTex);
-                testSector1.Stations.Add(testStation);
+                //TODO: production station has no owner
+                //TODO: sector has AddShips for ships and have to use the List object to add gates and stations
+                ProductionStation testStation = universe.AddProductionStation(testSector1, RandomVector(10.0f), null, 100);
             }
 
-            Gate ts2Gate = new Gate("", new Location(testSector2, new Vector3(0, 0, 0)), new Location(testSector1, new Vector3(0, 0, 0)), gateTex);
-            testSector2.Gates.Add(ts2Gate);
+            universe.JoinSectors(testSector1, testSector2, new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
 
-            testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(-30, 0, -30)), ts2Gate.Location, gateTex));
-            testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(-30, 0, 30)), ts2Gate.Location, gateTex));
-            testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(30, 0, -30)), ts2Gate.Location, gateTex));
-            testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(30, 0, 30)), ts2Gate.Location, gateTex));
-
-            Ship aiTestShip = new Ship("ai ship", new Location(testSector1, RandomVector(20.0f)), testOwner, 10.0f, satelliteTex);
-            testSector1.AddShip(aiTestShip);
-
+            Ship aiTestShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 10.0f);
             aiTestShip.GoalQueue.AddGoal(new AI.MoveAndUseGate(aiTestShip, testSector1.Gates[0]));
+            aiTestShip.IconTexture = TextureProvider.satelliteTex;
         }
 
         /// <summary>
@@ -189,10 +173,6 @@ namespace spess
                     if (mouseOverBody is Gate)
                     {
                         currSector = ((Gate)mouseOverBody).Destination.Sector;
-                    }
-                    else
-                    {
-                        mouseOverBody.IconTexture = satelliteTex;
                     }
                 }
             }

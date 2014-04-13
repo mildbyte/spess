@@ -13,9 +13,10 @@ namespace spess
 
         public Location Destination { get { return destination; } }
 
-        public Gate(string name, Location location, Location destination, Texture2D texture) : base(name, location, texture, 48.0f)
+        public Gate(string name, Location location, Location destination) : base(name, location)
         {
             this.destination = destination;
+            this.iconTexture = TextureProvider.gateTex;
         }
     }
 }

@@ -83,6 +83,8 @@
     <Compile Include="Ship.cs" />
     <Compile Include="SpaceBody.cs" />
     <Compile Include="ProductionStation.cs" />
+    <Compile Include="TextureProvider.cs" />
+    <Compile Include="Universe.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\spessContent\spessContent\bin\PSM\Content\Arial.xnb">

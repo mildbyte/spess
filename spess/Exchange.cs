@@ -12,7 +12,7 @@ namespace spess.Exchange
         Dictionary<Owner, Account> users;
         Dictionary<Good, OrderBook> orderBooks;
 
-        public Exchange(string name, Location location, Texture2D texture) : base(name, location, texture, 48.0f)
+        public Exchange(string name, Location location) : base(name, location)
         {
             users = new Dictionary<Owner, Account>();
             orderBooks = new Dictionary<Good, OrderBook>();

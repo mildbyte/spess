@@ -35,13 +35,14 @@ namespace spess
             }
         }
 
-        public Ship(string name, Location location, Owner owner, float maxSpeed, Texture2D texture) : base(name, location, texture, 48.0f)
+        public Ship(string name, Location location, Owner owner, float maxSpeed) : base(name, location)
         {
             cargo = new Inventory();
             this.owner = owner;
             dockedStation = null;
             this.maxSpeed = maxSpeed;
             this.goalQueue = new GoalQueue();
+            this.iconTexture = TextureProvider.shipTex;
         }
 
         public bool CanUseGate(Gate gate)

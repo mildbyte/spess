@@ -19,10 +19,11 @@ namespace spess
         public Texture2D IconTexture { get { return iconTexture; } set { iconTexture = value; } }
         public float IconSize { get { return iconSize; } set { iconSize = value; } }
 
-        public SpaceBody(string name, Location location, Texture2D iconTexture, float iconSize)
+        public SpaceBody(string name, Location location)
         {
             this.name = name; this.location = location;
-            this.iconTexture = iconTexture; this.iconSize = iconSize;
+            iconTexture = null;
+            IconSize = 48.0f;
         }
     }
 }

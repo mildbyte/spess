@@ -23,7 +23,7 @@ namespace spess
             dockedShips.Remove(ship);
         }
 
-        public Building(string name, Location location, Texture2D iconTexture, float iconSize) : base (name, location, iconTexture, iconSize)
+        public Building(string name, Location location) : base (name, location)
         {
             dockedShips = new List<Ship>();
         }
