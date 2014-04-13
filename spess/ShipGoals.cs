@@ -19,7 +19,7 @@ namespace spess.AI
 
     }
 
-    class MoveToSector : ShipGoal
+    class MoveToSector : ShipGoal, IBaseGoal
     {
         Sector sector;
         public Sector Sector { get { return sector; } }
@@ -30,18 +30,15 @@ namespace spess.AI
             this.sector = sector;
         }
 
-        public override bool IsComplete() { return true; }
+        public bool IsComplete() { return Ship.Location.Sector == sector; }
 
-        public override IEnumerable<Goal> Execute()
+        public void Execute()
         {
-            if (Ship.Location.Sector == sector) return Enumerable.Empty<Goal>();
-
             Ship.Location.Sector = sector;
-            return Enumerable.Empty<Goal>();
         }
     }
 
-    class MoveInSector : ShipGoal
+    class MoveInSector : ShipGoal, IBaseGoal
     {
         Vector3 position;
         public Vector3 Position { get { return position; } }
@@ -52,19 +49,16 @@ namespace spess.AI
             this.position = position;
         }
 
-        public override bool IsComplete() { return (Ship.Location.Coordinates - position).Length() < 1.0; }
+        public bool IsComplete() { return (Ship.Location.Coordinates - position).Length() < 1.0; }
 
-        public override IEnumerable<Goal> Execute()
+        public void Execute()
         {
+            // Scaled to the maximum speed by the Velocity setter
             Ship.Velocity = position - Ship.Location.Coordinates;
-            Ship.Velocity.Normalize();
-            Ship.Velocity *= (float)Ship.MaxSpeed;
-
-            return Enumerable.Empty<Goal>();
         }
     }
 
-    class MoveTo : ShipGoal
+    class MoveTo : ShipGoal, ICompositeGoal
     {
         Location location;
         public Location Location { get { return location; } }
@@ -74,12 +68,7 @@ namespace spess.AI
             this.location = location;
         }
 
-        public override bool IsComplete() {
-            return location.Sector == Ship.Location.Sector &&
-                (Ship.Location.Coordinates - Ship.Location.Coordinates).Length() < 1.0;
-        }
-
-        public override IEnumerable<Goal> Execute()
+        public IEnumerable<Goal> GetSubgoals()
         {
             yield return new Undock(Ship);
             yield return new MoveToSector(Ship, location.Sector);
@@ -87,20 +76,19 @@ namespace spess.AI
         }
     }
 
-    class Undock : ShipGoal
+    class Undock : ShipGoal, IBaseGoal
     {
         public Undock(Ship ship) : base ("Undock...", ship) {}
 
-        public override bool IsComplete() { return Ship.DockedStation == null; }
+        public bool IsComplete() { return Ship.DockedStation == null; }
 
-        public override IEnumerable<Goal> Execute()
+        public void Execute()
         {
             Ship.Undock();
-            return Enumerable.Empty<Goal>();
         }
     }
 
-    class DockAt : ShipGoal
+    class DockAt : ShipGoal, IBaseGoal
     {
         Building building;
         public Building Building { get { return building; } }
@@ -111,17 +99,15 @@ namespace spess.AI
             this.building = building;
         }
 
-        public override bool IsComplete() { return Building == Ship.DockedStation; }
+        public bool IsComplete() { return Building == Ship.DockedStation; }
 
-        public override IEnumerable<Goal> Execute()
+        public void Execute()
         {
             Ship.Dock(building);
-
-            return Enumerable.Empty<Goal>();
         }
     }
 
-    class MoveAndDockAt : ShipGoal
+    class MoveAndDockAt : ShipGoal, ICompositeGoal
     {
         Building building;
         public Building Building { get { return building; } }
@@ -132,16 +118,14 @@ namespace spess.AI
             this.building = building;
         }
 
-        public override bool IsComplete() { return Building == Ship.DockedStation; }
-
-        public override IEnumerable<Goal> Execute()
+        public IEnumerable<Goal> GetSubgoals()
         {
             yield return new MoveTo(Ship, building.Location);
             yield return new DockAt(Ship, building);
         }
     }
 
-    class UseGate : ShipGoal
+    class UseGate : ShipGoal, IBaseGoal
     {
         Gate gate;
         public Gate Gate { get { return gate; } }
@@ -152,17 +136,15 @@ namespace spess.AI
             this.gate = gate;
         }
 
-        public override bool IsComplete() { return Ship.Location.Sector == Gate.Destination.Sector; }
+        public bool IsComplete() { return Ship.Location.Sector == Gate.Destination.Sector; }
 
-        public override IEnumerable<Goal> Execute()
+        public void Execute()
         {
             Ship.UseGate(gate);
-
-            return Enumerable.Empty<Goal>();
         }
     }
 
-    class MoveAndUseGate : ShipGoal
+    class MoveAndUseGate : ShipGoal, ICompositeGoal
     {
         Gate gate;
         public Gate Gate { get { return gate; } }
@@ -173,9 +155,7 @@ namespace spess.AI
             this.gate = gate;
         }
 
-        public override bool IsComplete() { return Ship.Location.Sector == Gate.Destination.Sector; }
-
-        public override IEnumerable<Goal> Execute()
+        public IEnumerable<Goal> GetSubgoals()
         {
             yield return new MoveTo(Ship, Gate.Location);
             yield return new UseGate(Ship, Gate);

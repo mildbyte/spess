@@ -15,12 +15,12 @@ namespace spess
         Owner owner;
         Building dockedStation;
         Vector3 velocity;
-        double maxSpeed;
+        float maxSpeed;
         GoalQueue goalQueue;
 
         public Inventory Cargo { get { return cargo; } }
         public Owner Owner { get { return owner; } }
-        public double MaxSpeed { get { return maxSpeed; } }
+        public float MaxSpeed { get { return maxSpeed; } }
         public Building DockedStation { get { return dockedStation; } }
         public GoalQueue GoalQueue { get { return goalQueue; } }
 
@@ -29,12 +29,13 @@ namespace spess
             get { return velocity; }
             set
             {
-                if (value.Length() > maxSpeed) return;
                 velocity = value;
+                float len = velocity.Length();
+                if (len > maxSpeed) velocity *= (maxSpeed / len);
             }
         }
 
-        public Ship(string name, Location location, Owner owner, double maxSpeed, Texture2D texture) : base(name, location, texture, 48.0f)
+        public Ship(string name, Location location, Owner owner, float maxSpeed, Texture2D texture) : base(name, location, texture, 48.0f)
         {
             cargo = new Inventory();
             this.owner = owner;

@@ -16,8 +16,16 @@ namespace spess.AI
         {
             this.name = name;
         }
+    }
 
-        public abstract IEnumerable<Goal> Execute();
-        public abstract bool IsComplete();
+    interface ICompositeGoal
+    {
+        IEnumerable<Goal> GetSubgoals();
+    }
+
+    interface IBaseGoal
+    {
+        void Execute();
+        bool IsComplete();
     }
 }

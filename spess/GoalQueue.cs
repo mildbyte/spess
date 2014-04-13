@@ -9,32 +9,44 @@ namespace spess.AI
     class GoalQueue
     {
         LinkedList<Goal> goals;
+        LinkedList<IBaseGoal> pendingGoals;
 
         public IEnumerable<Goal> Goals { get { return goals; } }
+        public IEnumerable<IBaseGoal> PendingGoals { get { return pendingGoals; } }
 
         public void AddGoal(Goal g)
         {
-            goals.AddFirst(g);
+            goals.AddLast(g);
         }
 
         public GoalQueue()
         {
             goals = new LinkedList<Goal>();
+            pendingGoals = new LinkedList<IBaseGoal>();
         }
 
         public void Update()
         {
-            if (!goals.Any()) return;
-            var currentGoal = goals.First.Value;
+            // Keep removing complete goals from the pending goal queue
+            while (pendingGoals.Any() && pendingGoals.First.Value.IsComplete()) pendingGoals.RemoveFirst();
+            
+            // If we still have pending goals or there are no goals that we can execute, return
+            if (pendingGoals.Any() || !goals.Any()) return;
 
-            if (currentGoal.IsComplete())
+            // Execute a goal from the goals' list
+            Goal currGoal = goals.First.Value;
+            goals.RemoveFirst();
+
+            // For a composite goal, add all of its children to the goal queue.
+            // For a base goal, execute it and move it to the pending goals' queue.
+            if (currGoal is ICompositeGoal)
             {
-                goals.RemoveFirst();
-            }
-            else
-            {
-                var newGoals = currentGoal.Execute();
+                var newGoals = ((ICompositeGoal)currGoal).GetSubgoals();
                 goals = new LinkedList<Goal>(newGoals.Concat(goals));
+            }
+            else if (currGoal is IBaseGoal) {
+                ((IBaseGoal)currGoal).Execute();
+                pendingGoals.AddLast((IBaseGoal)currGoal);
             }
         }
     }

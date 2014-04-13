@@ -116,7 +116,7 @@ namespace spess
 
             for (int i = 0; i < 10; i++)
             {
-                Ship testShip = new Ship(i.ToString(), new Location(testSector1, RandomVector(20.0f)), testOwner, 10.0, shipTex);
+                Ship testShip = new Ship(i.ToString(), new Location(testSector1, RandomVector(20.0f)), testOwner, 10.0f, shipTex);
                 testShip.Velocity = RandomVector(1.0f);
                 testSector1.AddShip(testShip);
             }
@@ -135,7 +135,7 @@ namespace spess
             testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(30, 0, -30)), ts2Gate.Location, gateTex));
             testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(30, 0, 30)), ts2Gate.Location, gateTex));
 
-            Ship aiTestShip = new Ship("ai ship", new Location(testSector1, RandomVector(20.0f)), testOwner, 10.0, satelliteTex);
+            Ship aiTestShip = new Ship("ai ship", new Location(testSector1, RandomVector(20.0f)), testOwner, 10.0f, satelliteTex);
             testSector1.AddShip(aiTestShip);
 
             aiTestShip.GoalQueue.AddGoal(new AI.MoveAndUseGate(aiTestShip, testSector1.Gates[0]));
@@ -166,6 +166,8 @@ namespace spess
             foreach (Ship s in currSector.Ships) {
                 s.Update(timeDifference);
             }
+
+            currSector.Update();
 
             timePassed += gameTime.ElapsedGameTime.TotalMilliseconds;
 
