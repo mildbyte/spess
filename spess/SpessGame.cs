@@ -37,7 +37,10 @@ namespace spess
         Texture2D satelliteTex;
 
         Owner testOwner;
-        Sector testSector;
+        Sector testSector1;
+        Sector testSector2;
+
+        Sector currSector;
 
         Random rand = new Random();
 
@@ -61,9 +64,9 @@ namespace spess
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
-            //graphics.IsFullScreen = true;
+            graphics.PreferredBackBufferWidth = 1920;
+            graphics.PreferredBackBufferHeight = 1080;
+            graphics.IsFullScreen = true;
             IsFixedTimeStep = true;
             graphics.ApplyChanges();
 
@@ -106,25 +109,31 @@ namespace spess
 
             //Initialize the test sector here because we only here have access to the textures
             testOwner = new Owner();
-            testSector = new Sector();
+            testSector1 = new Sector();
+            testSector2 = new Sector();
+
+            currSector = testSector1;
 
             for (int i = 0; i < 10; i++)
             {
-                Ship testShip = new Ship(i.ToString(), new Location(testSector, RandomVector(20.0f)), testOwner, 10.0, shipTex);
+                Ship testShip = new Ship(i.ToString(), new Location(testSector1, RandomVector(20.0f)), testOwner, 10.0, shipTex);
                 testShip.Velocity = RandomVector(1.0f);
-                testSector.AddShip(testShip);
+                testSector1.AddShip(testShip);
             }
 
             for (int i = 0; i < 5; i++)
             {
-                ProductionStation testStation = new ProductionStation(i.ToString(), new Location(testSector, RandomVector(30.0f)), null, 100, stationTex);
-                testSector.Stations.Add(testStation);
+                ProductionStation testStation = new ProductionStation(i.ToString(), new Location(testSector1, RandomVector(30.0f)), null, 100, stationTex);
+                testSector1.Stations.Add(testStation);
             }
 
-            testSector.Gates.Add(new Gate("", new Location(testSector, new Vector3(-30, 0, -30)), null, gateTex));
-            testSector.Gates.Add(new Gate("", new Location(testSector, new Vector3(-30, 0, 30)), null, gateTex));
-            testSector.Gates.Add(new Gate("", new Location(testSector, new Vector3(30, 0, -30)), null, gateTex));
-            testSector.Gates.Add(new Gate("", new Location(testSector, new Vector3(30, 0, 30)), null, gateTex));
+            Gate ts2Gate = new Gate("", new Location(testSector2, new Vector3(0, 0, 0)), new Location(testSector1, new Vector3(0, 0, 0)), gateTex);
+            testSector2.Gates.Add(ts2Gate);
+
+            testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(-30, 0, -30)), ts2Gate.Location, gateTex));
+            testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(-30, 0, 30)), ts2Gate.Location, gateTex));
+            testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(30, 0, -30)), ts2Gate.Location, gateTex));
+            testSector1.Gates.Add(new Gate("", new Location(testSector1, new Vector3(30, 0, 30)), ts2Gate.Location, gateTex));
         }
 
         /// <summary>
@@ -149,7 +158,7 @@ namespace spess
             float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
             camera.ProcessInput(timeDifference);
 
-            foreach (Ship s in testSector.Ships) {
+            foreach (Ship s in currSector.Ships) {
                 s.Update(timeDifference);
             }
 
@@ -170,7 +179,14 @@ namespace spess
                 SpaceBody mouseOverBody = PickBody(new Vector2(Mouse.GetState().Position.X, Mouse.GetState().Position.Y));
                 if (mouseOverBody != null)
                 {
-                    mouseOverBody.IconTexture = satelliteTex;
+                    if (mouseOverBody is Gate)
+                    {
+                        currSector = ((Gate)mouseOverBody).Destination.Sector;
+                    }
+                    else
+                    {
+                        mouseOverBody.IconTexture = satelliteTex;
+                    }
                 }
             }
 
@@ -290,7 +306,7 @@ namespace spess
             GraphicsDevice.Clear(Color.Black);
             totalFrames++;
             DrawGrid(Color.White);
-            RenderSector(testSector);
+            RenderSector(currSector);
 
             spriteBatch.Begin();
             spriteBatch.DrawString(font, "FPS: " + fps, new Vector2(10, 10), Color.White);
