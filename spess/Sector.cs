@@ -12,10 +12,11 @@ namespace spess
         List<Ship> ships;
         List<Gate> gates;
 
-        // Ships that left the sector (can't remove them on the fly: a ship can call RemoveShip
-        // during a foreach loop over ships in the sector)
+        // Ships that left/entered the sector (can't remove/insert them on the fly: 
+        // a ship can call Remove/AddShip during a foreach loop over ships in the sector)
 
         List<Ship> removeList;
+        List<Ship> addList;
 
         public List<ProductionStation> Stations { get { return stations; } }
         public List<Ship> Ships { get { return ships; } }
@@ -27,6 +28,7 @@ namespace spess
             ships = new List<Ship>();
             gates = new List<Gate>();
             removeList = new List<Ship>();
+            addList = new List<Ship>();
         }
 
         public void RemoveShip(Ship ship) {
@@ -35,13 +37,21 @@ namespace spess
 
         public void AddShip(Ship ship)
         {
-            ships.Add(ship);
+            addList.Add(ship);
         }
 
-        public void Update()
+        public void Update(float timePassed)
         {
+            foreach (Ship s in ships)
+            {
+                s.Update(timePassed);
+            }
+
             ships.RemoveAll(s => removeList.Contains(s));
             removeList.Clear();
+
+            ships.AddRange(addList);
+            addList.Clear();
         }
     }
 }

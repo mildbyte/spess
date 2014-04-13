@@ -52,5 +52,13 @@ namespace spess
             sector1.Gates.Add(s1Gate);
             sector2.Gates.Add(s2Gate);
         }
+
+        public void Update(float timeDifference)
+        {
+            foreach (Sector s in sectors)
+            {
+                s.Update(timeDifference);
+            }
+        }
     }
 }

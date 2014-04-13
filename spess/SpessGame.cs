@@ -147,11 +147,7 @@ namespace spess
             float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
             camera.ProcessInput(timeDifference);
 
-            foreach (Ship s in currSector.Ships) {
-                s.Update(timeDifference);
-            }
-
-            currSector.Update();
+            universe.Update(timeDifference);
 
             timePassed += gameTime.ElapsedGameTime.TotalMilliseconds;
 
