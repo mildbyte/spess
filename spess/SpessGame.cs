@@ -41,6 +41,8 @@ namespace spess
         List<SpaceBody> spaceBodies;
         VertexPositionTexture[] iconVertices;
 
+        FloatingLabel currLabel = null;
+
         public SpessGame()
             : base()
         {
@@ -163,10 +165,12 @@ namespace spess
 
             MouseState ms = Mouse.GetState();
 
-            if (ms.LeftButton == ButtonState.Pressed)
+            Vector2 mousePos = new Vector2(Mouse.GetState().Position.X, Mouse.GetState().Position.Y);
+            SpaceBody mouseOverBody = PickBody(mousePos);
+            if (mouseOverBody != null)
             {
-                SpaceBody mouseOverBody = PickBody(new Vector2(Mouse.GetState().Position.X, Mouse.GetState().Position.Y));
-                if (mouseOverBody != null)
+                currLabel = new FloatingLabel(mouseOverBody.ToString(), mousePos);
+                if (ms.LeftButton == ButtonState.Pressed)
                 {
                     if (mouseOverBody is Gate)
                     {
@@ -178,6 +182,7 @@ namespace spess
                     }
                 }
             }
+            else currLabel = null;
 
             base.Update(gameTime);
         }
@@ -190,6 +195,8 @@ namespace spess
         }
 
         private SpaceBody PickBody(Vector2 mousePos) {
+            if (spaceBodies == null) return null; //No rendering has occurred yet
+
             Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
             Matrix viewMatrix = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
 
@@ -301,6 +308,8 @@ namespace spess
             spriteBatch.Begin();
             spriteBatch.DrawString(font, "FPS: " + fps, new Vector2(10, 10), Color.White);
             spriteBatch.End();
+
+            if (currLabel != null) currLabel.Render(spriteBatch, font, TextureProvider.dialogTex);
 
             //Restore the state changed by the SpriteBatch
             GraphicsDevice.BlendState = BlendState.Opaque;

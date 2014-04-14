@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Building.cs" />
     <Compile Include="Camera.cs" />
+    <Compile Include="FloatingLabel.cs" />
     <Compile Include="SpessGame.cs" />
     <Compile Include="Goal.cs" />
     <Compile Include="GoalQueue.cs" />
@@ -112,6 +113,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="Content\dialog.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\exchange.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
