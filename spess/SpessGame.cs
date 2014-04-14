@@ -37,9 +37,6 @@ namespace spess
 
         Random rand = new Random();
 
-        //Bodies and corresponding quads for picking
-        VertexPositionTexture[] iconVertices;
-
         FloatingLabel currLabel = null;
         ContextMenu currMenu = null;
 
@@ -174,7 +171,9 @@ namespace spess
 
             if (currMenu != null) currMenu.NotifyMouseStateChange(ms);
 
+
             SpaceBody mouseOverBody = PickBody(mousePos, currSector);
+
             if (mouseOverBody != null)
             {
                 currLabel = new FloatingLabel(mouseOverBody.ToString(), mousePos);
@@ -215,8 +214,6 @@ namespace spess
         }
 
         private SpaceBody PickBody(Vector2 mousePos, Sector sector) {
-            if (iconVertices == null) return null; //No rendering has occurred yet
-
             Vector2 center = new Vector2(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f);
             Matrix viewMatrix = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
 
@@ -231,17 +228,15 @@ namespace spess
             SpaceBody closestBody = null;
             float closestBodyDist = 0.0f;
 
-            for (int i = 0; i < sector.Contents.Count; i++)
+            foreach (SpaceBody currBody in sector.Contents)
             {
-                // TODO: crash here (i out of range) when a ship enters a sector and it hasn't been rendered yet
-                // so the quad coordinates aren't in iconVertices yet (?)
-                BoundingBox bb = new BoundingBox(iconVertices[i * 4 + 1].Position, iconVertices[i * 4 + 2].Position);
+                BoundingBox bb = GetIconQuadBBox(currBody);;
 
                 float? interDist = ray.Intersects(bb);
                 if (interDist == null) continue;
                 if (closestBody == null || closestBodyDist > interDist)
                 {
-                    closestBody = sector.Contents[i];
+                    closestBody = currBody;
                     closestBodyDist = (float)interDist;
                 }
             }
@@ -274,9 +269,18 @@ namespace spess
             }
         }
 
+        BoundingBox GetIconQuadBBox(SpaceBody body) {
+            float halfSide = body.IconSize * 0.5f;
+
+            Vector3 diagVector = new Vector3(halfSide, halfSide, 0);
+
+            Vector3 vProj = GraphicsDevice.Viewport.Project(body.Location.Coordinates, perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
+            return new BoundingBox(vProj - diagVector, vProj + diagVector);
+        }
+
         void BatchDrawIcons(Matrix projectionMatrix, Matrix viewMatrix, Matrix worldMatrix, Sector sector)
         {
-            iconVertices = new VertexPositionTexture[sector.Contents.Count * 4];
+            VertexPositionTexture[] iconVertices = new VertexPositionTexture[sector.Contents.Count * 4];
 
             int currVertex = 0;
             foreach (SpaceBody item in sector.Contents)
