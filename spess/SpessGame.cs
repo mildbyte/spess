@@ -172,7 +172,7 @@ namespace spess
 
             Vector2 mousePos = new Vector2(ms.X, ms.Y);
 
-            if (currMenu != null) currMenu.NotifyMousePosition(ms.X, ms.Y);
+            if (currMenu != null) currMenu.NotifyMouseStateChange(ms);
 
             SpaceBody mouseOverBody = PickBody(mousePos, currSector);
             if (mouseOverBody != null)
@@ -194,7 +194,7 @@ namespace spess
                 if (ms.RightButton == ButtonState.Pressed)
                 {
                     currMenu = new ContextMenu(font);
-                    currMenu.Items.Add(new ContextMenuItem("Item 1", null));
+                    currMenu.Items.Add(new ContextMenuItem("Item 1", delegate() { mouseOverBody.Location.Coordinates = RandomVector(10.0f); }));
                     currMenu.Items.Add(new ContextMenuItem("Item 2", null));
                     currMenu.Items.Add(new ContextMenuItem("Item 3", null));
                     currMenu.Items.Add(new ContextMenuItem("Item 4", null));

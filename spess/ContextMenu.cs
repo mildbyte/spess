@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 
 namespace spess
 {
+    public delegate void MenuItemClicked();
+
     class ContextMenuItem
     {
         public string Text { get; set; }
-        public Delegate Action { get; set; }
+        public MenuItemClicked Action { get; set; }
 
-        public ContextMenuItem(string text, Delegate action)
+        public ContextMenuItem(string text, MenuItemClicked action)
         {
             Text = text;
             Action = action;
@@ -22,6 +25,7 @@ namespace spess
     {
         List<ContextMenuItem> items;
         bool isOpen;
+        bool clickRegistered;
         Rectangle menuLocation;
         int highlightedIndex;
 
@@ -34,19 +38,33 @@ namespace spess
             Font = font;
             items = new List<ContextMenuItem>();
             highlightedIndex = -1;
+            isOpen = false;
+            clickRegistered = false;
         }
         
-        public void NotifyMousePosition(int x, int y) {
+        public void NotifyMouseStateChange(MouseState ms) {
             if (!isOpen) return;
 
-            if (menuLocation.Contains(x, y))
+            if (menuLocation.Contains(ms.X, ms.Y))
             {
-                highlightedIndex = (int)((y - menuLocation.Y) / Font.LineSpacing);
+                highlightedIndex = (int)((ms.Y - menuLocation.Y) / Font.LineSpacing);
                 if (highlightedIndex >= items.Count) highlightedIndex = -1;
             }
             else
             {
                 Close();
+                return;
+            }
+
+            // A flag so that holding a mouse on the object doesn't trigger several events.
+            if (!clickRegistered && ms.LeftButton == ButtonState.Pressed)
+            {
+                clickRegistered = true;
+                items[highlightedIndex].Action();
+            }
+            else if (clickRegistered && ms.LeftButton == ButtonState.Released)
+            {
+                clickRegistered = false;
             }
         }
 
@@ -80,7 +98,7 @@ namespace spess
                     (int)size.X, Font.LineSpacing), Color.Gray);
 
             // Draw the actual menu text
-            spriteBatch.DrawString(Font, text, new Vector2(menuLocation.X, menuLocation.Y), Color.White);
+            spriteBatch.DrawString(Font, text, new Vector2(menuLocation.X, menuLocation.Y), Color.Black);
             spriteBatch.End();
         }
     }
