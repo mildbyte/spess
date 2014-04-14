@@ -11,12 +11,16 @@ namespace spess.Exchange
     {
         Dictionary<Owner, Account> users;
         Dictionary<Good, OrderBook> orderBooks;
+        Dictionary<Good, int> lastTradedPrices;
 
         public Exchange(string name, Location location, Universe universe) : base(name, location, universe)
         {
             users = new Dictionary<Owner, Account>();
             orderBooks = new Dictionary<Good, OrderBook>();
+            lastTradedPrices = new Dictionary<Good, int>();
         }
+
+        public Dictionary<Good, int> LastTradedPrices { get { return lastTradedPrices; } }
 
         public void AddUser(Owner o)
         {
@@ -85,6 +89,8 @@ namespace spess.Exchange
 
                     users[m.BuyOrder.Owner].StoredGoods.AddItem(m.BuyOrder.Good, m.FillVolume);
                     users[m.SellOrder.Owner].EscrowGoods.RemoveItem(m.SellOrder.Good, m.FillVolume);
+
+                    lastTradedPrices[m.BuyOrder.Good] = m.BuyOrder.Price;
                 }
             }
         }
