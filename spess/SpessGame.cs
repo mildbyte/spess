@@ -115,6 +115,7 @@ namespace spess
             }
 
             ProductionStation destStation = universe.AddProductionStation(testSector2, Vector3.Zero, null, 100);
+            universe.AddExchange(testSector2, RandomVector(30.0f));
 
             universe.DiscoverGate(universe.GetPlayer(), testSector1.Gates[0]);
 
@@ -281,6 +282,7 @@ namespace spess
             spaceBodies.AddRange(sector.Gates.Cast<SpaceBody>());
             spaceBodies.AddRange(sector.Ships.Cast<SpaceBody>());
             spaceBodies.AddRange(sector.Stations.Cast<SpaceBody>());
+            spaceBodies.AddRange(sector.Exchanges.Cast<SpaceBody>());
 
             BatchDrawIcons(perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
         }

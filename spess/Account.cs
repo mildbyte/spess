@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace spess.Exchange
+namespace spess.ExchangeData
 {
     class Account
     {

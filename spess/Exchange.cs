@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace spess.Exchange
+namespace spess.ExchangeData
 {
     class Exchange : Building
     {
@@ -18,6 +18,7 @@ namespace spess.Exchange
             users = new Dictionary<Owner, Account>();
             orderBooks = new Dictionary<Good, OrderBook>();
             lastTradedPrices = new Dictionary<Good, int>();
+            IconTexture = TextureProvider.exchangeTex;
         }
 
         public Dictionary<Good, int> LastTradedPrices { get { return lastTradedPrices; } }

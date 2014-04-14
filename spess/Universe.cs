@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using spess.ExchangeData;
 
 namespace spess
 {
@@ -124,6 +125,13 @@ namespace spess
             ProductionStation station = new ProductionStation("", new Location(sector, position), production, storageSpace, this);
             sector.Stations.Add(station);
             return station;
+        }
+
+        public Exchange AddExchange(Sector sector, Vector3 position)
+        {
+            Exchange exchange = new Exchange("", new Location(sector, position), this);
+            sector.Exchanges.Add(exchange);
+            return exchange;
         }
 
         public void JoinSectors(Sector sector1, Sector sector2, Vector3 sector1GateLoc, Vector3 sector2GateLoc)
