@@ -122,7 +122,7 @@ namespace spess
             {
                 Ship testShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
                 testShip.Velocity = RandomVector(1.0f);
-                testShip.GoalQueue.AddGoal(new AI.MoveAndDockAt(testShip, destStation));
+                testShip.GoalQueue.AddGoal(new AI.MoveAndDockAt(testShip, destStation, null));
             }
 
         }
