@@ -108,29 +108,30 @@ namespace spess
             ownerKnownGates[o].Add(g);
         }
 
-        public Sector AddSector()
+        public Sector AddSector(String name)
         {
             Sector s = new Sector();
+            s.Name = name;
             sectors.Add(s);
             return s;
         }
 
-        public Ship AddShip(Sector sector, Vector3 position, Owner owner, float maxSpeed)
+        public Ship AddShip(string name, Sector sector, Vector3 position, Owner owner, float maxSpeed)
         {
-            Ship ship = new Ship("", new Location(sector, position), owner, maxSpeed, this);
+            Ship ship = new Ship(name, new Location(sector, position), owner, maxSpeed, this);
             sector.AddItem(ship);
             return ship;
         }
 
-        public ProductionStation AddProductionStation(Sector sector, Vector3 position, ProductionRule production, int storageSpace) {
-            ProductionStation station = new ProductionStation("", new Location(sector, position), production, storageSpace, this);
+        public ProductionStation AddProductionStation(string name, Sector sector, Vector3 position, ProductionRule production, int storageSpace) {
+            ProductionStation station = new ProductionStation(name, new Location(sector, position), production, storageSpace, this);
             sector.AddItem(station);
             return station;
         }
 
-        public Exchange AddExchange(Sector sector, Vector3 position)
+        public Exchange AddExchange(string name, Sector sector, Vector3 position)
         {
-            Exchange exchange = new Exchange("", new Location(sector, position), this);
+            Exchange exchange = new Exchange(name, new Location(sector, position), this);
             sector.AddItem(exchange);
             return exchange;
         }

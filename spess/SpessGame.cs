@@ -101,8 +101,8 @@ namespace spess
             //Initialize the test sector here because we only here have access to the textures
             universe = new Universe();
 
-            Sector testSector1 = universe.AddSector();
-            Sector testSector2 = universe.AddSector();
+            Sector testSector1 = universe.AddSector("Sector 1");
+            Sector testSector2 = universe.AddSector("Sector 2");
 
             universe.JoinSectors(testSector1, testSector2, new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
 
@@ -114,15 +114,15 @@ namespace spess
             {
                 //TODO: production station has no owner
                 //TODO: sector has AddShips for ships and have to use the List object to add gates and stations
-                ProductionStation testStation = universe.AddProductionStation(testSector1, RandomVector(10.0f), dummy, 100);
+                ProductionStation testStation = universe.AddProductionStation("Station " + i, testSector1, RandomVector(10.0f), dummy, 100);
             }
 
-            ProductionStation destStation = universe.AddProductionStation(testSector2, Vector3.Zero, dummy, 100);
-            universe.AddExchange(testSector2, RandomVector(30.0f));
+            ProductionStation destStation = universe.AddProductionStation("Grand Central Station", testSector2, Vector3.Zero, dummy, 100);
+            universe.AddExchange("Exchange", testSector2, RandomVector(30.0f));
 
             for (int i = 0; i < 10; i++)
             {
-                Ship testShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
+                Ship testShip = universe.AddShip("Ship #" + i, testSector1, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
                 testShip.Velocity = RandomVector(0.5f);
             }
 

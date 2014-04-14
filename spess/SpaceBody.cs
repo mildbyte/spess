@@ -30,5 +30,10 @@ namespace spess
         }
 
         public abstract void Update(float timePassed);
+
+        public override string ToString()
+        {
+            return name;
+        }
     }
 }

@@ -17,6 +17,8 @@ namespace spess
         List<SpaceBody> removeList;
         List<SpaceBody> addList;
 
+        public string Name { get; set; }
+
         public List<SpaceBody> Contents { get { return bodiesList; } }
 
         public Sector()
@@ -24,6 +26,7 @@ namespace spess
             bodiesList = new List<SpaceBody>();
             removeList = new List<SpaceBody>();
             addList = new List<SpaceBody>();
+            Name = "";
         }
 
         public void RemoveItem(SpaceBody body) {

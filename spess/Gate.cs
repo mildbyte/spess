@@ -23,5 +23,10 @@ namespace spess
         {
             // No need to update gates
         }
+
+        public override string ToString()
+        {
+            return "Gate to " + destination.Sector.Name;
+        }
     }
 }

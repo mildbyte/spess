@@ -70,5 +70,10 @@ namespace spess
                 }
             }
         }
+
+        public override string ToString()
+        {
+            return "Production Station\nProgress: " + productionProgress.ToString("F2");
+        }
     }
 }
