@@ -41,6 +41,7 @@ namespace spess
         VertexPositionTexture[] iconVertices;
 
         FloatingLabel currLabel = null;
+        ContextMenu currMenu = null;
 
         public SpessGame()
             : base()
@@ -169,7 +170,10 @@ namespace spess
 
             MouseState ms = Mouse.GetState();
 
-            Vector2 mousePos = new Vector2(Mouse.GetState().Position.X, Mouse.GetState().Position.Y);
+            Vector2 mousePos = new Vector2(ms.X, ms.Y);
+
+            if (currMenu != null) currMenu.NotifyMousePosition(ms.X, ms.Y);
+
             SpaceBody mouseOverBody = PickBody(mousePos, currSector);
             if (mouseOverBody != null)
             {
@@ -185,6 +189,17 @@ namespace spess
                         ((Ship)mouseOverBody).GoalQueue.AddGoal(
                             new AI.MoveAndDockAt((Ship)mouseOverBody, mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(), null));
                     }
+                }
+
+                if (ms.RightButton == ButtonState.Pressed)
+                {
+                    currMenu = new ContextMenu(font);
+                    currMenu.Items.Add(new ContextMenuItem("Item 1", null));
+                    currMenu.Items.Add(new ContextMenuItem("Item 2", null));
+                    currMenu.Items.Add(new ContextMenuItem("Item 3", null));
+                    currMenu.Items.Add(new ContextMenuItem("Item 4", null));
+
+                    currMenu.Open(ms.X, ms.Y);
                 }
             }
             else currLabel = null;
@@ -309,6 +324,7 @@ namespace spess
             spriteBatch.End();
 
             if (currLabel != null) currLabel.Render(spriteBatch, font, TextureProvider.dialogTex);
+            if (currMenu != null) currMenu.Render(spriteBatch, TextureProvider.dialogTex);
 
             //Restore the state changed by the SpriteBatch
             GraphicsDevice.BlendState = BlendState.Opaque;

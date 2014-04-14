@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Building.cs" />
     <Compile Include="Camera.cs" />
+    <Compile Include="ContextMenu.cs" />
     <Compile Include="FloatingLabel.cs" />
     <Compile Include="SpessGame.cs" />
     <Compile Include="Goal.cs" />
