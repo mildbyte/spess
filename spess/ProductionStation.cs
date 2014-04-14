@@ -12,7 +12,7 @@ namespace spess
         ProductionRule production;
         int storageSpace;
         Inventory inventory;
-        int productionProgress;
+        float productionProgress;
 
         public ProductionRule Production { get { return production; } }
         public int StorageSpace { get { return storageSpace; } }
@@ -54,8 +54,8 @@ namespace spess
                 inventory.AddItem(result.Key, result.Value);
         }
 
-        public void Tick(int ticks) {
-            productionProgress += ticks;
+        public override void Update(float timePassed) {
+            productionProgress += timePassed;
 
             while (productionProgress > production.RequiredTime)
             {

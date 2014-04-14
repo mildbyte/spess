@@ -18,5 +18,10 @@ namespace spess
             this.destination = destination;
             this.iconTexture = TextureProvider.gateTex;
         }
+
+        public override void Update(float timePassed)
+        {
+            // No need to update gates
+        }
     }
 }

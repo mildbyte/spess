@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
-    class SpaceBody
+    abstract class SpaceBody
     {
         protected string name;
         protected Location location;
@@ -28,5 +28,7 @@ namespace spess
             iconTexture = null;
             IconSize = 48.0f;
         }
+
+        public abstract void Update(float timePassed);
     }
 }

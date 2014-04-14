@@ -13,12 +13,18 @@ namespace spess.ExchangeData
         Dictionary<Good, OrderBook> orderBooks;
         Dictionary<Good, int> lastTradedPrices;
 
+        public float MatchingInterval { get; set; }
+
+        float timeSinceLastMatch;
+
         public Exchange(string name, Location location, Universe universe) : base(name, location, universe)
         {
             users = new Dictionary<Owner, Account>();
             orderBooks = new Dictionary<Good, OrderBook>();
             lastTradedPrices = new Dictionary<Good, int>();
             IconTexture = TextureProvider.exchangeTex;
+            MatchingInterval = 1000.0f;
+            timeSinceLastMatch = 0.0f;
         }
 
         public Dictionary<Good, int> LastTradedPrices { get { return lastTradedPrices; } }
@@ -93,6 +99,16 @@ namespace spess.ExchangeData
 
                     lastTradedPrices[m.BuyOrder.Good] = m.BuyOrder.Price;
                 }
+            }
+        }
+
+        public override void Update(float timePassed)
+        {
+            timeSinceLastMatch += timeSinceLastMatch;
+            if (timeSinceLastMatch > MatchingInterval)
+            {
+                timeSinceLastMatch = 0.0f;
+                PerformMatching();
             }
         }
     }

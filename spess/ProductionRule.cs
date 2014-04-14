@@ -10,13 +10,13 @@ namespace spess
     {
         Dictionary<Good, int> input;
         Dictionary<Good, int> output;
-        int requiredTime;
+        float requiredTime;
 
         public Dictionary<Good, int> Input { get { return input; } }
         public Dictionary<Good, int> Output { get { return output; } }
-        public int RequiredTime { get { return requiredTime; } }
+        public float RequiredTime { get { return requiredTime; } }
 
-        public ProductionRule(Dictionary<Good, int> input, Dictionary<Good, int> output, int requiredTime)
+        public ProductionRule(Dictionary<Good, int> input, Dictionary<Good, int> output, float requiredTime)
         {
             this.input = input; this.output = output;
             this.requiredTime = requiredTime;

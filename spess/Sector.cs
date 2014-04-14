@@ -9,53 +9,43 @@ namespace spess
 {
     class Sector
     {
-        List<ProductionStation> stations;
-        List<Ship> ships;
-        List<Gate> gates;
-        List<Exchange> exchanges;
+        List<SpaceBody> bodiesList;
 
-        // Ships that left/entered the sector (can't remove/insert them on the fly: 
-        // a ship can call Remove/AddShip during a foreach loop over ships in the sector)
+        // Things that left/entered the sector (can't remove/insert them on the fly: 
+        // during a foreach loop over all items an item can remove itself
 
-        List<Ship> removeList;
-        List<Ship> addList;
+        List<SpaceBody> removeList;
+        List<SpaceBody> addList;
 
-        public List<ProductionStation> Stations { get { return stations; } }
-        public List<Ship> Ships { get { return ships; } }
-        public List<Gate> Gates { get { return gates; } }
-        public List<Exchange> Exchanges { get { return exchanges; } }
+        public List<SpaceBody> Contents { get { return bodiesList; } }
 
         public Sector()
         {
-            //TODO: can only store SpaceBodies?
-            stations = new List<ProductionStation>();
-            ships = new List<Ship>();
-            gates = new List<Gate>();
-            removeList = new List<Ship>();
-            addList = new List<Ship>();
-            exchanges = new List<Exchange>();
+            bodiesList = new List<SpaceBody>();
+            removeList = new List<SpaceBody>();
+            addList = new List<SpaceBody>();
         }
 
-        public void RemoveShip(Ship ship) {
-            removeList.Add(ship);
+        public void RemoveItem(SpaceBody body) {
+            removeList.Add(body);
         }
 
-        public void AddShip(Ship ship)
+        public void AddItem(SpaceBody body)
         {
-            addList.Add(ship);
+            addList.Add(body);
         }
 
         public void Update(float timePassed)
         {
-            foreach (Ship s in ships)
+            foreach (SpaceBody item in bodiesList)
             {
-                s.Update(timePassed);
+                item.Update(timePassed);
             }
 
-            ships.RemoveAll(s => removeList.Contains(s));
+            bodiesList.RemoveAll(b => removeList.Contains(b));
             removeList.Clear();
 
-            ships.AddRange(addList);
+            bodiesList.AddRange(addList);
             addList.Clear();
         }
     }

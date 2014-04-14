@@ -54,12 +54,12 @@ namespace spess
         {
             if (!CanUseGate(gate)) return;
 
-            location.Sector.RemoveShip(this);
+            location.Sector.RemoveItem(this);
 
             location.Sector = gate.Destination.Sector;
             location.Coordinates = gate.Destination.Coordinates;
 
-            location.Sector.AddShip(this);
+            location.Sector.AddItem(this);
         }
 
         public bool CanDock(Building building)
@@ -84,7 +84,7 @@ namespace spess
             }
         }
 
-        public void Update(float timePassed)
+        public override void Update(float timePassed)
         {
             //TODO: if timePassed is large, can overshoot the goal point
             location.Coordinates += velocity * timePassed;

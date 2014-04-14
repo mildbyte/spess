@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using spess.ExchangeData;
 
@@ -70,7 +71,7 @@ namespace spess
                 if (currNode.Sector == s2) break;
 
                 // Take all possible gates we know about
-                foreach (Gate g in currNode.Sector.Gates)
+                foreach (Gate g in currNode.Sector.Contents.OfType<Gate>())
                 {
                     if (!knownGates.Contains(g)) continue;
                     bfsQueue.AddLast(new BFSNode(g, currNode, g.Destination.Sector));
@@ -117,20 +118,20 @@ namespace spess
         public Ship AddShip(Sector sector, Vector3 position, Owner owner, float maxSpeed)
         {
             Ship ship = new Ship("", new Location(sector, position), owner, maxSpeed, this);
-            sector.AddShip(ship);
+            sector.AddItem(ship);
             return ship;
         }
 
         public ProductionStation AddProductionStation(Sector sector, Vector3 position, ProductionRule production, int storageSpace) {
             ProductionStation station = new ProductionStation("", new Location(sector, position), production, storageSpace, this);
-            sector.Stations.Add(station);
+            sector.AddItem(station);
             return station;
         }
 
         public Exchange AddExchange(Sector sector, Vector3 position)
         {
             Exchange exchange = new Exchange("", new Location(sector, position), this);
-            sector.Exchanges.Add(exchange);
+            sector.AddItem(exchange);
             return exchange;
         }
 
@@ -142,8 +143,8 @@ namespace spess
             Gate s1Gate = new Gate("", s1Loc, s2Loc, this);
             Gate s2Gate = new Gate("", s2Loc, s1Loc, this);
 
-            sector1.Gates.Add(s1Gate);
-            sector2.Gates.Add(s2Gate);
+            sector1.AddItem(s1Gate);
+            sector2.AddItem(s2Gate);
         }
 
         public void Update(float timeDifference)
