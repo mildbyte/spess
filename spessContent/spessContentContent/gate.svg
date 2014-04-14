@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg2985"
+   version="1.1"
+   inkscape:version="0.48.4 r"
+   inkscape:export-filename="D:\Projects\spess\spessContent\spessContentContent\gate.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
+   sodipodi:docname="gate.svg">
+  <defs
+     id="defs2987">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3783">
+      <stop
+         style="stop-color:#808080;stop-opacity:1;"
+         offset="0"
+         id="stop3785" />
+      <stop
+         style="stop-color:#000000;stop-opacity:1"
+         offset="1"
+         id="stop3787" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3007">
+      <stop
+         style="stop-color:#a0a0a0;stop-opacity:1;"
+         offset="0"
+         id="stop3009" />
+      <stop
+         style="stop-color:#a0a0a0;stop-opacity:0;"
+         offset="1"
+         id="stop3011" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3783"
+       id="linearGradient3789"
+       x1="44.642857"
+       y1="3.2857132"
+       x2="3.9999986"
+       y2="43.285713"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="12"
+     inkscape:cx="2.8049769"
+     inkscape:cy="26.788152"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata2990">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       style="fill:#a0a0a0;stroke:none"
+       d="M 0,24 0,0 23.99999,0 48,0 48,24 48,48 23.99999,48 0,48 0,24 z"
+       id="path3003"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:url(#linearGradient3789);stroke:none;fill-opacity:1"
+       d="m 0.02021205,23.977049 0,-23.96428562 23.96428595,0 23.964286,0 0,23.96428562 0,23.964286 -23.964286,0 -23.96428595,0 0,-23.964286 z"
+       id="path3005"
+       inkscape:connector-curvature="0" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path3845"
+       sodipodi:cx="24.107143"
+       sodipodi:cy="23.964285"
+       sodipodi:rx="19.178572"
+       sodipodi:ry="19.535715"
+       d="m 43.285715,23.964285 a 19.178572,19.535715 0 1 1 -38.3571433,0 19.178572,19.535715 0 1 1 38.3571433,0 z"
+       transform="matrix(1.0411363,0,0,1.0239199,-1.0988228,-0.57300821)" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path3847"
+       sodipodi:cx="23.714285"
+       sodipodi:cy="24.357143"
+       sodipodi:rx="9.9285717"
+       sodipodi:ry="10.428572"
+       d="m 33.642857,24.357143 a 9.9285717,10.428572 0 1 1 -19.857144,0 9.9285717,10.428572 0 1 1 19.857144,0 z"
+       transform="matrix(1.3756035,0,0,1.3096499,-8.6214542,-7.899331)" />
+  </g>
+</svg>
