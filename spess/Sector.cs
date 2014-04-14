@@ -35,6 +35,15 @@ namespace spess
             addList.Add(body);
         }
 
+        public void ForcePropagateChanges()
+        {
+            bodiesList.RemoveAll(b => removeList.Contains(b));
+            removeList.Clear();
+
+            bodiesList.AddRange(addList);
+            addList.Clear();
+        }
+
         public void Update(float timePassed)
         {
             foreach (SpaceBody item in bodiesList)
@@ -42,11 +51,7 @@ namespace spess
                 item.Update(timePassed);
             }
 
-            bodiesList.RemoveAll(b => removeList.Contains(b));
-            removeList.Clear();
-
-            bodiesList.AddRange(addList);
-            addList.Clear();
+            ForcePropagateChanges();
         }
     }
 }

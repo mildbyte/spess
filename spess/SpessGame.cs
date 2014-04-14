@@ -108,24 +108,29 @@ namespace spess
 
             currSector = testSector2;
 
+            ProductionRule dummy = new ProductionRule(new Dictionary<Good, int>(), new Dictionary<Good, int>(), 9000.0f);
+
             for (int i = 0; i < 5; i++)
             {
                 //TODO: production station has no owner
                 //TODO: sector has AddShips for ships and have to use the List object to add gates and stations
-                ProductionStation testStation = universe.AddProductionStation(testSector1, RandomVector(10.0f), null, 100);
+                ProductionStation testStation = universe.AddProductionStation(testSector1, RandomVector(10.0f), dummy, 100);
             }
 
-            ProductionStation destStation = universe.AddProductionStation(testSector2, Vector3.Zero, null, 100);
+            ProductionStation destStation = universe.AddProductionStation(testSector2, Vector3.Zero, dummy, 100);
             universe.AddExchange(testSector2, RandomVector(30.0f));
-
-            universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
 
             for (int i = 0; i < 10; i++)
             {
                 Ship testShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
-                testShip.Velocity = RandomVector(0.0f);
+                testShip.Velocity = RandomVector(0.5f);
             }
 
+            //Need to update the sector for the additions to propagate to the actual bodies' list
+
+            testSector1.ForcePropagateChanges();
+
+            universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
         }
 
         /// <summary>
