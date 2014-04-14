@@ -121,8 +121,7 @@ namespace spess
             for (int i = 0; i < 10; i++)
             {
                 Ship testShip = universe.AddShip(testSector1, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
-                testShip.Velocity = RandomVector(1.0f);
-                testShip.GoalQueue.AddGoal(new AI.MoveAndDockAt(testShip, destStation, null));
+                testShip.Velocity = RandomVector(0.0f);
             }
 
         }
@@ -171,6 +170,10 @@ namespace spess
                     if (mouseOverBody is Gate)
                     {
                         currSector = ((Gate)mouseOverBody).Destination.Sector;
+                    }
+                    else if (mouseOverBody is Ship)
+                    {
+                        ((Ship)mouseOverBody).GoalQueue.AddGoal(new AI.MoveAndDockAt((Ship)mouseOverBody, mouseOverBody.Universe.Sectors[1].Stations[0], null));
                     }
                 }
             }

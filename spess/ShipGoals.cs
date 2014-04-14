@@ -12,7 +12,7 @@ namespace spess.AI
         Ship ship;
         public Ship Ship { get { return ship; } }
 
-        public ShipGoal (string name, Ship ship, ICompositeGoal parent) : base(name, parent)
+        public ShipGoal (string name, Ship ship, ICompositeGoal creator) : base(name, creator)
         {
             this.ship = ship;
         }
@@ -24,8 +24,8 @@ namespace spess.AI
         Sector sector;
         public Sector Sector { get { return sector; } }
 
-        public MoveToSector(Ship ship, Sector sector, ICompositeGoal parent)
-            : base("Move to sector...", ship, parent) 
+        public MoveToSector(Ship ship, Sector sector, ICompositeGoal creator)
+            : base("Move to sector...", ship, creator) 
         {
             this.sector = sector;
         }
@@ -34,9 +34,9 @@ namespace spess.AI
         public IEnumerable<Goal> GetSubgoals()
         {
             List<Gate> route = Ship.Universe.GetGateAwareRoute(Ship.Owner, Ship.Location.Sector, sector);
-            if (route == null) return Enumerable.Empty<Goal>();
+            if (route == null) return null; //Fail the goal if no routes can be found
 
-            return route.Select(g => new MoveAndUseGate(Ship, g, Parent));
+            return route.Select(g => new MoveAndUseGate(Ship, g, this));
         }
     }
 
@@ -45,8 +45,8 @@ namespace spess.AI
         Vector3 position;
         public Vector3 Position { get { return position; } }
 
-        public MoveInSector(Ship ship, Vector3 position, ICompositeGoal parent)
-            : base("Move to position in sector...", ship, parent)
+        public MoveInSector(Ship ship, Vector3 position, ICompositeGoal creator)
+            : base("Move to position in sector...", ship, creator)
         {
             this.position = position;
         }
@@ -65,23 +65,23 @@ namespace spess.AI
         Location location;
         public Location Location { get { return location; } }
 
-        public MoveTo(Ship ship, Location location, ICompositeGoal parent)
-            : base("Move to...", ship, parent)
+        public MoveTo(Ship ship, Location location, ICompositeGoal creator)
+            : base("Move to...", ship, creator)
         {
             this.location = location;
         }
 
         public IEnumerable<Goal> GetSubgoals()
         {
-            yield return new Undock(Ship, Parent);
-            yield return new MoveToSector(Ship, location.Sector, Parent);
-            yield return new MoveInSector(Ship, location.Coordinates, Parent);
+            yield return new Undock(Ship, this);
+            yield return new MoveToSector(Ship, location.Sector, this);
+            yield return new MoveInSector(Ship, location.Coordinates, this);
         }
     }
 
     class Undock : ShipGoal, IBaseGoal
     {
-        public Undock(Ship ship, ICompositeGoal parent) : base ("Undock...", ship, parent) {}
+        public Undock(Ship ship, ICompositeGoal creator) : base ("Undock...", ship, creator) {}
 
         public bool IsComplete() { return Ship.DockedStation == null; }
 
@@ -96,8 +96,8 @@ namespace spess.AI
         Building building;
         public Building Building { get { return building; } }
 
-        public DockAt(Ship ship, Building building, ICompositeGoal parent)
-            : base("Dock...", ship, parent)
+        public DockAt(Ship ship, Building building, ICompositeGoal creator)
+            : base("Dock...", ship, creator)
         {
             this.building = building;
         }
@@ -116,16 +116,16 @@ namespace spess.AI
         Building building;
         public Building Building { get { return building; } }
 
-        public MoveAndDockAt(Ship ship, Building building, ICompositeGoal parent)
-            : base("Move and dock at...", ship, parent)
+        public MoveAndDockAt(Ship ship, Building building, ICompositeGoal creator)
+            : base("Move and dock at...", ship, creator)
         {
             this.building = building;
         }
 
         public IEnumerable<Goal> GetSubgoals()
         {
-            yield return new MoveTo(Ship, building.Location, Parent);
-            yield return new DockAt(Ship, building, Parent);
+            yield return new MoveTo(Ship, building.Location, this);
+            yield return new DockAt(Ship, building, this);
         }
     }
 
@@ -134,8 +134,8 @@ namespace spess.AI
         Gate gate;
         public Gate Gate { get { return gate; } }
 
-        public UseGate(Ship ship, Gate gate, ICompositeGoal parent)
-            : base("Use gate...", ship, parent)
+        public UseGate(Ship ship, Gate gate, ICompositeGoal creator)
+            : base("Use gate...", ship, creator)
         {
             this.gate = gate;
         }
@@ -153,16 +153,16 @@ namespace spess.AI
         Gate gate;
         public Gate Gate { get { return gate; } }
 
-        public MoveAndUseGate(Ship ship, Gate gate, ICompositeGoal parent)
-            : base("Use gate...", ship, parent)
+        public MoveAndUseGate(Ship ship, Gate gate, ICompositeGoal creator)
+            : base("Use gate...", ship, creator)
         {
             this.gate = gate;
         }
 
         public IEnumerable<Goal> GetSubgoals()
         {
-            yield return new MoveTo(Ship, Gate.Location, Parent);
-            yield return new UseGate(Ship, Gate, Parent);
+            yield return new MoveTo(Ship, Gate.Location, this);
+            yield return new UseGate(Ship, Gate, this);
         }
     }
 }
