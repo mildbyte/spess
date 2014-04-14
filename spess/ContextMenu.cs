@@ -32,6 +32,7 @@ namespace spess
         public bool IsOpen { get { return isOpen; } }
         public List<ContextMenuItem> Items { get { return items; } }
         public SpriteFont Font { get; set; }
+        public int Padding { get; set; }
 
         public ContextMenu(SpriteFont font)
         {
@@ -40,6 +41,7 @@ namespace spess
             highlightedIndex = -1;
             isOpen = false;
             clickRegistered = false;
+            Padding = 5;
         }
         
         public void NotifyMouseStateChange(MouseState ms) {
@@ -47,7 +49,7 @@ namespace spess
 
             if (menuLocation.Contains(ms.X, ms.Y))
             {
-                highlightedIndex = (int)((ms.Y - menuLocation.Y) / Font.LineSpacing);
+                highlightedIndex = (int)((ms.Y - menuLocation.Y - Padding) / Font.LineSpacing);
                 if (highlightedIndex >= items.Count) highlightedIndex = -1;
             }
             else
@@ -57,7 +59,7 @@ namespace spess
             }
 
             // A flag so that holding a mouse on the object doesn't trigger several events.
-            if (!clickRegistered && ms.LeftButton == ButtonState.Pressed)
+            if (!clickRegistered && ms.LeftButton == ButtonState.Pressed && highlightedIndex != -1)
             {
                 clickRegistered = true;
                 items[highlightedIndex].Action();
@@ -72,7 +74,7 @@ namespace spess
         {
             string text = String.Join("\n", items.Select(cmi => cmi.Text));
             Vector2 size = Font.MeasureString(text);
-            menuLocation = new Rectangle(x, y, (int)size.X, (int)size.Y);
+            menuLocation = new Rectangle(x, y, (int)size.X + Padding * 2, (int)size.Y + Padding * 2);
             isOpen = true;
         }
 
@@ -92,13 +94,13 @@ namespace spess
             spriteBatch.Begin();
 
             // Draw the menu rectangle and the highlighted object strip
-            spriteBatch.Draw(bgTex, new Rectangle(menuLocation.X, menuLocation.Y, (int)size.X, (int)size.Y), Color.White);
+            spriteBatch.Draw(bgTex, new Rectangle(menuLocation.X, menuLocation.Y, menuLocation.Width, menuLocation.Height), Color.White);
             if (highlightedIndex != -1) 
-                spriteBatch.Draw(bgTex, new Rectangle(menuLocation.X, highlightedIndex * Font.LineSpacing + menuLocation.Y, 
-                    (int)size.X, Font.LineSpacing), Color.Gray);
+                spriteBatch.Draw(bgTex, new Rectangle(menuLocation.X, highlightedIndex * Font.LineSpacing + menuLocation.Y + Padding, 
+                    menuLocation.Width, Font.LineSpacing), Color.Gray);
 
             // Draw the actual menu text
-            spriteBatch.DrawString(Font, text, new Vector2(menuLocation.X, menuLocation.Y), Color.Black);
+            spriteBatch.DrawString(Font, text, new Vector2(menuLocation.X + Padding, menuLocation.Y + Padding), Color.Black);
             spriteBatch.End();
         }
     }

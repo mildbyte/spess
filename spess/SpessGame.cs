@@ -233,6 +233,8 @@ namespace spess
 
             for (int i = 0; i < sector.Contents.Count; i++)
             {
+                // TODO: crash here (i out of range) when a ship enters a sector and it hasn't been rendered yet
+                // so the quad coordinates aren't in iconVertices yet (?)
                 BoundingBox bb = new BoundingBox(iconVertices[i * 4 + 1].Position, iconVertices[i * 4 + 2].Position);
 
                 float? interDist = ray.Intersects(bb);
