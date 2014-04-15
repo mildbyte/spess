@@ -21,7 +21,7 @@ namespace spess.UI
         }
     }
 
-    class ContextMenu
+    class ContextMenu : Component
     {
         List<ContextMenuItem> items;
         bool isOpen;
@@ -84,7 +84,7 @@ namespace spess.UI
             highlightedIndex = -1;
         }
 
-        public void Render(SpriteBatch spriteBatch, Texture2D bgTex)
+        public override void Render(SpriteBatch spriteBatch, Texture2D bgTex)
         {
             if (!isOpen) return;
 

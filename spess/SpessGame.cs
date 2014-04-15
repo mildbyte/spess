@@ -64,11 +64,23 @@ namespace spess
             sectorScreen = new SectorScreen(GraphicsDevice, this);
             sectorScreen.Font = font;
 
-            //TODO: solve the components-not-deleted issue
+            FloatingLabel currLabel = null;
+
+            sectorScreen.OnIconMouseEnter += delegate(SpaceBody mouseOverBody, MouseState ms)
+            {
+                currLabel = new FloatingLabel(mouseOverBody.ToString(), new Vector2(ms.X, ms.Y), font);
+                sectorScreen.FloatingLabels.Add(currLabel);
+            };
+
             sectorScreen.OnIconMouseover += delegate(SpaceBody mouseOverBody, MouseState ms)
             {
-                FloatingLabel label = new FloatingLabel(mouseOverBody.ToString(), new Vector2(ms.X, ms.Y));
-                sectorScreen.FloatingLabels.Add(label);
+                currLabel.Position = new Vector2(ms.X, ms.Y);
+                currLabel.Text = mouseOverBody.ToString();
+            };
+
+            sectorScreen.OnIconMouseLeave += delegate(SpaceBody mouseOverBody, MouseState ms)
+            {
+                sectorScreen.FloatingLabels.Remove(currLabel);
             };
 
             sectorScreen.OnIconClicked += delegate(SpaceBody mouseOverBody, MouseState ms)

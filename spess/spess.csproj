@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Building.cs" />
     <Compile Include="Camera.cs" />
+    <Compile Include="Component.cs" />
     <Compile Include="ContextMenu.cs" />
     <Compile Include="FloatingLabel.cs" />
     <Compile Include="SectorScreen.cs" />

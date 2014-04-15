@@ -11,6 +11,8 @@ namespace spess.UI
 {
     public delegate void IconClickDelegate(SpaceBody spaceBody, MouseState mouseState);
     public delegate void IconMouseoverDelegate(SpaceBody spaceBody, MouseState mouseState);
+    public delegate void IconMouseEnterDelegate(SpaceBody spaceBody, MouseState mouseState);
+    public delegate void IconMouseLeaveDelegate(SpaceBody spaceBody, MouseState mouseState);
 
     class SectorScreen
     {
@@ -32,12 +34,17 @@ namespace spess.UI
         int fps = 0;
         int totalFrames = 0;
 
+        bool mouseClickRegistered = false;
+        SpaceBody mouseOverBody = null;
+
         public List<ContextMenu> ContextMenus { get { return contextMenus; } }
         public List<FloatingLabel> FloatingLabels { get { return floatingLabels; } }
         public Sector CurrentSector { get { return displayedSector; } set { displayedSector = value; } }
         public SpriteFont Font { get; set; }
         public IconClickDelegate OnIconClicked;
         public IconMouseoverDelegate OnIconMouseover;
+        public IconMouseEnterDelegate OnIconMouseEnter;
+        public IconMouseLeaveDelegate OnIconMouseLeave;
 
 
         public SectorScreen(GraphicsDevice graphicsDevice, Game game)
@@ -185,7 +192,7 @@ namespace spess.UI
             RenderSector(displayedSector);
 
             contextMenus.ForEach(m => m.Render(spriteBatch, TextureProvider.dialogTex));
-            floatingLabels.ForEach(l => l.Render(spriteBatch, Font, TextureProvider.dialogTex));
+            floatingLabels.ForEach(l => l.Render(spriteBatch, TextureProvider.dialogTex));
 
             spriteBatch.Begin();
             spriteBatch.DrawString(Font, "FPS: " + fps, new Vector2(10, 10), Color.White);
@@ -208,17 +215,37 @@ namespace spess.UI
 
             Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
 
-            SpaceBody mouseOverBody = PickBody(mousePos, displayedSector);
+            SpaceBody newMouseOverBody = PickBody(mousePos, displayedSector);
 
-            if (mouseOverBody != null)
+            if (newMouseOverBody == null && mouseOverBody != null) {
+                OnIconMouseLeave(mouseOverBody, mouseState);
+            } else if (newMouseOverBody != null && mouseOverBody == null) {
+                OnIconMouseEnter(newMouseOverBody, mouseState);
+                OnIconMouseover(newMouseOverBody, mouseState);
+            }
+            else if (newMouseOverBody != null && mouseOverBody != null && newMouseOverBody != mouseOverBody)
             {
-                OnIconMouseover(mouseOverBody, mouseState);
+                OnIconMouseLeave(mouseOverBody, mouseState);
+                OnIconMouseEnter(newMouseOverBody, mouseState);
+                OnIconMouseover(newMouseOverBody, mouseState);
+            }
+            else if (newMouseOverBody != null)
+            {
+                OnIconMouseover(newMouseOverBody, mouseState);
 
-                if (mouseState.LeftButton == ButtonState.Pressed || mouseState.RightButton == ButtonState.Pressed)
+                if (!mouseClickRegistered && 
+                    (mouseState.LeftButton == ButtonState.Pressed || mouseState.RightButton == ButtonState.Pressed))
                 {
+                    mouseClickRegistered = true;
                     OnIconClicked(mouseOverBody, mouseState);
                 }
+                else if (mouseClickRegistered)
+                {
+                    mouseClickRegistered = false;
+                }
             }
+
+            mouseOverBody = newMouseOverBody;
         }
     }
 }
