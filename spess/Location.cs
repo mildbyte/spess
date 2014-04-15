@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace spess
 {
-    class Location
+    public class Location
     {
         Sector sector;
         Vector3 coordinates;

@@ -64,6 +64,41 @@ namespace spess
             sectorScreen = new SectorScreen(GraphicsDevice, this);
             sectorScreen.Font = font;
 
+            //TODO: solve the components-not-deleted issue
+            sectorScreen.OnIconMouseover += delegate(SpaceBody mouseOverBody, MouseState ms)
+            {
+                FloatingLabel label = new FloatingLabel(mouseOverBody.ToString(), new Vector2(ms.X, ms.Y));
+                sectorScreen.FloatingLabels.Add(label);
+            };
+
+            sectorScreen.OnIconClicked += delegate(SpaceBody mouseOverBody, MouseState ms)
+            {
+                if (ms.RightButton == ButtonState.Pressed)
+                {
+                    ContextMenu currMenu = new ContextMenu(font);
+                    currMenu.Items.Add(new ContextMenuItem("Item 1", delegate() { mouseOverBody.Location.Coordinates = Vector3.Zero; }));
+                    currMenu.Items.Add(new ContextMenuItem("Item 2", null));
+                    currMenu.Items.Add(new ContextMenuItem("Item 3", null));
+                    currMenu.Items.Add(new ContextMenuItem("Item 4", null));
+
+                    currMenu.Open(ms.X, ms.Y);
+
+                    sectorScreen.ContextMenus.Add(currMenu);
+                }
+                else if (ms.LeftButton == ButtonState.Pressed)
+                {
+                    if (mouseOverBody is Gate)
+                    {
+                        sectorScreen.CurrentSector = ((Gate)mouseOverBody).Destination.Sector;
+                    }
+                    else if (mouseOverBody is Ship)
+                    {
+                        ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                            new AI.MoveAndDockAt((Ship)mouseOverBody, mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(), null));
+                    }
+                }
+            };
+
             //Initialize the test sector here because we only here have access to the textures
             universe = new Universe();
 

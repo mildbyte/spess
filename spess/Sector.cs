@@ -7,7 +7,7 @@ using spess.ExchangeData;
 
 namespace spess
 {
-    class Sector
+    public class Sector
     {
         List<SpaceBody> bodiesList;
 

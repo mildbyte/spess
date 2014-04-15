@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace spess
 {
-    class Good
+    public class Good
     {
         string name;
         string description;

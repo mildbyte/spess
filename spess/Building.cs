@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
-    abstract class Building : SpaceBody
+    public abstract class Building : SpaceBody
     {
         List<Ship> dockedShips;
 

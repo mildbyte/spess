@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace spess
 {
-    class Inventory : IEnumerable
+    public class Inventory : IEnumerable
     {
         Dictionary<Good, int> items;
 

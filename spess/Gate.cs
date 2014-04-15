@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
-    class Gate : SpaceBody
+    public class Gate : SpaceBody
     {
         Location destination;
 

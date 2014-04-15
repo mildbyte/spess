@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace spess
 {
-    class ProductionRule
+    public class ProductionRule
     {
         Dictionary<Good, int> input;
         Dictionary<Good, int> output;

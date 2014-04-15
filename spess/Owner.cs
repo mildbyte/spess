@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace spess
 {
-    class Owner
+    public class Owner
     {
         string name;
         List<ProductionStation> ownedStations;

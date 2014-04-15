@@ -6,7 +6,7 @@ using spess.ExchangeData;
 
 namespace spess
 {
-    class Universe
+    public class Universe
     {
         List<Sector> sectors;
         List<Owner> owners;

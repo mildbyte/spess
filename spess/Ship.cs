@@ -9,7 +9,7 @@ using spess.AI;
 
 namespace spess
 {
-    class Ship : SpaceBody
+    public class Ship : SpaceBody
     {
         Inventory cargo;
         Owner owner;

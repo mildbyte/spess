@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace spess.AI
 {
-    abstract class Goal : IGoal
+    public abstract class Goal : IGoal
     {
         string name;
         ICompositeGoal parent;
@@ -31,13 +31,13 @@ namespace spess.AI
         }
     }
 
-    interface IGoal
+    public interface IGoal
     {
         string Name { get; }
         ICompositeGoal Parent { get; }
     }
 
-    interface ICompositeGoal : IGoal
+    public interface ICompositeGoal : IGoal
     {
         /// <summary>
         /// Gets all subgoals that need to be executed for this goal to be completed
@@ -46,7 +46,7 @@ namespace spess.AI
         IEnumerable<Goal> GetSubgoals();
     }
 
-    interface IBaseGoal : IGoal
+    public interface IBaseGoal : IGoal
     {
         void Execute();
         bool IsComplete();

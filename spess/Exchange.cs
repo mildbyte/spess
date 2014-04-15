@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace spess.ExchangeData
 {
-    class Exchange : Building
+    public class Exchange : Building
     {
         Dictionary<Owner, Account> users;
         Dictionary<Good, OrderBook> orderBooks;

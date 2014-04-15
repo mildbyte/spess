@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace spess.UI
 {
+    public delegate void IconClickDelegate(SpaceBody spaceBody, MouseState mouseState);
+    public delegate void IconMouseoverDelegate(SpaceBody spaceBody, MouseState mouseState);
+
     class SectorScreen
     {
         List<ContextMenu> contextMenus;
@@ -29,13 +32,12 @@ namespace spess.UI
         int fps = 0;
         int totalFrames = 0;
 
-        FloatingLabel currLabel = null;
-        ContextMenu currMenu = null;
-
         public List<ContextMenu> ContextMenus { get { return contextMenus; } }
         public List<FloatingLabel> FloatingLabels { get { return floatingLabels; } }
         public Sector CurrentSector { get { return displayedSector; } set { displayedSector = value; } }
         public SpriteFont Font { get; set; }
+        public IconClickDelegate OnIconClicked;
+        public IconMouseoverDelegate OnIconMouseover;
 
 
         public SectorScreen(GraphicsDevice graphicsDevice, Game game)
@@ -182,8 +184,8 @@ namespace spess.UI
             DrawGrid(Color.White);
             RenderSector(displayedSector);
 
-            if (currMenu != null) currMenu.Render(spriteBatch, TextureProvider.dialogTex);
-            if (currLabel != null) currLabel.Render(spriteBatch, Font, TextureProvider.dialogTex);
+            contextMenus.ForEach(m => m.Render(spriteBatch, TextureProvider.dialogTex));
+            floatingLabels.ForEach(l => l.Render(spriteBatch, Font, TextureProvider.dialogTex));
 
             spriteBatch.Begin();
             spriteBatch.DrawString(Font, "FPS: " + fps, new Vector2(10, 10), Color.White);
@@ -210,33 +212,13 @@ namespace spess.UI
 
             if (mouseOverBody != null)
             {
-                currLabel = new FloatingLabel(mouseOverBody.ToString(), mousePos);
-                if (mouseState.LeftButton == ButtonState.Pressed)
-                {
-                    if (mouseOverBody is Gate)
-                    {
-                        displayedSector = ((Gate)mouseOverBody).Destination.Sector;
-                    }
-                    else if (mouseOverBody is Ship)
-                    {
-                        ((Ship)mouseOverBody).GoalQueue.AddGoal(
-                            new AI.MoveAndDockAt((Ship)mouseOverBody, mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(), null));
-                    }
-                }
+                OnIconMouseover(mouseOverBody, mouseState);
 
-                if (mouseState.RightButton == ButtonState.Pressed)
+                if (mouseState.LeftButton == ButtonState.Pressed || mouseState.RightButton == ButtonState.Pressed)
                 {
-                    currMenu = new ContextMenu(Font);
-                    currMenu.Items.Add(new ContextMenuItem("Item 1", delegate() { mouseOverBody.Location.Coordinates = Vector3.Zero; }));
-                    currMenu.Items.Add(new ContextMenuItem("Item 2", null));
-                    currMenu.Items.Add(new ContextMenuItem("Item 3", null));
-                    currMenu.Items.Add(new ContextMenuItem("Item 4", null));
-
-                    currMenu.Open(mouseState.X, mouseState.Y);
+                    OnIconClicked(mouseOverBody, mouseState);
                 }
             }
-            else currLabel = null;
-
         }
     }
 }

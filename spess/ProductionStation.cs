@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
-    class ProductionStation : Building
+    public class ProductionStation : Building
     {
         ProductionRule production;
         int storageSpace;

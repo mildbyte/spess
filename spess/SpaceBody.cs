@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace spess
 {
-    abstract class SpaceBody
+    public abstract class SpaceBody
     {
         protected string name;
         protected Location location;

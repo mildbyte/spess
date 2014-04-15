@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace spess.AI
 {
-    class GoalQueue
+    public class GoalQueue
     {
         LinkedList<Goal> goals;
         LinkedList<IBaseGoal> pendingGoals;
