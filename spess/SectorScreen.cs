@@ -78,9 +78,15 @@ namespace spess.UI
             };
         }
 
-
+        /// <summary>
+        /// Returns the body that the mouse is pointing at
+        /// </summary>
+        /// <param name="mousePos">Mouse coordinates</param>
+        /// <param name="sector">The sector in which we're looking</param>
+        /// <returns></returns>
         private SpaceBody PickBody(Vector2 mousePos, Sector sector)
         {
+            // Create a ray from the screen into the world
             Vector2 center = new Vector2(graphicsDevice.Viewport.Width * 0.5f, graphicsDevice.Viewport.Height * 0.5f);
             Matrix viewMatrix = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
 
@@ -92,6 +98,7 @@ namespace spess.UI
 
             Ray ray = new Ray(nearPoint, direction);
 
+            // Find the closest body that the ray hits.
             SpaceBody closestBody = null;
             float closestBodyDist = 0.0f;
 
@@ -111,6 +118,12 @@ namespace spess.UI
             return closestBody;
         }
 
+        /// <summary>
+        /// Projects a body position to the screen and surrounds the icon with a bounding box
+        /// (for object picking)
+        /// </summary>
+        /// <param name="body">Space body to get the BBox of</param>
+        /// <returns>The bounding box (with zero depth) that contains the icon.</returns>
         BoundingBox GetIconQuadBBox(SpaceBody body)
         {
             float halfSide = body.IconSize * 0.5f;
@@ -121,14 +134,27 @@ namespace spess.UI
             return new BoundingBox(vProj - diagVector, vProj + diagVector);
         }
 
+        /// <summary>
+        /// Draws all the space bodies currently in the sector as screenspace icons (constant scale)
+        /// </summary>
+        /// <param name="projectionMatrix">Perspective projection matrix used by the UI</param>
+        /// <param name="viewMatrix">Camera view matrix</param>
+        /// <param name="worldMatrix">Model-view matrix</param>
+        /// <param name="sector">Sector to render the objects from</param>
         void BatchDrawIcons(Matrix projectionMatrix, Matrix viewMatrix, Matrix worldMatrix, Sector sector)
         {
+            // TODO: solve the issue with multiple icons close to each other blinking and being difficult
+            // /impossible to select
+
+            //Create an array of quad vertices representing icons.
             VertexPositionTexture[] iconVertices = new VertexPositionTexture[sector.Contents.Count * 4];
 
             int currVertex = 0;
             foreach (SpaceBody item in sector.Contents)
             {
                 float halfSide = item.IconSize * 0.5f;
+
+                // Project the space body location into the screen space and draw a quad around it
                 Vector3 vProj = graphicsDevice.Viewport.Project(item.Location.Coordinates, projectionMatrix, viewMatrix, worldMatrix);
 
                 iconVertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(-halfSide, halfSide, 0), new Vector2(0, 1));
@@ -137,8 +163,8 @@ namespace spess.UI
                 iconVertices[currVertex++] = new VertexPositionTexture(vProj + new Vector3(halfSide, -halfSide, 0), new Vector2(1, 0));
             }
 
-            graphicsDevice.BlendState = BlendState.AlphaBlend;
 
+            // Render every quad in orthographic projection (size stays constant)
             for (int i = 0; i < sector.Contents.Count; i++)
             {
                 iconEffect.Texture = sector.Contents[i].IconTexture;
@@ -148,8 +174,6 @@ namespace spess.UI
                     graphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleStrip, iconVertices, i * 4, 2);
                 }
             }
-
-            graphicsDevice.BlendState = BlendState.Opaque;
         }
 
         /// <summary>
@@ -157,6 +181,7 @@ namespace spess.UI
         /// </summary>
         void DrawGrid(Color color)
         {
+            // Array of lines representing the grid
             VertexPositionColor[] vertices = new VertexPositionColor[201 * 2 * 2];
 
             int i = 0;
@@ -170,6 +195,7 @@ namespace spess.UI
 
             gridEffect.View = camera.ViewMatrix;
 
+            // Render the lines
             foreach (EffectPass pass in gridEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
@@ -177,19 +203,18 @@ namespace spess.UI
                 graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 201 * 2);
             }
         }
-
-        void RenderSector(Sector sector)
-        {
-            BatchDrawIcons(perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, displayedSector);
-        }
-
+        
+        /// <summary>
+        /// Renders the sector using the current UI settings.
+        /// </summary>
+        /// <param name="spriteBatch">The sprite batch to use for drawing UI elements</param>
         public void Render(SpriteBatch spriteBatch)
         {
             graphicsDevice.Clear(Color.Black);
 
             totalFrames++;
             DrawGrid(Color.White);
-            RenderSector(displayedSector);
+            BatchDrawIcons(perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, displayedSector);
 
             contextMenus.ForEach(m => m.Render(spriteBatch, TextureProvider.dialogTex));
             floatingLabels.ForEach(l => l.Render(spriteBatch, TextureProvider.dialogTex));
@@ -199,6 +224,11 @@ namespace spess.UI
             spriteBatch.End();
         }
 
+        /// <summary>
+        /// Processes the input changes that occurred between frames
+        /// </summary>
+        /// <param name="gameTime">GameTime parameter passed by MonoGame to the Update method in the Game class</param>
+        /// <param name="mouseState">Mouse state</param>
         public void ProcessInput(GameTime gameTime, MouseState mouseState)
         {
             float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
@@ -217,9 +247,11 @@ namespace spess.UI
 
             SpaceBody newMouseOverBody = PickBody(mousePos, displayedSector);
 
+            // Update the open context menus. Remove those that closed themselves.
             contextMenus.ForEach(m => m.NotifyMouseStateChange(mouseState));
             contextMenus.RemoveAll(m => !m.IsOpen);
 
+            // Call the relevant events
             if (newMouseOverBody == null && mouseOverBody != null) {
                 OnIconMouseLeave(mouseOverBody, mouseState);
             } else if (newMouseOverBody != null && mouseOverBody == null) {
@@ -228,14 +260,17 @@ namespace spess.UI
             }
             else if (newMouseOverBody != null && mouseOverBody != null && newMouseOverBody != mouseOverBody)
             {
+                // Mouse moved from a body to another body without hitting the void, need to send all events
                 OnIconMouseLeave(mouseOverBody, mouseState);
                 OnIconMouseEnter(newMouseOverBody, mouseState);
                 OnIconMouseover(newMouseOverBody, mouseState);
             }
             else if (newMouseOverBody != null)
             {
+                // General mouseover events.
                 OnIconMouseover(newMouseOverBody, mouseState);
 
+                // Click event dispatch with flags to ensure only one click is registered.
                 if (!mouseClickRegistered && 
                     (mouseState.LeftButton == ButtonState.Pressed || mouseState.RightButton == ButtonState.Pressed))
                 {
