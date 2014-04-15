@@ -217,6 +217,9 @@ namespace spess.UI
 
             SpaceBody newMouseOverBody = PickBody(mousePos, displayedSector);
 
+            contextMenus.ForEach(m => m.NotifyMouseStateChange(mouseState));
+            contextMenus.RemoveAll(m => !m.IsOpen);
+
             if (newMouseOverBody == null && mouseOverBody != null) {
                 OnIconMouseLeave(mouseOverBody, mouseState);
             } else if (newMouseOverBody != null && mouseOverBody == null) {
