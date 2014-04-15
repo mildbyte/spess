@@ -65,6 +65,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="ContextMenu.cs" />
     <Compile Include="FloatingLabel.cs" />
+    <Compile Include="SectorScreen.cs" />
     <Compile Include="SpessGame.cs" />
     <Compile Include="Goal.cs" />
     <Compile Include="GoalQueue.cs" />
