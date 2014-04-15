@@ -48,7 +48,6 @@ namespace spess
             graphics.IsFullScreen = true;
             IsFixedTimeStep = true;
             graphics.ApplyChanges();
-            sectorScreen = new SectorScreen(GraphicsDevice, this);
 
             base.Initialize();
         }
@@ -61,6 +60,8 @@ namespace spess
         {
             font = Content.Load<SpriteFont>("Arial");
             TextureProvider.LoadTextures(Content);
+
+            sectorScreen = new SectorScreen(GraphicsDevice, this);
             sectorScreen.Font = font;
 
             //Initialize the test sector here because we only here have access to the textures

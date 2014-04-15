@@ -182,9 +182,12 @@ namespace spess.UI
             DrawGrid(Color.White);
             RenderSector(displayedSector);
 
-            //spriteBatch.Begin();
-            //spriteBatch.DrawString(Font, "FPS: " + fps, new Vector2(10, 10), Color.White);
-            //spriteBatch.End();
+            if (currMenu != null) currMenu.Render(spriteBatch, TextureProvider.dialogTex);
+            if (currLabel != null) currLabel.Render(spriteBatch, Font, TextureProvider.dialogTex);
+
+            spriteBatch.Begin();
+            spriteBatch.DrawString(Font, "FPS: " + fps, new Vector2(10, 10), Color.White);
+            spriteBatch.End();
         }
 
         public void ProcessInput(GameTime gameTime, MouseState mouseState)
