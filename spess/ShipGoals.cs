@@ -217,7 +217,7 @@ namespace spess.AI
 
         public bool Failed()
         {
-            return Ship.Owner.Balance >= price * volume;
+            return Ship.Owner.Balance < price * volume;
         }
     }
 
@@ -245,7 +245,7 @@ namespace spess.AI
 
         public bool Failed()
         {
-            return Ship.Owner.Balance >= price * volume;
+            return Ship.Owner.Balance < price * volume;
         }
     }
 }

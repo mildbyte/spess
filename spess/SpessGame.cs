@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
 using spess.UI;
+using spess.ExchangeData;
 #endregion
 
 namespace spess
@@ -26,6 +27,8 @@ namespace spess
         SectorScreen sectorScreen;
 
         Random rand = new Random();
+
+        Good good = new Good("Space Cabbages", "Cabbages in space!!1", 10);
 
         public SpessGame()
             : base()
@@ -88,10 +91,24 @@ namespace spess
                 if (ms.RightButton == ButtonState.Pressed)
                 {
                     ContextMenu currMenu = new ContextMenu(font);
-                    currMenu.Items.Add(new ContextMenuItem("Item 1", delegate() { mouseOverBody.Location.Coordinates = Vector3.Zero; }));
-                    currMenu.Items.Add(new ContextMenuItem("Item 2", null));
-                    currMenu.Items.Add(new ContextMenuItem("Item 3", null));
-                    currMenu.Items.Add(new ContextMenuItem("Item 4", null));
+                    currMenu.Items.Add(new ContextMenuItem("Move to origin", delegate() { mouseOverBody.Location.Coordinates = Vector3.Zero; }));
+                    currMenu.Items.Add(new ContextMenuItem("Remove", delegate() { mouseOverBody.Location.Sector.RemoveItem(mouseOverBody); }));
+                    if (mouseOverBody is Ship)
+                    {
+                        currMenu.Items.Add(new ContextMenuItem("Dock in the Sector 2 Station", delegate()
+                            {
+                                ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                    new AI.MoveAndDockAt((Ship)mouseOverBody, 
+                                        mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(), null));
+                            }));
+                        currMenu.Items.Add(new ContextMenuItem("My cabbages!!", delegate()
+                            {
+                                ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                    new AI.MoveAndPlaceBuyOrder((Ship)mouseOverBody,
+                                        mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                        good, 10, 10, null));
+                            }));
+                    }
 
                     currMenu.Open(ms.X, ms.Y);
 
@@ -102,11 +119,6 @@ namespace spess
                     if (mouseOverBody is Gate)
                     {
                         sectorScreen.CurrentSector = ((Gate)mouseOverBody).Destination.Sector;
-                    }
-                    else if (mouseOverBody is Ship)
-                    {
-                        ((Ship)mouseOverBody).GoalQueue.AddGoal(
-                            new AI.MoveAndDockAt((Ship)mouseOverBody, mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(), null));
                     }
                 }
             };
@@ -139,11 +151,14 @@ namespace spess
                 testShip.Velocity = RandomVector(0.5f);
             }
 
+            universe.AddShip("Exchange test ship", testSector2, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
+
             //Need to update the sector for the additions to propagate to the actual bodies' list
 
             testSector1.ForcePropagateChanges();
 
             universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
+            universe.GetPlayer().Balance = 200;
         }
 
         /// <summary>
