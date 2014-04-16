@@ -13,10 +13,14 @@ namespace spess
 
         Dictionary<Owner, List<Gate>> ownerKnownGates;
 
+        float gameTime = 0.0f;
+
         public List<Sector> Sectors { get { return sectors; } }
         public List<Owner> Owners { get { return owners; } }
+        public float GameTime { get { return gameTime; } }
 
         public Owner GetPlayer() { return owners[0]; }
+        
 
         class BFSNode
         {
@@ -150,6 +154,7 @@ namespace spess
 
         public void Update(float timeDifference)
         {
+            gameTime += timeDifference;
             foreach (Sector s in sectors)
             {
                 s.Update(timeDifference);

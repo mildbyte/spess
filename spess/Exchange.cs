@@ -57,10 +57,10 @@ namespace spess.ExchangeData
             s.Cargo.AddItem(good, amount);
         }
 
-        public void PlaceBuyOrder(Owner owner, Good good, int volume, int price, int timestamp)
+        public BuyOrder PlaceBuyOrder(Owner owner, Good good, int volume, int price, float timestamp)
         {
-            if (owner.Balance < volume * price) return;
-            if (!HasUser(owner)) return;
+            if (owner.Balance < volume * price) return null;
+            if (!HasUser(owner)) return null;
 
             BuyOrder buyOrder = new BuyOrder(owner, good, volume, price, timestamp);
 
@@ -69,12 +69,14 @@ namespace spess.ExchangeData
 
             if (!orderBooks.ContainsKey(good)) orderBooks[good] = new OrderBook(good);
             orderBooks[good].AddBuyOrder(buyOrder);
+
+            return buyOrder;
         }
 
-        public void PlaceSellOrder(Owner owner, Good good, int volume, int price, int timestamp)
+        public SellOrder PlaceSellOrder(Owner owner, Good good, int volume, int price, float timestamp)
         {
-            if (!HasUser(owner)) return;
-            if (users[owner].StoredGoods.GetItemCount(good) < volume) return;
+            if (!HasUser(owner)) return null;
+            if (users[owner].StoredGoods.GetItemCount(good) < volume) return null;
 
             SellOrder sellOrder = new SellOrder(owner, good, volume, price, timestamp);
 
@@ -83,6 +85,8 @@ namespace spess.ExchangeData
 
             if (!orderBooks.ContainsKey(good)) orderBooks[good] = new OrderBook(good);
             orderBooks[good].AddSellOrder(sellOrder);
+
+            return sellOrder;
         }
 
         public void PerformMatching()

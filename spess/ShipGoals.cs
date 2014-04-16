@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using spess.ExchangeData;
 
 namespace spess.AI
 {
@@ -12,7 +13,8 @@ namespace spess.AI
         Ship ship;
         public Ship Ship { get { return ship; } }
 
-        public ShipGoal (string name, Ship ship, ICompositeGoal creator) : base(name, creator)
+        public ShipGoal(string name, Ship ship, ICompositeGoal creator)
+            : base(name, creator)
         {
             this.ship = ship;
         }
@@ -28,7 +30,7 @@ namespace spess.AI
         IEnumerable<Goal> calculatedSubgoals = null;
 
         public MoveToSector(Ship ship, Sector sector, ICompositeGoal creator)
-            : base("Move to sector...", ship, creator) 
+            : base("Move to sector...", ship, creator)
         {
             this.sector = sector;
         }
@@ -98,7 +100,7 @@ namespace spess.AI
 
     class Undock : ShipGoal, IBaseGoal
     {
-        public Undock(Ship ship, ICompositeGoal creator) : base ("Undock...", ship, creator) {}
+        public Undock(Ship ship, ICompositeGoal creator) : base("Undock...", ship, creator) { }
 
         public bool IsComplete() { return Ship.DockedStation == null; }
 
@@ -180,6 +182,70 @@ namespace spess.AI
         {
             yield return new MoveTo(Ship, Gate.Location, this);
             yield return new UseGate(Ship, Gate, this);
+        }
+    }
+
+    class PlaceBuyOrder : ShipGoal, IBaseGoal, IFailableGoal
+    {
+        Exchange exchange;
+        Good good;
+        int volume;
+        int price;
+
+        BuyOrder resultOrder = null;
+
+        public PlaceBuyOrder(Ship ship, Exchange exchange, Good good, int volume, int price, ICompositeGoal creator)
+            : base("Place buy order...", ship, creator)
+        {
+            this.exchange = exchange;
+            this.good = good;
+            this.volume = volume;
+            this.price = price;
+        }
+
+        public void Execute()
+        {
+            if (Ship.DockedStation != exchange) return;
+            if (!exchange.HasUser(Ship.Owner)) exchange.AddUser(Ship.Owner);
+            resultOrder = exchange.PlaceBuyOrder(Ship.Owner, good, volume, price, Ship.Universe.GameTime);
+        }
+
+        public bool IsComplete()
+        {
+            return resultOrder != null;
+        }
+
+        public bool Failed()
+        {
+            return Ship.Owner.Balance >= price * volume;
+        }
+    }
+
+    class MoveAndPlaceBuyOrder : ShipGoal, ICompositeGoal, IFailableGoal
+    {
+        Exchange exchange;
+        Good good;
+        int volume;
+        int price;
+
+        public MoveAndPlaceBuyOrder(Ship ship, Exchange exchange, Good good, int volume, int price, ICompositeGoal creator)
+            : base("Move and place buy order...", ship, creator)
+        {
+            this.exchange = exchange;
+            this.good = good;
+            this.volume = volume;
+            this.price = price;
+        }
+
+        public IEnumerable<Goal> GetSubgoals()
+        {
+            yield return new MoveAndDockAt(Ship, exchange, this);
+            yield return new PlaceBuyOrder(Ship, exchange, good, volume, price, this);
+        }
+
+        public bool Failed()
+        {
+            return Ship.Owner.Balance >= price * volume;
         }
     }
 }

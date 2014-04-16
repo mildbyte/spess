@@ -23,21 +23,21 @@ namespace spess.ExchangeData
         }
     }
 
-    class Order
+    public class Order
     {
         Good good;
         int volume;
         int price;
-        int timestamp;
+        float timestamp;
         Owner owner;
 
         public Good Good { get { return good; } }
         public int Volume { get { return volume; } set { volume = value; } }
         public int Price { get { return price; } set { price = value; } }
-        public int Timestamp { get { return timestamp; } }
+        public float Timestamp { get { return timestamp; } }
         public Owner Owner { get { return owner; } }
 
-        public Order(Owner owner, Good good, int volume, int price, int timestamp)
+        public Order(Owner owner, Good good, int volume, int price, float timestamp)
         {
             this.good = good; this.volume = volume;
             this.price = price; this.timestamp = timestamp;
@@ -45,9 +45,9 @@ namespace spess.ExchangeData
         }
     }
 
-    class BuyOrder : Order
+    public class BuyOrder : Order
     {
-        public BuyOrder(Owner owner, Good good, int volume, int price, int timestamp) : base(owner, good, volume, price, timestamp) { }
+        public BuyOrder(Owner owner, Good good, int volume, int price, float timestamp) : base(owner, good, volume, price, timestamp) { }
         public static bool operator <(BuyOrder o1, BuyOrder o2)
         {
             if (o1.Price > o2.Price) return true;
@@ -61,9 +61,9 @@ namespace spess.ExchangeData
         }
     }
 
-    class SellOrder : Order
+    public class SellOrder : Order
     {
-        public SellOrder(Owner owner, Good good, int volume, int price, int timestamp) : base(owner, good, volume, price, timestamp) { }
+        public SellOrder(Owner owner, Good good, int volume, int price, float timestamp) : base(owner, good, volume, price, timestamp) { }
         public static bool operator <(SellOrder o1, SellOrder o2) {
             if (o1.Price < o2.Price) return true;
             return (o1.Timestamp < o2.Timestamp);
