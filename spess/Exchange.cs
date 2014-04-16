@@ -36,6 +36,12 @@ namespace spess.ExchangeData
 
         public bool HasUser(Owner o) { return users.ContainsKey(o); }
 
+        public Account GetUserAccount(Owner o)
+        {
+            if (HasUser(o)) return users[o];
+            else return null;
+        }
+
         public void DepositGoods(Ship s, Good good, int amount)
         {
             if (s.DockedStation != this) return;
@@ -114,6 +120,21 @@ namespace spess.ExchangeData
                 timeSinceLastMatch = 0.0f;
                 PerformMatching();
             }
+        }
+
+        public override string ToString()
+        {
+            string result = Name;
+
+            if (!lastTradedPrices.Any()) return result;
+
+            result += "\nLast traded prices:";
+            foreach (KeyValuePair<Good, int> kv in lastTradedPrices)
+            {
+                result += "\n" + kv.Key.Name + ": " + kv.Value.ToString("F2");
+            }
+
+            return result;
         }
     }
 }

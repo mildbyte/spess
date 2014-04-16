@@ -143,7 +143,7 @@ namespace spess
             }
 
             ProductionStation destStation = universe.AddProductionStation("Grand Central Station", testSector2, Vector3.Zero, dummy, 100);
-            universe.AddExchange("Exchange", testSector2, RandomVector(30.0f));
+            universe.AddExchange("Space Exchange", testSector2, RandomVector(30.0f));
 
             for (int i = 0; i < 10; i++)
             {

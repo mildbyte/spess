@@ -248,4 +248,68 @@ namespace spess.AI
             return Ship.Owner.Balance < price * volume;
         }
     }
+
+    class PlaceSellOrder : ShipGoal, IBaseGoal, IFailableGoal
+    {
+        Exchange exchange;
+        Good good;
+        int volume;
+        int price;
+
+        SellOrder resultOrder = null;
+
+        public PlaceSellOrder(Ship ship, Exchange exchange, Good good, int volume, int price, ICompositeGoal creator)
+            : base("Place sell order...", ship, creator)
+        {
+            this.exchange = exchange;
+            this.good = good;
+            this.volume = volume;
+            this.price = price;
+        }
+
+        public void Execute()
+        {
+            if (Ship.DockedStation != exchange) return;
+            if (!exchange.HasUser(Ship.Owner)) exchange.AddUser(Ship.Owner);
+            resultOrder = exchange.PlaceSellOrder(Ship.Owner, good, volume, price, Ship.Universe.GameTime);
+        }
+
+        public bool IsComplete()
+        {
+            return resultOrder != null;
+        }
+
+        public bool Failed()
+        {
+            return exchange.GetUserAccount(Ship.Owner).StoredGoods.GetItemCount(good) < volume;
+        }
+    }
+
+    class MoveAndPlaceSellOrder : ShipGoal, ICompositeGoal, IFailableGoal
+    {
+        Exchange exchange;
+        Good good;
+        int volume;
+        int price;
+
+        public MoveAndPlaceSellOrder(Ship ship, Exchange exchange, Good good, int volume, int price, ICompositeGoal creator)
+            : base("Move and place sell order...", ship, creator)
+        {
+            this.exchange = exchange;
+            this.good = good;
+            this.volume = volume;
+            this.price = price;
+        }
+
+        public IEnumerable<Goal> GetSubgoals()
+        {
+            yield return new MoveAndDockAt(Ship, exchange, this);
+            yield return new PlaceSellOrder(Ship, exchange, good, volume, price, this);
+        }
+
+        public bool Failed()
+        {
+            return exchange.GetUserAccount(Ship.Owner).StoredGoods.GetItemCount(good) < volume;
+        }
+    }
 }
