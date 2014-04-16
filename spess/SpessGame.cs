@@ -154,9 +154,9 @@ namespace spess
                 testShip.Velocity = RandomVector(0.5f);
             }
 
-            universe.AddShip("Exchange buyer ship", testSector2, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
+            universe.AddShip("Exchange buyer ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), universe.GetPlayer(), 1.0f);
             Owner seller = universe.AddOwner();
-            universe.AddShip("Exchange seller ship", testSector2, RandomVector(20.0f), seller, 1.0f);
+            universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), seller, 1.0f);
             exchange.AddUser(seller);
             exchange.GetUserAccount(seller).StoredGoods.AddItem(good, 100);
 

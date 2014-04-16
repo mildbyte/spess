@@ -42,7 +42,7 @@ namespace spess.ExchangeData
                 BuyOrder currBid = bids[0];
                 SellOrder currAsk = asks[0];
 
-                int fillVolume = currAsk.Volume - currBid.Volume;
+                int fillVolume = Math.Min(currAsk.Volume, currBid.Volume);
 
                 currAsk.Volume -= fillVolume;
                 currBid.Volume -= fillVolume;

@@ -23,7 +23,7 @@ namespace spess.ExchangeData
             orderBooks = new Dictionary<Good, OrderBook>();
             lastTradedPrices = new Dictionary<Good, int>();
             IconTexture = TextureProvider.exchangeTex;
-            MatchingInterval = 1000.0f;
+            MatchingInterval = 1.0f;
             timeSinceLastMatch = 0.0f;
         }
 
@@ -114,7 +114,7 @@ namespace spess.ExchangeData
 
         public override void Update(float timePassed)
         {
-            timeSinceLastMatch += timeSinceLastMatch;
+            timeSinceLastMatch += timePassed;
             if (timeSinceLastMatch > MatchingInterval)
             {
                 timeSinceLastMatch = 0.0f;
