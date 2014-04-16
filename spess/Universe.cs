@@ -49,6 +49,9 @@ namespace spess
         /// <returns>A list of gates the ship has to take or null if there is no such route</returns>
         public List<Gate> GetGateAwareRoute(Owner o, Sector s1, Sector s2)
         {
+            // Don't need to find a route if the sectors are the same!
+            if (s1 == s2) return new List<Gate>();
+
             // Drop out if we don't know the owner
             if (!ownerKnownGates.ContainsKey(o)) return null;
             List<Gate> knownGates = ownerKnownGates[o];
@@ -110,6 +113,13 @@ namespace spess
         {
             if (!ownerKnownGates.ContainsKey(o)) ownerKnownGates[o] = new List<Gate>();
             ownerKnownGates[o].Add(g);
+        }
+
+        public Owner AddOwner()
+        {
+            Owner o = new Owner();
+            owners.Add(o);
+            return o;
         }
 
         public Sector AddSector(String name)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace spess.ExchangeData
 {
-    class Account
+    public class Account
     {
         Owner owner;
         Exchange exchange;

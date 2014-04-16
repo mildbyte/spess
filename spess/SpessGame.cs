@@ -55,15 +55,8 @@ namespace spess
             base.Initialize();
         }
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
-        protected override void LoadContent()
+        protected void SetupUI()
         {
-            font = Content.Load<SpriteFont>("Arial");
-            TextureProvider.LoadTextures(Content);
-
             sectorScreen = new SectorScreen(GraphicsDevice, this);
             sectorScreen.Font = font;
 
@@ -96,18 +89,25 @@ namespace spess
                     if (mouseOverBody is Ship)
                     {
                         currMenu.Items.Add(new ContextMenuItem("Dock in the Sector 2 Station", delegate()
-                            {
-                                ((Ship)mouseOverBody).GoalQueue.AddGoal(
-                                    new AI.MoveAndDockAt((Ship)mouseOverBody, 
-                                        mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(), null));
-                            }));
-                        currMenu.Items.Add(new ContextMenuItem("My cabbages!!", delegate()
-                            {
-                                ((Ship)mouseOverBody).GoalQueue.AddGoal(
-                                    new AI.MoveAndPlaceBuyOrder((Ship)mouseOverBody,
-                                        mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
-                                        good, 10, 10, null));
-                            }));
+                        {
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndDockAt((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(), null));
+                        }));
+                        currMenu.Items.Add(new ContextMenuItem("Buy cabbages!!", delegate()
+                        {
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndPlaceBuyOrder((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    good, 10, 10, null));
+                        }));
+                        currMenu.Items.Add(new ContextMenuItem("Sell cabbages!!", delegate()
+                        {
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndPlaceSellOrder((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    good, 10, 10, null));
+                        }));
                     }
 
                     currMenu.Open(ms.X, ms.Y);
@@ -122,8 +122,11 @@ namespace spess
                     }
                 }
             };
+        }
 
-            //Initialize the test sector here because we only here have access to the textures
+        protected void SetupTestSector()
+        {
+
             universe = new Universe();
 
             Sector testSector1 = universe.AddSector("Sector 1");
@@ -143,7 +146,7 @@ namespace spess
             }
 
             ProductionStation destStation = universe.AddProductionStation("Grand Central Station", testSector2, Vector3.Zero, dummy, 100);
-            universe.AddExchange("Space Exchange", testSector2, RandomVector(30.0f));
+            Exchange exchange = universe.AddExchange("Space Exchange", testSector2, RandomVector(30.0f));
 
             for (int i = 0; i < 10; i++)
             {
@@ -151,7 +154,11 @@ namespace spess
                 testShip.Velocity = RandomVector(0.5f);
             }
 
-            universe.AddShip("Exchange test ship", testSector2, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
+            universe.AddShip("Exchange buyer ship", testSector2, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
+            Owner seller = universe.AddOwner();
+            universe.AddShip("Exchange seller ship", testSector2, RandomVector(20.0f), seller, 1.0f);
+            exchange.AddUser(seller);
+            exchange.GetUserAccount(seller).StoredGoods.AddItem(good, 100);
 
             //Need to update the sector for the additions to propagate to the actual bodies' list
 
@@ -159,6 +166,18 @@ namespace spess
 
             universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
             universe.GetPlayer().Balance = 200;
+        }
+
+        /// <summary>
+        /// LoadContent will be called once per game and is the place to load
+        /// all of your content.
+        /// </summary>
+        protected override void LoadContent()
+        {
+            font = Content.Load<SpriteFont>("Arial");
+            TextureProvider.LoadTextures(Content);
+            SetupUI();
+            SetupTestSector(); //Initialize the test sector here because we only here have access to the textures
         }
 
         /// <summary>
