@@ -17,12 +17,14 @@ namespace spess
         Vector3 velocity;
         float maxSpeed;
         GoalQueue goalQueue;
+        int cargoSpace;
 
         public Inventory Cargo { get { return cargo; } }
         public Owner Owner { get { return owner; } }
         public float MaxSpeed { get { return maxSpeed; } }
         public Building DockedStation { get { return dockedStation; } }
         public GoalQueue GoalQueue { get { return goalQueue; } }
+        public int CargoSpace { get { return cargoSpace; } set { cargoSpace = value; } }
 
         public Vector3 Velocity
         {
@@ -43,6 +45,7 @@ namespace spess
             this.maxSpeed = maxSpeed;
             this.goalQueue = new GoalQueue();
             this.iconTexture = TextureProvider.shipTex;
+            cargoSpace = 100;
         }
 
         public bool CanUseGate(Gate gate)

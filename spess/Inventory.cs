@@ -11,6 +11,8 @@ namespace spess
     {
         Dictionary<Good, int> items;
 
+        public int TotalSize { get { return items.Sum(kv => kv.Key.Size * kv.Value); } }
+
         public int GetItemCount(Good good)
         {
             if (!items.ContainsKey(good)) return 0;

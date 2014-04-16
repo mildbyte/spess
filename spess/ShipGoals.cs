@@ -312,4 +312,122 @@ namespace spess.AI
             return exchange.GetUserAccount(Ship.Owner).StoredGoods.GetItemCount(good) < volume;
         }
     }
+
+    class MoveAndDepositGoods : ShipGoal, ICompositeGoal, IFailableGoal
+    {
+        Exchange exchange;
+        Good good;
+        int volume;
+
+        public MoveAndDepositGoods(Ship ship, Exchange exchange, Good good, int volume, ICompositeGoal creator)
+            : base("Move and deposit goods...", ship, creator)
+        {
+            this.exchange = exchange;
+            this.good = good;
+            this.volume = volume;
+        }
+
+        public IEnumerable<Goal> GetSubgoals()
+        {
+            yield return new MoveAndDockAt(Ship, exchange, this);
+            yield return new DepositGoods(Ship, exchange, good, volume, this);
+        }
+
+        public bool Failed()
+        {
+            return Ship.Cargo.GetItemCount(good) < volume;
+        }
+    }
+
+    class DepositGoods : ShipGoal, IBaseGoal, IFailableGoal
+    {
+        Exchange exchange;
+        Good good;
+        int volume;
+
+        public DepositGoods(Ship ship, Exchange exchange, Good good, int volume, ICompositeGoal creator)
+            : base("Deposit goods...", ship, creator)
+        {
+            this.exchange = exchange;
+            this.good = good;
+            this.volume = volume;
+        }
+
+        public void Execute()
+        {
+            if (Ship.DockedStation != exchange) return;
+            if (!exchange.HasUser(Ship.Owner)) exchange.AddUser(Ship.Owner);
+            exchange.DepositGoods(Ship, good, volume);
+        }
+
+        public bool IsComplete()
+        {
+            return true;
+        }
+
+        public bool Failed()
+        {
+            return Ship.Cargo.GetItemCount(good) < volume;
+        }
+    }
+
+    class MoveAndWithdrawGoods : ShipGoal, ICompositeGoal, IFailableGoal
+    {
+        Exchange exchange;
+        Good good;
+        int volume;
+
+        public MoveAndWithdrawGoods(Ship ship, Exchange exchange, Good good, int volume, ICompositeGoal creator)
+            : base("Move and withdraw goods...", ship, creator)
+        {
+            this.exchange = exchange;
+            this.good = good;
+            this.volume = volume;
+        }
+
+        public IEnumerable<Goal> GetSubgoals()
+        {
+            yield return new MoveAndDockAt(Ship, exchange, this);
+            yield return new DepositGoods(Ship, exchange, good, volume, this);
+        }
+
+        public bool Failed()
+        {
+            return exchange.GetUserAccount(Ship.Owner).StoredGoods.GetItemCount(good) < volume
+                || Ship.CargoSpace - Ship.Cargo.TotalSize < good.Size * volume;
+        }
+    }
+
+    class WithdrawGoods : ShipGoal, IBaseGoal, IFailableGoal
+    {
+        Exchange exchange;
+        Good good;
+        int volume;
+
+        public WithdrawGoods(Ship ship, Exchange exchange, Good good, int volume, ICompositeGoal creator)
+            : base("Withdraw goods...", ship, creator)
+        {
+            this.exchange = exchange;
+            this.good = good;
+            this.volume = volume;
+        }
+
+        public void Execute()
+        {
+            if (Ship.DockedStation != exchange) return;
+            if (!exchange.HasUser(Ship.Owner)) exchange.AddUser(Ship.Owner);
+            exchange.WithdrawGoods(Ship, good, volume);
+        }
+
+        public bool IsComplete()
+        {
+            return true;
+        }
+
+        public bool Failed()
+        {
+            return exchange.GetUserAccount(Ship.Owner).StoredGoods.GetItemCount(good) < volume
+                || Ship.CargoSpace - Ship.Cargo.TotalSize < good.Size * volume;
+        }
+    }
 }
