@@ -271,7 +271,8 @@ namespace spess.UI
                 OnIconMouseover(newMouseOverBody, mouseState);
 
                 // Click event dispatch with flags to ensure only one click is registered.
-                if (!mouseClickRegistered && 
+                // If a context menu is open, the click belonged to it and we don't pass it to the icon
+                if (!mouseClickRegistered && !contextMenus.Any() &&
                     (mouseState.LeftButton == ButtonState.Pressed || mouseState.RightButton == ButtonState.Pressed))
                 {
                     mouseClickRegistered = true;
