@@ -45,33 +45,33 @@ namespace spess.ExchangeData
         }
     }
 
-    public class BuyOrder : Order
+    public class BuyOrder : Order, IComparable
     {
         public BuyOrder(Owner owner, Good good, int volume, int price, float timestamp) : base(owner, good, volume, price, timestamp) { }
-        public static bool operator <(BuyOrder o1, BuyOrder o2)
-        {
-            if (o1.Price > o2.Price) return true;
-            return (o1.Timestamp < o2.Timestamp);
-        }
 
-        public static bool operator >(BuyOrder o1, BuyOrder o2)
+        public int CompareTo(object obj)
         {
-            if (o1.Price < o2.Price) return true;
-            return (o1.Timestamp > o2.Timestamp);
+            BuyOrder o2 = obj as BuyOrder;
+
+            int priceC = Price.CompareTo(o2.Price);
+
+            if (priceC == 0) return Timestamp.CompareTo(o2.Timestamp);
+            else return -priceC;
         }
     }
 
     public class SellOrder : Order
     {
         public SellOrder(Owner owner, Good good, int volume, int price, float timestamp) : base(owner, good, volume, price, timestamp) { }
-        public static bool operator <(SellOrder o1, SellOrder o2) {
-            if (o1.Price < o2.Price) return true;
-            return (o1.Timestamp < o2.Timestamp);
-        }
-        public static bool operator >(SellOrder o1, SellOrder o2)
+
+        public int CompareTo(object obj)
         {
-            if (o1.Price > o2.Price) return true;
-            return (o1.Timestamp > o2.Timestamp);
+            SellOrder o2 = obj as SellOrder;
+
+            int priceC = Price.CompareTo(o2.Price);
+
+            if (priceC == 0) return Timestamp.CompareTo(o2.Timestamp);
+            else return priceC;
         }
     }
 }

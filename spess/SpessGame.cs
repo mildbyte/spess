@@ -108,6 +108,21 @@ namespace spess
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
                                     good, 10, 10, null));
                         }));
+                        currMenu.Items.Add(new ContextMenuItem("Deposit cabbages!!", delegate()
+                        {
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndDepositGoods((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    good, 10, null));
+                        }));
+                        currMenu.Items.Add(new ContextMenuItem("Withdraw cabbages!!", delegate()
+                        {
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndWithdrawGoods((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    good, 10, null));
+                        }));
+
                     }
 
                     currMenu.Open(ms.X, ms.Y);
@@ -156,9 +171,9 @@ namespace spess
 
             universe.AddShip("Exchange buyer ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), universe.GetPlayer(), 1.0f);
             Owner seller = universe.AddOwner();
-            universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), seller, 1.0f);
+            Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), seller, 1.0f);
             exchange.AddUser(seller);
-            exchange.GetUserAccount(seller).StoredGoods.AddItem(good, 100);
+            sellerShip.Cargo.AddItem(good, 100);
 
             //Need to update the sector for the additions to propagate to the actual bodies' list
 
