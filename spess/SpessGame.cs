@@ -28,7 +28,10 @@ namespace spess
 
         Random rand = new Random();
 
-        Good good = new Good("Space Cabbages", "Cabbages in space!!1", 10);
+        Good cabbages = new Good("Space Cabbages", "Cabbages in space!!1", 10);
+        Good earth = new Good("Space Cabbage Seeds", "Makes cabbages!", 2);
+        Good seeds = new Good("Space Earth", "A box of earth. In space. Taken from Earth.", 8);
+        ProductionRule cabbageProd;
 
         public SpessGame()
             : base()
@@ -99,28 +102,28 @@ namespace spess
                             ((Ship)mouseOverBody).GoalQueue.AddGoal(
                                 new AI.MoveAndPlaceBuyOrder((Ship)mouseOverBody,
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
-                                    good, 10, 10, null));
+                                    cabbages, 10, 10, null));
                         }));
                         currMenu.Items.Add(new ContextMenuItem("Sell cabbages!!", delegate()
                         {
                             ((Ship)mouseOverBody).GoalQueue.AddGoal(
                                 new AI.MoveAndPlaceSellOrder((Ship)mouseOverBody,
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
-                                    good, 10, 10, null));
+                                    cabbages, 10, 10, null));
                         }));
                         currMenu.Items.Add(new ContextMenuItem("Deposit cabbages!!", delegate()
                         {
                             ((Ship)mouseOverBody).GoalQueue.AddGoal(
                                 new AI.MoveAndDepositGoods((Ship)mouseOverBody,
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
-                                    good, 10, null));
+                                    cabbages, 10, null));
                         }));
                         currMenu.Items.Add(new ContextMenuItem("Withdraw cabbages!!", delegate()
                         {
                             ((Ship)mouseOverBody).GoalQueue.AddGoal(
                                 new AI.MoveAndWithdrawGoods((Ship)mouseOverBody,
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
-                                    good, 10, null));
+                                    cabbages, 10, null));
                         }));
 
                     }
@@ -147,6 +150,8 @@ namespace spess
             Sector testSector1 = universe.AddSector("Sector 1");
             Sector testSector2 = universe.AddSector("Sector 2");
 
+            cabbageProd = new ProductionRule(new Dictionary<Good, int>() { {earth, 1}, {seeds, 1} }, new Dictionary<Good, int>() { {cabbages, 1} }, 10.0f);
+
             universe.JoinSectors(testSector1, testSector2, new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
 
             sectorScreen.CurrentSector = testSector2;
@@ -160,7 +165,7 @@ namespace spess
                 ProductionStation testStation = universe.AddProductionStation("Station " + i, testSector1, RandomVector(10.0f), dummy, 100);
             }
 
-            ProductionStation destStation = universe.AddProductionStation("Grand Central Station", testSector2, Vector3.Zero, dummy, 100);
+            ProductionStation destStation = universe.AddProductionStation("Cabbage Farm", testSector2, Vector3.Zero, cabbageProd, 100);
             Exchange exchange = universe.AddExchange("Space Exchange", testSector2, RandomVector(30.0f));
 
             for (int i = 0; i < 10; i++)
@@ -173,7 +178,7 @@ namespace spess
             Owner seller = universe.AddOwner();
             Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), seller, 1.0f);
             exchange.AddUser(seller);
-            sellerShip.Cargo.AddItem(good, 100);
+            sellerShip.Cargo.AddItem(cabbages, 100);
 
             //Need to update the sector for the additions to propagate to the actual bodies' list
 

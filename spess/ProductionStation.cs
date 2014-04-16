@@ -55,6 +55,8 @@ namespace spess
         }
 
         public override void Update(float timePassed) {
+            if (!CanProduce()) return;
+
             productionProgress += timePassed;
 
             while (productionProgress > production.RequiredTime)
@@ -73,7 +75,14 @@ namespace spess
 
         public override string ToString()
         {
-            return "Production Station\nProgress: " + productionProgress.ToString("F2");
+            string result = Name + "\nProgress: " + productionProgress.ToString("F2");
+
+            foreach (KeyValuePair<Good, int> kv in Inventory)
+            {
+                result += "\n" + kv.Key.Name + ": " + kv.Value;
+            }
+
+            return result;
         }
     }
 }
