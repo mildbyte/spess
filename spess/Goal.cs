@@ -37,12 +37,17 @@ namespace spess.AI
         ICompositeGoal Parent { get; }
     }
 
+    public interface IFailableGoal : IGoal
+    {
+        bool Failed();
+    }
+
     public interface ICompositeGoal : IGoal
     {
         /// <summary>
         /// Gets all subgoals that need to be executed for this goal to be completed
         /// </summary>
-        /// <returns>Either an IEnumerable of required goals or null if this goal fails.</returns>
+        /// <returns>An IEnumerable of required goals</returns>
         IEnumerable<Goal> GetSubgoals();
     }
 

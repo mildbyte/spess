@@ -19,7 +19,7 @@ namespace spess.AI
         /// If MoveToSector fails (ship can't find a route), MoveInSector is still
         /// executed, so the ships move to the target position in the same sector.
         /// </summary>
-        HashSet<ICompositeGoal> failedGoals;
+        HashSet<IGoal> failedGoals;
 
         public IEnumerable<Goal> Goals { get { return goals; } }
         public IEnumerable<IBaseGoal> PendingGoals { get { return pendingGoals; } }
@@ -33,7 +33,7 @@ namespace spess.AI
         {
             goals = new LinkedList<Goal>();
             pendingGoals = new LinkedList<IBaseGoal>();
-            failedGoals = new HashSet<ICompositeGoal>();
+            failedGoals = new HashSet<IGoal>();
         }
 
         public void Update()
@@ -59,9 +59,9 @@ namespace spess.AI
 
                 // If the goal failed, add it to the failed goals' set (if it's a root goal)
                 // or add its ultimate parent to the set otherwise.
-                if (newGoals == null)
+                if (currGoal is IFailableGoal && ((IFailableGoal)currGoal).Failed())
                 {
-                    if (currGoal.Parent == null) failedGoals.Add((ICompositeGoal)currGoal);
+                    if (currGoal.Parent == null) failedGoals.Add(currGoal);
                     else failedGoals.Add(currGoal.Parent);
                 }
                 else

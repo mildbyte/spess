@@ -19,10 +19,13 @@ namespace spess.AI
 
     }
 
-    class MoveToSector : ShipGoal, ICompositeGoal
+    class MoveToSector : ShipGoal, ICompositeGoal, IFailableGoal
     {
         Sector sector;
         public Sector Sector { get { return sector; } }
+
+        bool calculated = false;
+        IEnumerable<Goal> calculatedSubgoals = null;
 
         public MoveToSector(Ship ship, Sector sector, ICompositeGoal creator)
             : base("Move to sector...", ship, creator) 
@@ -30,13 +33,27 @@ namespace spess.AI
             this.sector = sector;
         }
 
+        public bool Failed()
+        {
+            if (calculatedSubgoals == null && calculated) return true;
+            else
+            {
+                GetSubgoals();
+                return calculatedSubgoals == null;
+            }
+        }
+
 
         public IEnumerable<Goal> GetSubgoals()
         {
-            List<Gate> route = Ship.Universe.GetGateAwareRoute(Ship.Owner, Ship.Location.Sector, sector);
-            if (route == null) return null; //Fail the goal if no routes can be found
+            if (calculated) return calculatedSubgoals;
 
-            return route.Select(g => new MoveAndUseGate(Ship, g, this));
+            List<Gate> route = Ship.Universe.GetGateAwareRoute(Ship.Owner, Ship.Location.Sector, sector);
+            if (route == null) calculatedSubgoals = null;
+            else calculatedSubgoals = route.Select(g => new MoveAndUseGate(Ship, g, this));
+
+            calculated = true;
+            return calculatedSubgoals;
         }
     }
 
