@@ -59,7 +59,7 @@ namespace spess.UI
             camera = new Camera(graphicsDevice, game);
             skybox = new Skybox(game.Content);
 
-            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
+            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 200.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 1);
 
             gridEffect = new BasicEffect(graphicsDevice)
@@ -214,6 +214,13 @@ namespace spess.UI
         {
             graphicsDevice.Clear(Color.Black);
 
+            RasterizerState originalRasterizerState = graphicsDevice.RasterizerState;
+            RasterizerState rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            graphicsDevice.RasterizerState = rasterizerState;
+            skybox.Draw(camera.ViewMatrix, perspProjectionMatrix, camera.Position);
+            graphicsDevice.RasterizerState = originalRasterizerState;
+
             totalFrames++;
             DrawGrid(Color.White);
             BatchDrawIcons(perspProjectionMatrix, camera.ViewMatrix, Matrix.Identity, displayedSector);
@@ -224,13 +231,6 @@ namespace spess.UI
             spriteBatch.Begin();
             spriteBatch.DrawString(Font, "FPS: " + fps, new Vector2(10, 10), Color.White);
             spriteBatch.End();
-
-            RasterizerState originalRasterizerState = graphicsDevice.RasterizerState;
-            RasterizerState rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            graphicsDevice.RasterizerState = rasterizerState;
-            skybox.Draw(camera.ViewMatrix, perspProjectionMatrix, camera.Position);
-            graphicsDevice.RasterizerState = originalRasterizerState;
         }
 
         /// <summary>
