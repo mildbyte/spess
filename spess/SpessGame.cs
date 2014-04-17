@@ -196,6 +196,7 @@ namespace spess
         {
             font = Content.Load<SpriteFont>("Arial");
             TextureProvider.LoadTextures(Content);
+
             SetupUI();
             SetupTestSector(); //Initialize the test sector here because we only here have access to the textures
         }

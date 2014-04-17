@@ -23,6 +23,7 @@ namespace spess.UI
         Camera camera;
         Matrix perspProjectionMatrix;
         Matrix orthoProjectionMatrix;
+        Skybox skybox;
 
         BasicEffect gridEffect;
         BasicEffect iconEffect;
@@ -45,7 +46,7 @@ namespace spess.UI
         public IconMouseoverDelegate OnIconMouseover;
         public IconMouseEnterDelegate OnIconMouseEnter;
         public IconMouseLeaveDelegate OnIconMouseLeave;
-
+        public Camera Camera { get { return camera; } }
 
         public SectorScreen(GraphicsDevice graphicsDevice, Game game)
         {
@@ -56,6 +57,7 @@ namespace spess.UI
             floatingLabels = new List<FloatingLabel>();
 
             camera = new Camera(graphicsDevice, game);
+            skybox = new Skybox(game.Content);
 
             perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 200.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 1);
@@ -211,6 +213,8 @@ namespace spess.UI
         public void Render(SpriteBatch spriteBatch)
         {
             graphicsDevice.Clear(Color.Black);
+
+            skybox.Draw(camera.ViewMatrix, perspProjectionMatrix, camera.Position);
 
             totalFrames++;
             DrawGrid(Color.White);

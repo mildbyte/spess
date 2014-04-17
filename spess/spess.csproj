@@ -67,6 +67,7 @@
     <Compile Include="ContextMenu.cs" />
     <Compile Include="FloatingLabel.cs" />
     <Compile Include="SectorScreen.cs" />
+    <Compile Include="Skybox.cs" />
     <Compile Include="SpessGame.cs" />
     <Compile Include="Goal.cs" />
     <Compile Include="GoalQueue.cs" />
@@ -95,6 +96,10 @@
       <Link>Content\Arial.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\cube.xnb">
+      <Link>Content\cube.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\spessContent\spessContent\bin\PSM\Content\empty.xnb">
       <Link>Content\empty.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -111,8 +116,16 @@
       <Link>Content\ship.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\skybox.xnb">
+      <Link>Content\skybox.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\spessContent\spessContent\bin\PSM\Content\station.xnb">
       <Link>Content\station.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\spessContent\spessContent\bin\PSM\Content\SunInSpace.xnb">
+      <Link>Content\SunInSpace.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
