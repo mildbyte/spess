@@ -137,8 +137,9 @@ namespace spess
             return ship;
         }
 
-        public ProductionStation AddProductionStation(string name, Sector sector, Vector3 position, ProductionRule production, int storageSpace) {
+        public ProductionStation AddProductionStation(string name, Sector sector, Vector3 position, Owner owner, ProductionRule production, int storageSpace) {
             ProductionStation station = new ProductionStation(name, new Location(sector, position), production, storageSpace, this);
+            station.Owner = owner;
             sector.AddItem(station);
             return station;
         }

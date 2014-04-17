@@ -162,10 +162,14 @@ namespace spess
             {
                 //TODO: production station has no owner
                 //TODO: sector has AddShips for ships and have to use the List object to add gates and stations
-                ProductionStation testStation = universe.AddProductionStation("Station " + i, testSector1, RandomVector(10.0f), dummy, 100);
+                ProductionStation testStation = universe.AddProductionStation("Station " + i, testSector1,
+                    RandomVector(10.0f), universe.GetPlayer(), dummy, 100);
             }
 
-            ProductionStation destStation = universe.AddProductionStation("Cabbage Farm", testSector2, Vector3.Zero, cabbageProd, 100);
+            Owner seller = universe.AddOwner();
+
+            ProductionStation destStation = universe.AddProductionStation("Cabbage Farm", testSector2,
+                Vector3.Zero, seller, cabbageProd, 100);
             Exchange exchange = universe.AddExchange("Space Exchange", testSector2, RandomVector(30.0f));
 
             for (int i = 0; i < 10; i++)
@@ -175,7 +179,7 @@ namespace spess
             }
 
             universe.AddShip("Exchange buyer ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), universe.GetPlayer(), 1.0f);
-            Owner seller = universe.AddOwner();
+            
             Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), seller, 1.0f);
             exchange.AddUser(seller);
             sellerShip.Cargo.AddItem(cabbages, 100);
