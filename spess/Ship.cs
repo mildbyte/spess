@@ -12,7 +12,6 @@ namespace spess
     public class Ship : SpaceBody
     {
         Inventory cargo;
-        Owner owner;
         Building dockedStation;
         Vector3 velocity;
         float maxSpeed;
@@ -20,7 +19,6 @@ namespace spess
         int cargoSpace;
 
         public Inventory Cargo { get { return cargo; } }
-        public Owner Owner { get { return owner; } }
         public float MaxSpeed { get { return maxSpeed; } }
         public Building DockedStation { get { return dockedStation; } }
         public GoalQueue GoalQueue { get { return goalQueue; } }

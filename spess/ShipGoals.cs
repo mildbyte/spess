@@ -110,7 +110,7 @@ namespace spess.AI
         }
     }
 
-    class DockAt : ShipGoal, IBaseGoal
+    class DockAt : ShipGoal, IBaseGoal, IFailableGoal
     {
         Building building;
         public Building Building { get { return building; } }
@@ -128,9 +128,14 @@ namespace spess.AI
             Ship.Velocity = Vector3.Zero;
             Ship.Dock(building);
         }
+
+        public bool Failed()
+        {
+            return (!building.PermittedToDock(Ship));
+        }
     }
 
-    class MoveAndDockAt : ShipGoal, ICompositeGoal
+    class MoveAndDockAt : ShipGoal, ICompositeGoal, IFailableGoal
     {
         Building building;
         public Building Building { get { return building; } }
@@ -145,6 +150,11 @@ namespace spess.AI
         {
             yield return new MoveTo(Ship, building.Location, this);
             yield return new DockAt(Ship, building, this);
+        }
+
+        public bool Failed()
+        {
+            return (!building.PermittedToDock(Ship));
         }
     }
 
@@ -388,7 +398,7 @@ namespace spess.AI
         public IEnumerable<Goal> GetSubgoals()
         {
             yield return new MoveAndDockAt(Ship, exchange, this);
-            yield return new DepositGoods(Ship, exchange, good, volume, this);
+            yield return new WithdrawGoods(Ship, exchange, good, volume, this);
         }
 
         public bool Failed()

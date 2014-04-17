@@ -136,5 +136,10 @@ namespace spess.ExchangeData
 
             return result;
         }
+
+        public override bool PermittedToDock(Ship s)
+        {
+            return true;
+        }
     }
 }

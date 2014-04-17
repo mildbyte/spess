@@ -27,5 +27,7 @@ namespace spess
         {
             dockedShips = new List<Ship>();
         }
+
+        public abstract bool PermittedToDock(Ship s);
     }
 }

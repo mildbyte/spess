@@ -10,6 +10,7 @@ namespace spess
     public abstract class SpaceBody
     {
         protected string name;
+        protected Owner owner;
         protected Location location;
         protected Texture2D iconTexture;
         protected float iconSize;
@@ -21,6 +22,7 @@ namespace spess
         public Texture2D IconTexture { get { return iconTexture; } set { iconTexture = value; } }
         public float IconSize { get { return iconSize; } set { iconSize = value; } }
         public Universe Universe { get { return universe; } }
+        public Owner Owner { get { return owner; } set { owner = value; } }
 
         public SpaceBody(string name, Location location, Universe universe)
         {

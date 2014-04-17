@@ -84,5 +84,10 @@ namespace spess
 
             return result;
         }
+
+        public override bool PermittedToDock(Ship s)
+        {
+            return s.Owner == Owner;
+        }
     }
 }
