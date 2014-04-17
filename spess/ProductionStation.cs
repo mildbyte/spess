@@ -89,5 +89,24 @@ namespace spess
         {
             return s.Owner == Owner;
         }
+
+        public override int AvailableGoodsFor(Ship s, Good g)
+        {
+            if (!PermittedToDock(s)) return 0;
+
+            return inventory.GetItemCount(g);
+        }
+
+        public override void DepositGoods(Ship s, Good g, int amount)
+        {
+            Inventory.AddItem(g, amount);
+            s.Cargo.RemoveItem(g, amount);
+        }
+
+        public override void WithdrawGoods(Ship s, Good g, int amount)
+        {
+            Inventory.RemoveItem(g, amount);
+            s.Cargo.AddItem(g, amount);
+        }
     }
 }

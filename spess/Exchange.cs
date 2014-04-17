@@ -42,17 +42,17 @@ namespace spess.ExchangeData
             else return null;
         }
 
-        public void DepositGoods(Ship s, Good good, int amount)
+        public override void DepositGoods(Ship s, Good good, int amount)
         {
             if (s.DockedStation != this) return;
             if (s.Cargo.GetItemCount(good) < amount) return;
-            if (!HasUser(s.Owner)) return;
+            if (!HasUser(s.Owner)) AddUser(s.Owner);
 
             s.Cargo.RemoveItem(good, amount);
             users[s.Owner].StoredGoods.AddItem(good, amount);
         }
 
-        public void WithdrawGoods(Ship s, Good good, int amount)
+        public override void WithdrawGoods(Ship s, Good good, int amount)
         {
             if (s.DockedStation != this) return;
             if (!HasUser(s.Owner)) return;
@@ -61,6 +61,12 @@ namespace spess.ExchangeData
             //TODO: what if the ship doesn't have any space?
             users[s.Owner].StoredGoods.RemoveItem(good, amount);
             s.Cargo.AddItem(good, amount);
+        }
+
+        public override int AvailableGoodsFor(Ship s, Good g)
+        {
+            if (!HasUser(s.Owner)) return 0;
+            return users[s.Owner].StoredGoods.GetItemCount(g);
         }
 
         public BuyOrder PlaceBuyOrder(Owner owner, Good good, int volume, int price, float timestamp)

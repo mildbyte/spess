@@ -29,5 +29,9 @@ namespace spess
         }
 
         public abstract bool PermittedToDock(Ship s);
+
+        public abstract int AvailableGoodsFor(Ship s, Good g);
+        public abstract void WithdrawGoods(Ship s, Good g, int amount);
+        public abstract void DepositGoods(Ship s, Good g, int amount);
     }
 }

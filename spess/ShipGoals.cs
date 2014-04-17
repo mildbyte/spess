@@ -325,22 +325,22 @@ namespace spess.AI
 
     class MoveAndDepositGoods : ShipGoal, ICompositeGoal, IFailableGoal
     {
-        Exchange exchange;
+        Building building;
         Good good;
         int volume;
 
-        public MoveAndDepositGoods(Ship ship, Exchange exchange, Good good, int volume, ICompositeGoal creator)
+        public MoveAndDepositGoods(Ship ship, Building building, Good good, int volume, ICompositeGoal creator)
             : base("Move and deposit goods...", ship, creator)
         {
-            this.exchange = exchange;
+            this.building = building;
             this.good = good;
             this.volume = volume;
         }
 
         public IEnumerable<Goal> GetSubgoals()
         {
-            yield return new MoveAndDockAt(Ship, exchange, this);
-            yield return new DepositGoods(Ship, exchange, good, volume, this);
+            yield return new MoveAndDockAt(Ship, building, this);
+            yield return new DepositGoods(Ship, building, good, volume, this);
         }
 
         public bool Failed()
@@ -351,23 +351,22 @@ namespace spess.AI
 
     class DepositGoods : ShipGoal, IBaseGoal, IFailableGoal
     {
-        Exchange exchange;
+        Building building;
         Good good;
         int volume;
 
-        public DepositGoods(Ship ship, Exchange exchange, Good good, int volume, ICompositeGoal creator)
+        public DepositGoods(Ship ship, Building building, Good good, int volume, ICompositeGoal creator)
             : base("Deposit goods...", ship, creator)
         {
-            this.exchange = exchange;
+            this.building = building;
             this.good = good;
             this.volume = volume;
         }
 
         public void Execute()
         {
-            if (Ship.DockedStation != exchange) return;
-            if (!exchange.HasUser(Ship.Owner)) exchange.AddUser(Ship.Owner);
-            exchange.DepositGoods(Ship, good, volume);
+            if (Ship.DockedStation != building) return;
+            building.DepositGoods(Ship, good, volume);
         }
 
         public bool IsComplete()
@@ -383,50 +382,50 @@ namespace spess.AI
 
     class MoveAndWithdrawGoods : ShipGoal, ICompositeGoal, IFailableGoal
     {
-        Exchange exchange;
+        Building building;
         Good good;
         int volume;
 
-        public MoveAndWithdrawGoods(Ship ship, Exchange exchange, Good good, int volume, ICompositeGoal creator)
+        public MoveAndWithdrawGoods(Ship ship, Building building, Good good, int volume, ICompositeGoal creator)
             : base("Move and withdraw goods...", ship, creator)
         {
-            this.exchange = exchange;
+            this.building = building;
             this.good = good;
             this.volume = volume;
         }
 
         public IEnumerable<Goal> GetSubgoals()
         {
-            yield return new MoveAndDockAt(Ship, exchange, this);
-            yield return new WithdrawGoods(Ship, exchange, good, volume, this);
+            yield return new MoveAndDockAt(Ship, building, this);
+            yield return new WithdrawGoods(Ship, building, good, volume, this);
         }
 
         public bool Failed()
         {
-            return exchange.GetUserAccount(Ship.Owner).StoredGoods.GetItemCount(good) < volume
+            return building.AvailableGoodsFor(Ship, good) < volume
                 || Ship.CargoSpace - Ship.Cargo.TotalSize < good.Size * volume;
         }
     }
 
     class WithdrawGoods : ShipGoal, IBaseGoal, IFailableGoal
     {
-        Exchange exchange;
+        Building building;
         Good good;
         int volume;
 
-        public WithdrawGoods(Ship ship, Exchange exchange, Good good, int volume, ICompositeGoal creator)
+        public WithdrawGoods(Ship ship, Building building, Good good, int volume, ICompositeGoal creator)
             : base("Withdraw goods...", ship, creator)
         {
-            this.exchange = exchange;
+            this.building = building;
             this.good = good;
             this.volume = volume;
         }
 
         public void Execute()
         {
-            if (Ship.DockedStation != exchange) return;
-            if (!exchange.HasUser(Ship.Owner)) exchange.AddUser(Ship.Owner);
-            exchange.WithdrawGoods(Ship, good, volume);
+            if (Ship.DockedStation != building) return;
+            
+            building.WithdrawGoods(Ship, good, volume);
         }
 
         public bool IsComplete()
@@ -436,7 +435,7 @@ namespace spess.AI
 
         public bool Failed()
         {
-            return exchange.GetUserAccount(Ship.Owner).StoredGoods.GetItemCount(good) < volume
+            return building.AvailableGoodsFor(Ship, good) < volume
                 || Ship.CargoSpace - Ship.Cargo.TotalSize < good.Size * volume;
         }
     }
