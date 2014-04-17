@@ -37,7 +37,7 @@ namespace spess.UI
         /// The size of the cube, used so that we can resize the box
         /// for different sized environments.
         /// </summary>
-        private float size = 50f;
+        private float size = 10f;
 
         /// <summary>
         /// Creates a new skybox
