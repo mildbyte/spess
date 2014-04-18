@@ -44,5 +44,15 @@ namespace spess
         {
             return items.GetEnumerator();
         }
+
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+            foreach (KeyValuePair<Good, int> kv in items) {
+                result.Append(kv.Key.Name + ": " + kv.Value);
+            }
+
+            return result.ToString();
+        }
     }
 }

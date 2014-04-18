@@ -77,10 +77,7 @@ namespace spess
         {
             string result = Name + "\nProgress: " + productionProgress.ToString("F2");
 
-            foreach (KeyValuePair<Good, int> kv in Inventory)
-            {
-                result += "\n" + kv.Key.Name + ": " + kv.Value;
-            }
+            result += "\n" + inventory.ToString();
 
             return result;
         }
