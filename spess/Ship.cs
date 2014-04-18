@@ -91,5 +91,10 @@ namespace spess
             location.Coordinates += velocity * timePassed;
             goalQueue.Update();
         }
+
+        public override string ToString()
+        {
+            return Name + "\nCargo Hold:\n" + Cargo.ToString();
+        }
     }
 }

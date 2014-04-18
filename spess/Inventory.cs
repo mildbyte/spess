@@ -49,7 +49,7 @@ namespace spess
         {
             var result = new StringBuilder();
             foreach (KeyValuePair<Good, int> kv in items) {
-                result.Append(kv.Key.Name + ": " + kv.Value);
+                result.Append("\n" + kv.Key.Name + ": " + kv.Value);
             }
 
             return result.ToString();

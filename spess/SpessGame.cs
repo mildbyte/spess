@@ -111,18 +111,37 @@ namespace spess
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
                                     cabbages, 10, 10, null));
                         }));
-                        currMenu.Items.Add(new ContextMenuItem("Deposit cabbages!!", delegate()
+                        currMenu.Items.Add(new ContextMenuItem("Deposit cabbages in exchange!!", delegate()
                         {
                             ((Ship)mouseOverBody).GoalQueue.AddGoal(
                                 new AI.MoveAndDepositGoods((Ship)mouseOverBody,
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
                                     cabbages, 10, null));
                         }));
-                        currMenu.Items.Add(new ContextMenuItem("Withdraw cabbages!!", delegate()
+                        currMenu.Items.Add(new ContextMenuItem("Withdraw cabbages from the exchange!!", delegate()
                         {
                             ((Ship)mouseOverBody).GoalQueue.AddGoal(
                                 new AI.MoveAndWithdrawGoods((Ship)mouseOverBody,
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    cabbages, 10, null));
+                        }));
+                        currMenu.Items.Add(new ContextMenuItem("Deposit soil and cabbage seeds", delegate()
+                        {
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndDepositGoods((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(),
+                                    seeds, 10, null));
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndDepositGoods((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(),
+                                    earth, 10, null));
+                        }));
+
+                        currMenu.Items.Add(new ContextMenuItem("Withdraw cabbages from the station", delegate()
+                        {
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndWithdrawGoods((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(),
                                     cabbages, 10, null));
                         }));
 
@@ -150,7 +169,7 @@ namespace spess
             Sector testSector1 = universe.AddSector("Sector 1");
             Sector testSector2 = universe.AddSector("Sector 2");
 
-            cabbageProd = new ProductionRule(new Dictionary<Good, int>() { {earth, 1}, {seeds, 1} }, new Dictionary<Good, int>() { {cabbages, 1} }, 10.0f);
+            cabbageProd = new ProductionRule(new Dictionary<Good, int>() { {earth, 1}, {seeds, 1} }, new Dictionary<Good, int>() { {cabbages, 1} }, 0.1f);
 
             universe.JoinSectors(testSector1, testSector2, new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
 
@@ -166,10 +185,10 @@ namespace spess
                     RandomVector(10.0f), universe.GetPlayer(), dummy, 100);
             }
 
-            Owner seller = universe.AddOwner();
+            Owner cabbageBuyer = universe.AddOwner();
 
             ProductionStation destStation = universe.AddProductionStation("Cabbage Farm", testSector2,
-                Vector3.Zero, seller, cabbageProd, 100);
+                Vector3.Zero, universe.GetPlayer(), cabbageProd, 100);
             Exchange exchange = universe.AddExchange("Space Exchange", testSector2, RandomVector(30.0f));
 
             for (int i = 0; i < 10; i++)
@@ -178,11 +197,22 @@ namespace spess
                 testShip.Velocity = RandomVector(0.5f);
             }
 
-            universe.AddShip("Exchange buyer ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), universe.GetPlayer(), 1.0f);
+            // Test scenario:
+            // * Cabbage farm supplier deposits earth and seeds to the cabbage farm
+            // * Cabbage farm turns it into cabbages
+            // * Cabbage farm seller takes the cabbages, brings them to the exchange and places a sell order
+            // * Cabbage buyer places a buy order in the exchange
+            // * The orders are matched
+            // * Cabbage buyer withdraws the cabbages from the exchange
+
+            universe.AddShip("Exchange buyer ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), cabbageBuyer, 1.0f);
             
-            Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), seller, 1.0f);
-            exchange.AddUser(seller);
-            sellerShip.Cargo.AddItem(cabbages, 100);
+            Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), universe.GetPlayer(), 1.0f);
+
+            Ship supplierShip = universe.AddShip("Cabbage farm supplier ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f),
+                universe.GetPlayer(), 1.0f);
+            supplierShip.Cargo.AddItem(earth, 10);
+            supplierShip.Cargo.AddItem(seeds, 10);
 
             //Need to update the sector for the additions to propagate to the actual bodies' list
 
