@@ -13,16 +13,19 @@ namespace spess
         int storageSpace;
         Inventory inventory;
         float productionProgress;
+        bool isProducing;
 
         public ProductionRule Production { get { return production; } }
         public int StorageSpace { get { return storageSpace; } }
         public Inventory Inventory { get { return inventory; } }
+        public bool IsProducing { get { return isProducing; } }
 
         public ProductionStation(string name, Location location, ProductionRule production, int storageSpace, Universe universe) : base(name, location, universe)
         {
             this.production = production; this.storageSpace = storageSpace;
             this.inventory = new Inventory();
             this.iconTexture = TextureProvider.stationTex;
+            isProducing = false;
         }
 
         public int OccupiedSpace()
@@ -55,20 +58,33 @@ namespace spess
         }
 
         public override void Update(float timePassed) {
-            if (!CanProduce()) return;
-
-            productionProgress += timePassed;
-
-            while (productionProgress > production.RequiredTime)
+            if (isProducing)
             {
-                productionProgress -= production.RequiredTime;
+                productionProgress += timePassed;
 
-                AddProductionResult();
-
-                if (!CanProduce())
+                while (productionProgress > production.RequiredTime)
                 {
-                    productionProgress = 0;
-                    break;
+                    productionProgress -= production.RequiredTime;
+
+                    // End this production cycle and start the next one
+                    AddProductionResult();
+
+                    if (!CanProduce())
+                    {
+                        isProducing = false;
+                        productionProgress = 0;
+                        break;
+                    }
+
+                    ConsumeProductionResources();
+                }
+            }
+            else
+            {
+                if (CanProduce()) {
+                    productionProgress = timePassed;
+                    ConsumeProductionResources();
+                    isProducing = true;
                 }
             }
         }

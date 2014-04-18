@@ -169,7 +169,7 @@ namespace spess
             Sector testSector1 = universe.AddSector("Sector 1");
             Sector testSector2 = universe.AddSector("Sector 2");
 
-            cabbageProd = new ProductionRule(new Dictionary<Good, int>() { {earth, 1}, {seeds, 1} }, new Dictionary<Good, int>() { {cabbages, 1} }, 0.1f);
+            cabbageProd = new ProductionRule(new Dictionary<Good, int>() { {earth, 1}, {seeds, 1} }, new Dictionary<Good, int>() { {cabbages, 1} }, 1.0f);
 
             universe.JoinSectors(testSector1, testSector2, new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
 
@@ -219,7 +219,7 @@ namespace spess
             testSector1.ForcePropagateChanges();
 
             universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
-            universe.GetPlayer().Balance = 200;
+            cabbageBuyer.Balance = 200;
         }
 
         /// <summary>
