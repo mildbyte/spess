@@ -19,6 +19,8 @@ namespace spess
 
         public float RotationSpeed { get; set; }
         public float MoveSpeed { get; set; }
+        public BoundingBox PositionLimit { get; set; }
+        public bool IsPositionLimited { get; set; }
 
         public Matrix ViewMatrix { get { return viewMatrix; } }
         public Vector3 Position { get { return cameraPosition; } }
@@ -88,7 +90,28 @@ namespace spess
         {
             Matrix cameraRotation = Matrix.CreateRotationX(updownRot) * Matrix.CreateRotationY(leftrightRot);
             Vector3 rotatedVector = Vector3.Transform(vectorToAdd, cameraRotation);
-            cameraPosition += MoveSpeed * rotatedVector;
+
+            if (!IsPositionLimited) {
+                cameraPosition += MoveSpeed * rotatedVector;
+                UpdateViewMatrix();
+                return;
+            }
+
+            Vector3 delta = MoveSpeed * rotatedVector;
+
+            // A dirty hack: bounding box is axis-aligned, so we try to add each component and see
+            // if the result is outside of the box. If it's not, then it's safe to add the component
+            // and if not, then we don't add the component. That way, the camera can move along the bounding box axis.
+
+            Vector3 newPos = new Vector3(cameraPosition.X + delta.X, cameraPosition.Y, cameraPosition.Z);
+            if ((PositionLimit.Contains(newPos) == ContainmentType.Contains)) cameraPosition = newPos;
+
+            newPos = new Vector3(cameraPosition.X, cameraPosition.Y + delta.Y, cameraPosition.Z);
+            if ((PositionLimit.Contains(newPos) == ContainmentType.Contains)) cameraPosition = newPos;
+
+            newPos = new Vector3(cameraPosition.X, cameraPosition.Y, cameraPosition.Z + delta.Z);
+            if ((PositionLimit.Contains(newPos) == ContainmentType.Contains)) cameraPosition = newPos;
+            
             UpdateViewMatrix();
         }
 

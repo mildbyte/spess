@@ -57,6 +57,9 @@ namespace spess.UI
             floatingLabels = new List<FloatingLabel>();
 
             camera = new Camera(graphicsDevice, game);
+            camera.PositionLimit = new BoundingBox(new Vector3(-100, -50, -100), new Vector3(100, 50, 100));
+            camera.IsPositionLimited = true;
+
             skybox = new Skybox(game.Content);
 
             perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 300.0f);
