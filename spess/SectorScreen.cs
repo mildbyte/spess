@@ -59,7 +59,7 @@ namespace spess.UI
             camera = new Camera(graphicsDevice, game);
             skybox = new Skybox(game.Content);
 
-            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 200.0f);
+            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 300.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 1);
 
             gridEffect = new BasicEffect(graphicsDevice)

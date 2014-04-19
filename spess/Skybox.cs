@@ -37,7 +37,7 @@ namespace spess.UI
         /// The size of the cube, used so that we can resize the box
         /// for different sized environments.
         /// </summary>
-        private float size = 100f;
+        private float size = 150f;
 
         /// <summary>
         /// Creates a new skybox
@@ -72,7 +72,7 @@ namespace spess.UI
                     foreach (ModelMeshPart part in mesh.MeshParts)
                     {
                         part.Effect = skyBoxEffect;
-                        part.Effect.Parameters["World"].SetValue(Matrix.CreateScale(size) * Matrix.CreateTranslation(cameraPosition) * Matrix.CreateRotationX(MathHelper.Pi));
+                        part.Effect.Parameters["World"].SetValue(Matrix.CreateScale(size) * Matrix.CreateTranslation(cameraPosition));
                         part.Effect.Parameters["View"].SetValue(view);
                         part.Effect.Parameters["Projection"].SetValue(projection);
                         part.Effect.Parameters["SkyBoxTexture"].SetValue(skyBoxTexture);
