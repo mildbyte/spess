@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
 using spess.UI;
 using spess.ExchangeData;
+using NuclearWinter;
 #endregion
 
 namespace spess
@@ -17,7 +18,7 @@ namespace spess
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class SpessGame : Game
+    public class SpessGame : NuclearGame
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -36,7 +37,7 @@ namespace spess
         public SpessGame()
             : base()
         {
-            graphics = new GraphicsDeviceManager(this);
+            //graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
 
@@ -49,11 +50,11 @@ namespace spess
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            graphics.PreferredBackBufferWidth = 1920;
-            graphics.PreferredBackBufferHeight = 1080;
-            graphics.IsFullScreen = true;
+            Graphics.PreferredBackBufferWidth = 1920;
+            Graphics.PreferredBackBufferHeight = 1080;
+            Graphics.IsFullScreen = true;
             IsFixedTimeStep = true;
-            graphics.ApplyChanges();
+            Graphics.ApplyChanges();
 
             base.Initialize();
         }
