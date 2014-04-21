@@ -52,9 +52,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\MonoGame\v3.0\Assemblies\WindowsGL\MonoGame.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="NuclearWinterMonoGame">
-      <HintPath>..\..\..\nuclearwinter\NuclearWinter\bin\Release\NuclearWinterMonoGame.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -91,7 +88,6 @@
     <Compile Include="Ship.cs" />
     <Compile Include="SpaceBody.cs" />
     <Compile Include="ProductionStation.cs" />
-    <Compile Include="TestMenu.cs" />
     <Compile Include="TextureProvider.cs" />
     <Compile Include="Universe.cs" />
   </ItemGroup>
