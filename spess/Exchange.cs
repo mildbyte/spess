@@ -79,7 +79,7 @@ namespace spess.ExchangeData
             owner.Balance -= volume * price;
             users[owner].EscrowMoney += volume * price;
 
-            if (!orderBooks.ContainsKey(good)) orderBooks[good] = new OrderBook(good);
+            if (!orderBooks.ContainsKey(good)) orderBooks[good] = new OrderBook(good, this);
             orderBooks[good].AddBuyOrder(buyOrder);
 
             return buyOrder;
@@ -95,7 +95,7 @@ namespace spess.ExchangeData
             users[owner].StoredGoods.RemoveItem(good, volume);
             users[owner].EscrowGoods.AddItem(good, volume);
 
-            if (!orderBooks.ContainsKey(good)) orderBooks[good] = new OrderBook(good);
+            if (!orderBooks.ContainsKey(good)) orderBooks[good] = new OrderBook(good, this);
             orderBooks[good].AddSellOrder(sellOrder);
 
             return sellOrder;
@@ -107,6 +107,9 @@ namespace spess.ExchangeData
             {
                 foreach (Match m in o.MatchOrders())
                 {
+                    m.BuyOrder.Owner.NotifyMatch(m);
+                    m.SellOrder.Owner.NotifyMatch(m);
+
                     users[m.BuyOrder.Owner].EscrowMoney -= m.FillVolume * m.BuyOrder.Price;
                     m.SellOrder.Owner.Balance += m.FillVolume * m.SellOrder.Price;
 

@@ -11,10 +11,12 @@ namespace spess.ExchangeData
         Good good;
         List<BuyOrder> bids;
         List<SellOrder> asks;
+        Exchange exchange;
 
-        public OrderBook(Good good) 
+        public OrderBook(Good good, Exchange exchange) 
         { 
             this.good = good;
+            this.exchange = exchange;
             bids = new List<BuyOrder>();
             asks = new List<SellOrder>();
         }
@@ -50,7 +52,7 @@ namespace spess.ExchangeData
                 if (currBid.Volume == 0) bids.RemoveAt(0);
                 if (currAsk.Volume == 0) asks.RemoveAt(0);
 
-                yield return new Match(currBid, currAsk, fillVolume);
+                yield return new Match(currBid, currAsk, fillVolume, exchange);
             }
         }
 

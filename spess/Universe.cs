@@ -105,7 +105,7 @@ namespace spess
         {
             sectors = new List<Sector>();
             owners = new List<Owner>();
-            owners.Add(new Owner());
+            owners.Add(new AIOwner());
             ownerKnownGates = new Dictionary<Owner, List<Gate>>();
         }
 
@@ -117,7 +117,7 @@ namespace spess
 
         public Owner AddOwner()
         {
-            Owner o = new Owner();
+            Owner o = new AIOwner();
             owners.Add(o);
             return o;
         }

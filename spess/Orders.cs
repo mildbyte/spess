@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace spess.ExchangeData
 {
-    class Match
+    public class Match
     {
         BuyOrder buyOrder;
         SellOrder sellOrder;
@@ -15,11 +15,13 @@ namespace spess.ExchangeData
         public BuyOrder BuyOrder { get { return buyOrder; } }
         public SellOrder SellOrder { get { return sellOrder; } }
         public int FillVolume { get { return fillVolume; } }
+        public Exchange Exchange { get; private set; }
 
-        public Match(BuyOrder buyOrder, SellOrder sellOrder, int fillVolume)
+        public Match(BuyOrder buyOrder, SellOrder sellOrder, int fillVolume, Exchange exchange)
         {
             this.buyOrder = buyOrder; this.sellOrder = sellOrder;
             this.fillVolume = fillVolume;
+            Exchange = exchange;
         }
     }
 
