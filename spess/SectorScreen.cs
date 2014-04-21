@@ -255,6 +255,8 @@ namespace spess.UI
                 timePassed = 0;
             }
 
+            if (camera.IsFreeLookMode) return; // Ignore the cursor in mlook
+
             Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
 
             SpaceBody newMouseOverBody = PickBody(mousePos, displayedSector);

@@ -21,6 +21,7 @@ namespace spess
         public float MoveSpeed { get; set; }
         public BoundingBox PositionLimit { get; set; }
         public bool IsPositionLimited { get; set; }
+        public bool IsFreeLookMode { get { return isFreeLookMode; } }
 
         public Matrix ViewMatrix { get { return viewMatrix; } }
         public Vector3 Position { get { return cameraPosition; } }
