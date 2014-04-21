@@ -40,6 +40,25 @@ namespace spess
         }
 
         /// <summary>
+        /// Finds the closest space body to a given location that satisfies a given predicate.
+        /// Only takes into account the number of jumps to the body
+        /// </summary>
+        /// <param name="pred">The predicate, for example, spaceBody is Exchange</param>
+        /// <param name="location">The location to search from</param>
+        /// <param name="o">The owner (used for known gate-aware calculations)</param>
+        /// <returns>The closest body</returns>
+        public SpaceBody GetClosestBodyBy(Func<SpaceBody, bool> pred, Location location, Owner o)
+        {
+            // TODO also count the distance in-sector
+            // TODO better performance by not throwing away the best body path
+
+            SpaceBody bestBody = Sectors.Select(s => s.Contents).SelectMany(x => x).Where(s => pred(s))
+                .OrderBy(b => GetGateAwareRoute(o, b.Location.Sector, location.Sector).Count()).First();
+
+            return bestBody;
+        }
+
+        /// <summary>
         /// Gets a sequence of gates that the owner knows about that allows his ship to get from
         /// one sector to another.
         /// </summary>
