@@ -49,13 +49,15 @@ namespace spess
         /// <returns>The closest body</returns>
         public SpaceBody GetClosestBodyBy(Func<SpaceBody, bool> pred, Location location, Owner o)
         {
-            // TODO also count the distance in-sector
             // TODO better performance by not throwing away the best body path
 
-            SpaceBody bestBody = Sectors.Select(s => s.Contents).SelectMany(x => x).Where(s => pred(s))
-                .OrderBy(b => GetGateAwareRoute(o, b.Location.Sector, location.Sector).Count()).First();
+            SpaceBody sectorBestBody = location.Sector.Contents.Where(b => pred(b))
+                .OrderBy(b => (b.Location.Coordinates - location.Coordinates).Length()).First();
 
-            return bestBody;
+            if (sectorBestBody == null)
+                return Sectors.Select(s => s.Contents).SelectMany(x => x).Where(b => pred(b))
+                    .OrderBy(b => GetGateAwareRoute(o, b.Location.Sector, location.Sector).Count()).First();
+            else return sectorBestBody;
         }
 
         /// <summary>
