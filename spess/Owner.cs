@@ -29,6 +29,8 @@ namespace spess
             ownedShips = new List<Ship>();
             this.universe = universe;
         }
+
+        public abstract void Update(float timePassed);
     }
 
     public class PlayerOwner : Owner
@@ -38,10 +40,17 @@ namespace spess
         {
             
         }
+
+        public override void Update(float timePassed)
+        {
+            
+        }
     }
 
     public class AIOwner : Owner
     {
+
+
         public AIOwner(Universe universe) : base(universe) { }
 
         public override void NotifyMatch(Match match)
@@ -53,6 +62,19 @@ namespace spess
             
             closestShip.GoalQueue.AddGoal(
                 new AI.MoveAndWithdrawGoods(closestShip, match.Exchange, match.BuyOrder.Good, match.FillVolume, null));
+        }
+
+        public override void Update(float timePassed)
+        {
+            // TODO:
+            // * Get a list of goods that our stations require
+            // * Subtract the list of goods that we placed the orders for
+            // * Pass it to the nearest supplier ship
+            // * A data structure holding which order belonged to which station?
+            // * Batch orders somehow?
+            // * How to prioritise exchanges?
+            // * Owner has a pool of required items, supplier ships take things from this pool?
+            // * Delivery contracts as a way for the player to make money?
         }
     }
 }

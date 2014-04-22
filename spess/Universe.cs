@@ -187,10 +187,8 @@ namespace spess
         public void Update(float timeDifference)
         {
             gameTime += timeDifference;
-            foreach (Sector s in sectors)
-            {
-                s.Update(timeDifference);
-            }
+            Sectors.ForEach(s => s.Update(timeDifference));
+            Owners.ForEach(o => o.Update(timeDifference));
         }
     }
 }
