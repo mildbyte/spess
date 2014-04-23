@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AIOwner.cs" />
     <Compile Include="AIShip.cs" />
     <Compile Include="Building.cs" />
     <Compile Include="Camera.cs" />
