@@ -32,7 +32,8 @@ namespace spess.AI
             {
                 if (orders.Value.Contains(bo))
                 {
-                    orders.Value.Remove(bo); // This order is now accounted for
+                    // If the matcher updated the order volume to 0, it's been completely matched.
+                    if (bo.Volume == 0) orders.Value.Remove(bo);
                     client = orders.Key;
                     break;
                 }
@@ -86,12 +87,13 @@ namespace spess.AI
                 }
             }
 
+            // TODO: the ship's place buy order goal needs to return the order handle to us
+
             // * Pass it to the nearest supplier ship
             // * Batch orders somehow?
             // * How to prioritise exchanges?
             // * Owner has a pool of required items, supplier ships take things from this pool?
             // * Delivery contracts as a way for the player to make money?
-            // * An order may be partially matched, what to do?
         }
     }
 }
