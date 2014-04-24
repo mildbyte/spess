@@ -185,10 +185,10 @@ namespace spess
                     RandomVector(10.0f), universe.GetPlayer(), dummy, 100);
             }
 
-            Owner cabbageBuyer = universe.AddOwner();
+            Owner cabbageSeller = universe.AddOwner();
 
             ProductionStation destStation = universe.AddProductionStation("Cabbage Farm", testSector2,
-                Vector3.Zero, universe.GetPlayer(), cabbageProd, 100);
+                Vector3.Zero, cabbageSeller, cabbageProd, 100);
             Exchange exchange = universe.AddExchange("Space Exchange", testSector2, RandomVector(30.0f));
 
             for (int i = 0; i < 10; i++)
@@ -205,12 +205,12 @@ namespace spess
             // * The orders are matched
             // * Cabbage buyer withdraws the cabbages from the exchange
 
-            universe.AddShip("Exchange buyer ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), cabbageBuyer, 1.0f);
+            universe.AddShip("Exchange buyer ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), cabbageSeller, 1.0f);
             
-            Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), universe.GetPlayer(), 1.0f);
+            Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), cabbageSeller, 1.0f);
 
             Ship supplierShip = universe.AddShip("Cabbage farm supplier ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f),
-                universe.GetPlayer(), 1.0f);
+                cabbageSeller, 1.0f);
             supplierShip.Cargo.AddItem(earth, 10);
             supplierShip.Cargo.AddItem(seeds, 10);
 
@@ -219,7 +219,7 @@ namespace spess
             testSector1.ForcePropagateChanges();
 
             universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
-            cabbageBuyer.Balance = 200;
+            cabbageSeller.Balance = 200;
         }
 
         /// <summary>

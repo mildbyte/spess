@@ -55,7 +55,7 @@ namespace spess.ExchangeData
         public override void WithdrawGoods(Ship s, Good good, int amount)
         {
             if (s.DockedStation != this) return;
-            if (!HasUser(s.Owner)) return;
+            if (!HasUser(s.Owner)) AddUser(s.Owner);
             if (users[s.Owner].StoredGoods.GetItemCount(good) < amount) return;
 
             //TODO: what if the ship doesn't have any space?
@@ -72,7 +72,7 @@ namespace spess.ExchangeData
         public BuyOrder PlaceBuyOrder(Owner owner, Good good, int volume, int price)
         {
             if (owner.Balance < volume * price) return null;
-            if (!HasUser(owner)) return null;
+            if (!HasUser(owner)) AddUser(owner);
 
             BuyOrder buyOrder = new BuyOrder(owner, good, volume, price, Universe.GameTime);
 
@@ -87,7 +87,7 @@ namespace spess.ExchangeData
 
         public SellOrder PlaceSellOrder(Owner owner, Good good, int volume, int price)
         {
-            if (!HasUser(owner)) return null;
+            if (!HasUser(owner)) AddUser(owner);
             if (users[owner].StoredGoods.GetItemCount(good) < volume) return null;
 
             SellOrder sellOrder = new SellOrder(owner, good, volume, price, Universe.GameTime);
@@ -135,12 +135,23 @@ namespace spess.ExchangeData
         {
             string result = Name;
 
-            if (!lastTradedPrices.Any()) return result;
-
-            result += "\nLast traded prices:";
-            foreach (KeyValuePair<Good, int> kv in lastTradedPrices)
+            if (lastTradedPrices.Any())
             {
-                result += "\n" + kv.Key.Name + ": " + kv.Value.ToString("F2");
+
+                result += "\nLast traded prices:";
+                foreach (KeyValuePair<Good, int> kv in lastTradedPrices)
+                {
+                    result += "\n" + kv.Key.Name + ": " + kv.Value.ToString("F2");
+                }
+            }
+
+            if (orderBooks.Any())
+            {
+                result += "\nOutstanding orders for:";
+                foreach (KeyValuePair<Good, OrderBook> kv in orderBooks)
+                {
+                    result += "\n" + kv.Key.Name;
+                }
             }
 
             return result;

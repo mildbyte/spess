@@ -59,7 +59,7 @@ namespace spess.AI
             // Get a list of goods that our stations require
             foreach (Sector s in Universe.Sectors)
             {
-                foreach (SpaceBody b in s.Contents.OfType<ProductionStation>())
+                foreach (SpaceBody b in s.Contents.OfType<ProductionStation>().Where(b => b.Owner == this))
                 {
                     ProductionStation ps = b as ProductionStation;
                     if (!ps.CanProduce())
@@ -97,6 +97,8 @@ namespace spess.AI
                 foreach (KeyValuePair<Good, int> good in required.Value) {
                     // TODO: pricing algorithms. Does the station aim to make a profit from its inputs?
                     BuyOrder bo = closestExchange.PlaceBuyOrder(this, good.Key, good.Value, 10);
+                    if (bo == null) continue;
+
                     if (!outstandingBuyOrders.ContainsKey(required.Key))
                         outstandingBuyOrders[required.Key] = new List<BuyOrder>();
                     outstandingBuyOrders[required.Key].Add(bo);
