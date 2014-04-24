@@ -94,7 +94,10 @@ namespace spess
 
         public override string ToString()
         {
-            return Name + "\nCargo Hold:\n" + Cargo.ToString();
+            string result = Name + "\nCargo Hold:\n" + Cargo.ToString();
+            if (GoalQueue.Goals.Any()) result += "\nCurrent order: " + GoalQueue.Goals.First().Name;
+
+            return result;
         }
     }
 }
