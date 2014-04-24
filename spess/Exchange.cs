@@ -69,12 +69,12 @@ namespace spess.ExchangeData
             return users[s.Owner].StoredGoods.GetItemCount(g);
         }
 
-        public BuyOrder PlaceBuyOrder(Owner owner, Good good, int volume, int price, float timestamp)
+        public BuyOrder PlaceBuyOrder(Owner owner, Good good, int volume, int price)
         {
             if (owner.Balance < volume * price) return null;
             if (!HasUser(owner)) return null;
 
-            BuyOrder buyOrder = new BuyOrder(owner, good, volume, price, timestamp);
+            BuyOrder buyOrder = new BuyOrder(owner, good, volume, price, Universe.GameTime);
 
             owner.Balance -= volume * price;
             users[owner].EscrowMoney += volume * price;
@@ -85,12 +85,12 @@ namespace spess.ExchangeData
             return buyOrder;
         }
 
-        public SellOrder PlaceSellOrder(Owner owner, Good good, int volume, int price, float timestamp)
+        public SellOrder PlaceSellOrder(Owner owner, Good good, int volume, int price)
         {
             if (!HasUser(owner)) return null;
             if (users[owner].StoredGoods.GetItemCount(good) < volume) return null;
 
-            SellOrder sellOrder = new SellOrder(owner, good, volume, price, timestamp);
+            SellOrder sellOrder = new SellOrder(owner, good, volume, price, Universe.GameTime);
 
             users[owner].StoredGoods.RemoveItem(good, volume);
             users[owner].EscrowGoods.AddItem(good, volume);

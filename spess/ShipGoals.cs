@@ -217,7 +217,7 @@ namespace spess.AI
         {
             if (Ship.DockedStation != exchange) return;
             if (!exchange.HasUser(Ship.Owner)) exchange.AddUser(Ship.Owner);
-            resultOrder = exchange.PlaceBuyOrder(Ship.Owner, good, volume, price, Ship.Universe.GameTime);
+            resultOrder = exchange.PlaceBuyOrder(Ship.Owner, good, volume, price);
         }
 
         public bool IsComplete()
@@ -281,7 +281,7 @@ namespace spess.AI
         {
             if (Ship.DockedStation != exchange) return;
             if (!exchange.HasUser(Ship.Owner)) exchange.AddUser(Ship.Owner);
-            resultOrder = exchange.PlaceSellOrder(Ship.Owner, good, volume, price, Ship.Universe.GameTime);
+            resultOrder = exchange.PlaceSellOrder(Ship.Owner, good, volume, price);
         }
 
         public bool IsComplete()
