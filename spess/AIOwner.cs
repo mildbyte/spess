@@ -87,9 +87,22 @@ namespace spess.AI
                 }
             }
 
-            // TODO: the ship's place buy order goal needs to return the order handle to us
+            // We don't need a ship to place a buy order, just to collect it.
+            foreach (KeyValuePair<ProductionStation, Inventory> required in requiredInventory)
+            {
+                // Use the closest exchange to buy goods from (alternative: cheapest/most liquid)
+                Exchange closestExchange = Universe.GetClosestBodyBy(
+                    b => b is Exchange, required.Key.Location, this) as Exchange;
 
-            // * Pass it to the nearest supplier ship
+                foreach (KeyValuePair<Good, int> good in required.Value) {
+                    // TODO: pricing algorithms. Does the station aim to make a profit from its inputs?
+                    BuyOrder bo = closestExchange.PlaceBuyOrder(this, good.Key, good.Value, 10);
+                    if (!outstandingBuyOrders.ContainsKey(required.Key))
+                        outstandingBuyOrders[required.Key] = new List<BuyOrder>();
+                    outstandingBuyOrders[required.Key].Add(bo);
+                }
+            }
+
             // * Batch orders somehow?
             // * How to prioritise exchanges?
             // * Owner has a pool of required items, supplier ships take things from this pool?
