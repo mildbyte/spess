@@ -52,7 +52,7 @@ namespace spess.AI
                 new AI.MoveAndDepositGoods(closestShip, client, match.BuyOrder.Good, match.FillVolume, null));
         }
 
-        public override void Update(float timePassed)
+        private void PlaceStationBuyOrders()
         {
             requiredInventory.Clear();
 
@@ -94,7 +94,8 @@ namespace spess.AI
                 Exchange closestExchange = Universe.GetClosestBodyBy(
                     b => b is Exchange, required.Key.Location, this) as Exchange;
 
-                foreach (KeyValuePair<Good, int> good in required.Value) {
+                foreach (KeyValuePair<Good, int> good in required.Value)
+                {
                     // TODO: pricing algorithms. Does the station aim to make a profit from its inputs?
                     BuyOrder bo = closestExchange.PlaceBuyOrder(this, good.Key, good.Value, 10);
                     if (bo == null) continue;
@@ -104,6 +105,48 @@ namespace spess.AI
                     outstandingBuyOrders[required.Key].Add(bo);
                 }
             }
+        }
+
+        private void PlaceStationSellOrders()
+        {
+            foreach (Sector s in Universe.Sectors)
+            {
+                foreach (SpaceBody b in s.Contents.OfType<ProductionStation>().Where(b => b.Owner == this))
+                {
+                    ProductionStation ps = b as ProductionStation;
+
+                    // Storage space full, need to sell some of the stock
+                    if (ps.OccupiedSpace() >= ps.StorageSpace)
+                    {
+                        // Get the closest ship to the station and the closest exchange to it
+                        AIShip closestShip = Universe.GetClosestBodyBy(sb => sb is AIShip && (sb as AIShip).Role == AIShipRole.Supplier,
+                            ps.Location, this) as AIShip;
+                        if (closestShip == null) return;
+                        Exchange closestExchange = Universe.GetClosestBodyBy(
+                            sb => sb is Exchange, ps.Location, this) as Exchange;
+
+                        foreach (KeyValuePair<Good, int> output in ps.Production.Output)
+                        {
+                            // Withdraw the goods from the station
+                            closestShip.GoalQueue.AddGoal(
+                                new MoveAndWithdrawGoods(closestShip, ps, output.Key, ps.Inventory.GetItemCount(output.Key), null));
+                            // Deposit them at the exchange
+                            closestShip.GoalQueue.AddGoal(
+                                new MoveAndDepositGoods(closestShip, closestExchange, output.Key, ps.Inventory.GetItemCount(output.Key), null));
+                            // Sell the goods
+                            // TODO: price?
+                            closestShip.GoalQueue.AddGoal(
+                                new MoveAndPlaceSellOrder(closestShip, closestExchange, output.Key, ps.Inventory.GetItemCount(output.Key), 10, null));
+                        }
+                    }
+                }
+            }
+        }
+
+        public override void Update(float timePassed)
+        {
+            PlaceStationBuyOrders();
+            PlaceStationSellOrders();
 
             // * Batch orders somehow?
             // * How to prioritise exchanges?
