@@ -53,11 +53,11 @@ namespace spess
             // TODO better performance by not throwing away the best body path
 
             SpaceBody sectorBestBody = location.Sector.Contents.Where(b => pred(b))
-                .OrderBy(b => (b.Location.Coordinates - location.Coordinates).Length()).First();
+                .OrderBy(b => (b.Location.Coordinates - location.Coordinates).Length()).FirstOrDefault();
 
             if (sectorBestBody == null)
                 return Sectors.Select(s => s.Contents).SelectMany(x => x).Where(b => pred(b))
-                    .OrderBy(b => GetGateAwareRoute(o, b.Location.Sector, location.Sector).Count()).First();
+                    .OrderBy(b => GetGateAwareRoute(o, b.Location.Sector, location.Sector).Count()).FirstOrDefault();
             else return sectorBestBody;
         }
 
@@ -155,6 +155,13 @@ namespace spess
         public Ship AddShip(string name, Sector sector, Vector3 position, Owner owner, float maxSpeed)
         {
             Ship ship = new Ship(name, new Location(sector, position), owner, maxSpeed, this);
+            sector.AddItem(ship);
+            return ship;
+        }
+
+        public AIShip AddAIShip(string name, Sector sector, Vector3 position, Owner owner, float maxSpeed)
+        {
+            AIShip ship = new AIShip(name, new Location(sector, position), owner, maxSpeed, this);
             sector.AddItem(ship);
             return ship;
         }

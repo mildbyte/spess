@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace spess
 {
-    enum AIShipRole
+    public enum AIShipRole
     {
         Supplier,    // Goes from the station to the market, buying/selling goods
         Arbitrageur  // Goes between markets trying to make a profit
     }
 
-    class AIShip : Ship
+    public class AIShip : Ship
     {
         public AIShipRole Role { get; set; }
 

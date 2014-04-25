@@ -144,6 +144,25 @@ namespace spess
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<ProductionStation>().First(),
                                     cabbages, 10, null));
                         }));
+                        currMenu.Items.Add(new ContextMenuItem("Sell soil and cabbage seeds", delegate()
+                        {
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndDepositGoods((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    seeds, 10, null));
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndDepositGoods((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    earth, 10, null));
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndPlaceSellOrder((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    seeds, 10, 10, null));
+                            ((Ship)mouseOverBody).GoalQueue.AddGoal(
+                                new AI.MoveAndPlaceSellOrder((Ship)mouseOverBody,
+                                    mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
+                                    earth, 10, 10, null));
+                        }));
 
                     }
 
@@ -209,10 +228,15 @@ namespace spess
             
             Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), cabbageSeller, 1.0f);
 
-            Ship supplierShip = universe.AddShip("Cabbage farm supplier ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f),
-                cabbageSeller, 1.0f);
+            Ship supplierShip = universe.AddShip("Seeds and Earth seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f),
+                universe.GetPlayer(), 1.0f);
+
             supplierShip.Cargo.AddItem(earth, 10);
             supplierShip.Cargo.AddItem(seeds, 10);
+
+            AIShip stationSupplierShip = universe.AddAIShip("Station supplier ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f),
+                cabbageSeller, 1.0f);
+            stationSupplierShip.Role = AIShipRole.Supplier;
 
             //Need to update the sector for the additions to propagate to the actual bodies' list
 
