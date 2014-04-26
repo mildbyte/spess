@@ -439,4 +439,20 @@ namespace spess.AI
                 || Ship.CargoSpace - Ship.Cargo.TotalSize < good.Size * volume;
         }
     }
+
+    class Stop : ShipGoal, IBaseGoal
+    {
+        public Stop(Ship ship, ICompositeGoal creator)
+            : base("Stop", ship, creator) { }
+
+        public bool IsComplete()
+        {
+            return true;
+        }
+
+        public void Execute()
+        {
+            Ship.Velocity = Vector3.Zero;
+        }
+    }
 }

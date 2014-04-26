@@ -163,6 +163,12 @@ namespace spess
                                     mouseOverBody.Universe.Sectors[1].Contents.OfType<Exchange>().First(),
                                     earth, 10, 10, null));
                         }));
+                        currMenu.Items.Add(new ContextMenuItem("Stop all orders", delegate()
+                        {
+                            (mouseOverBody as Ship).GoalQueue.CancelAllOrders();
+                            (mouseOverBody as Ship).GoalQueue.AddGoal(
+                                new AI.Stop((mouseOverBody as Ship), null));
+                        }));
 
                     }
 

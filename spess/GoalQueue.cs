@@ -36,6 +36,16 @@ namespace spess.AI
             failedGoals = new HashSet<IGoal>();
         }
 
+        public void CancelAllOrders() {
+            pendingGoals.Clear();
+            goals.Clear();
+        }
+
+        public void CancelPendingOrders()
+        {
+            pendingGoals.Clear();
+        }
+
         public void Update()
         {
             // Keep removing complete goals from the pending goal queue
