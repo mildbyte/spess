@@ -236,6 +236,26 @@ namespace spess.UI
             spriteBatch.End();
         }
 
+        private void NotifyIconMouseLeave(SpaceBody body, MouseState state)
+        {
+            if (OnIconMouseLeave != null) OnIconMouseLeave(body, state);
+        }
+
+        private void NotifyIconMouseEnter(SpaceBody body, MouseState state)
+        {
+            if (OnIconMouseEnter != null) OnIconMouseEnter(body, state);
+        }
+
+        private void NotifyIconMouseover(SpaceBody body, MouseState state)
+        {
+            if (OnIconMouseover != null) OnIconMouseover(body, state);
+        }
+
+        private void NotifyIconClicked(SpaceBody body, MouseState state)
+        {
+            if (OnIconClicked != null) OnIconClicked(body, state);
+        }
+
         /// <summary>
         /// Processes the input changes that occurred between frames
         /// </summary>
@@ -267,22 +287,22 @@ namespace spess.UI
 
             // Call the relevant events
             if (newMouseOverBody == null && mouseOverBody != null) {
-                OnIconMouseLeave(mouseOverBody, mouseState);
+                NotifyIconMouseLeave(mouseOverBody, mouseState);
             } else if (newMouseOverBody != null && mouseOverBody == null) {
-                OnIconMouseEnter(newMouseOverBody, mouseState);
-                OnIconMouseover(newMouseOverBody, mouseState);
+                NotifyIconMouseEnter(newMouseOverBody, mouseState);
+                NotifyIconMouseover(newMouseOverBody, mouseState);
             }
             else if (newMouseOverBody != null && mouseOverBody != null && newMouseOverBody != mouseOverBody)
             {
                 // Mouse moved from a body to another body without hitting the void, need to send all events
-                OnIconMouseLeave(mouseOverBody, mouseState);
-                OnIconMouseEnter(newMouseOverBody, mouseState);
-                OnIconMouseover(newMouseOverBody, mouseState);
+                NotifyIconMouseLeave(mouseOverBody, mouseState);
+                NotifyIconMouseEnter(newMouseOverBody, mouseState);
+                NotifyIconMouseover(newMouseOverBody, mouseState);
             }
             else if (newMouseOverBody != null)
             {
                 // General mouseover events.
-                OnIconMouseover(newMouseOverBody, mouseState);
+                NotifyIconMouseover(newMouseOverBody, mouseState);
 
                 // Click event dispatch with flags to ensure only one click is registered.
                 // If a context menu is open, the click belonged to it and we don't pass it to the icon
@@ -290,7 +310,7 @@ namespace spess.UI
                     (mouseState.LeftButton == ButtonState.Pressed || mouseState.RightButton == ButtonState.Pressed))
                 {
                     mouseClickRegistered = true;
-                    OnIconClicked(mouseOverBody, mouseState);
+                    NotifyIconClicked(mouseOverBody, mouseState);
                 }
                 else if (mouseClickRegistered)
                 {
