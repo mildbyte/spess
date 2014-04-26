@@ -62,7 +62,8 @@ namespace spess.UI
 
             skybox = new Skybox(game.Content);
 
-            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 300.0f);
+            // Far clip at 200sqrt(3) ~ 350 (so that the corner of the skybox is not clipped)
+            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 350.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 1);
 
             gridEffect = new BasicEffect(graphicsDevice)
