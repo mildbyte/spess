@@ -24,7 +24,7 @@ namespace spess
         public bool IsFreeLookMode { get { return isFreeLookMode; } }
 
         public Matrix ViewMatrix { get { return viewMatrix; } }
-        public Vector3 Position { get { return cameraPosition; } }
+        public Vector3 Position { get { return cameraPosition; } set { cameraPosition = value; } }
 
         public Camera(GraphicsDevice graphics, Game game)
         {

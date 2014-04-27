@@ -40,7 +40,21 @@ namespace spess.UI
 
         public List<ContextMenu> ContextMenus { get { return contextMenus; } }
         public List<FloatingLabel> FloatingLabels { get { return floatingLabels; } }
-        public Sector CurrentSector { get { return displayedSector; } set { displayedSector = value; } }
+        public Sector CurrentSector { get { return displayedSector; } set {
+            displayedSector = value;
+            camera.PositionLimit = value.Dimensions;
+
+            Vector3 span = (value.Dimensions.Max - value.Dimensions.Min);
+            float maxDim = span.X;
+            if (span.Y > maxDim) maxDim = span.Y;
+            if (span.Z > maxDim) maxDim = span.Z;
+
+            skybox.Size = maxDim;
+
+            camera.Position = (value.Dimensions.Min + value.Dimensions.Max) / 2.0f;
+
+            perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, span.Length());
+        } }
         public SpriteFont Font { get; set; }
         public IconClickDelegate OnIconClicked;
         public IconMouseoverDelegate OnIconMouseover;
@@ -62,7 +76,6 @@ namespace spess.UI
 
             skybox = new Skybox(game.Content);
 
-            // Far clip at 200sqrt(3) ~ 350 (so that the corner of the skybox is not clipped)
             perspProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, graphicsDevice.Viewport.AspectRatio, 0.3f, 350.0f);
             orthoProjectionMatrix = Matrix.CreateOrthographic(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 1);
 
@@ -187,16 +200,24 @@ namespace spess.UI
         /// </summary>
         void DrawGrid(Color color)
         {
+            Vector3 span = CurrentSector.Dimensions.Max - CurrentSector.Dimensions.Min;
+            int gridWidth = (int)span.X;
+            int gridHeight = (int)span.Z;
+
             // Array of lines representing the grid
-            VertexPositionColor[] vertices = new VertexPositionColor[201 * 2 * 2];
+            VertexPositionColor[] vertices = new VertexPositionColor[(gridWidth + gridHeight + 1) * 2];
 
             int i = 0;
-            for (int ix = -100; ix <= 100; ix += 10)
+            for (float ix = CurrentSector.Dimensions.Min.X; ix <= CurrentSector.Dimensions.Max.X; ix += 10.0f)
             {
-                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, -100), color);
-                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, 100), color);
-                vertices[i++] = new VertexPositionColor(new Vector3(-100, 0, ix), color);
-                vertices[i++] = new VertexPositionColor(new Vector3(100, 0, ix), color);
+                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, CurrentSector.Dimensions.Min.Z), color);
+                vertices[i++] = new VertexPositionColor(new Vector3(ix, 0, CurrentSector.Dimensions.Max.Z), color);
+            }
+
+            for (float ix = CurrentSector.Dimensions.Min.Z; ix <= CurrentSector.Dimensions.Max.Z; ix += 10.0f)
+            {
+                vertices[i++] = new VertexPositionColor(new Vector3(CurrentSector.Dimensions.Min.X, 0, ix), color);
+                vertices[i++] = new VertexPositionColor(new Vector3(CurrentSector.Dimensions.Max.X, 0, ix), color);
             }
 
             gridEffect.View = camera.ViewMatrix;
@@ -206,7 +227,7 @@ namespace spess.UI
             {
                 pass.Apply();
 
-                graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 201 * 2);
+                graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, (gridWidth + gridHeight));
             }
         }
         

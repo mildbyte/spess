@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using spess.ExchangeData;
 
 namespace spess
@@ -20,12 +21,14 @@ namespace spess
         public string Name { get; set; }
 
         public List<SpaceBody> Contents { get { return bodiesList; } }
+        public BoundingBox Dimensions { get; set; }
 
         public Sector()
         {
             bodiesList = new List<SpaceBody>();
             removeList = new List<SpaceBody>();
             addList = new List<SpaceBody>();
+            Dimensions = new BoundingBox(new Vector3(-100, -100, -100), new Vector3(100, 100, 100));
             Name = "";
         }
 

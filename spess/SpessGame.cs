@@ -193,6 +193,7 @@ namespace spess
 
             Sector testSector1 = universe.AddSector("Sector 1");
             Sector testSector2 = universe.AddSector("Sector 2");
+            testSector2.Dimensions = new BoundingBox(new Vector3(-40, -40, -40), new Vector3(40, 40, 40));
 
             cabbageProd = new ProductionRule(new Dictionary<Good, int>() { {earth, 1}, {seeds, 1} }, new Dictionary<Good, int>() { {cabbages, 1} }, 1.0f);
 
