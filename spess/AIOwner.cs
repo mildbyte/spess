@@ -33,6 +33,10 @@ namespace spess.AI
                 if (orders.Value.Contains(bo))
                 {
                     // If the matcher updated the order volume to 0, it's been completely matched.
+
+                    // TODO: the delivery ship is en route but we've removed the order from the list of buy orders
+                    // so, if the station is empty, it will place another buy order. Need a way to notify the
+                    // station that its goods have arrived and only then remove them from the station info
                     if (bo.Volume == 0) orders.Value.Remove(bo);
                     client = orders.Key;
                     break;
