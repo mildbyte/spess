@@ -27,18 +27,14 @@ namespace spess.AI
             // Find the station that placed the order
             BuyOrder bo = match.BuyOrder;
             ProductionStation client = null;
+            List<BuyOrder> clientOrders = null;
 
             foreach (KeyValuePair<ProductionStation, List<BuyOrder>> orders in outstandingBuyOrders)
             {
                 if (orders.Value.Contains(bo))
                 {
-                    // If the matcher updated the order volume to 0, it's been completely matched.
-
-                    // TODO: the delivery ship is en route but we've removed the order from the list of buy orders
-                    // so, if the station is empty, it will place another buy order. Need a way to notify the
-                    // station that its goods have arrived and only then remove them from the station info
-                    if (bo.Volume == 0) orders.Value.Remove(bo);
                     client = orders.Key;
+                    clientOrders = orders.Value;
                     break;
                 }
             }
@@ -52,8 +48,21 @@ namespace spess.AI
             // Order the ship to deposit the goods from the exchange to the station
             closestShip.GoalQueue.AddGoal(
                 new AI.MoveAndWithdrawGoods(closestShip, match.Exchange, match.BuyOrder.Good, match.FillVolume, null));
-            closestShip.GoalQueue.AddGoal(
-                new AI.MoveAndDepositGoods(closestShip, client, match.BuyOrder.Good, match.FillVolume, null));
+
+            Goal depositGoal = new AI.MoveAndDepositGoods(closestShip, client, match.BuyOrder.Good, match.FillVolume, null);
+            closestShip.GoalQueue.AddGoal(depositGoal);
+
+            // Add a one-time action to the ship when the contents have been moved to the station:
+            // remove the order from the list of outstanding orders that the station is expecting.
+            // TODO: doesn't fix the station placing orders forever bug
+            OrderCompleted depositCompleted = null;
+            depositCompleted = delegate(IGoal g) {
+                if (g != depositGoal) return;
+                if (bo.Volume == 0) clientOrders.Remove(bo);
+                closestShip.GoalQueue.OnOrderCompleted -= depositCompleted;
+            };
+
+            closestShip.GoalQueue.OnOrderCompleted += depositCompleted;
         }
 
         private void PlaceStationBuyOrders()
