@@ -38,46 +38,42 @@ namespace spess.ExchangeData
 
         public Account GetUserAccount(Owner o)
         {
-            if (HasUser(o)) return users[o];
-            else return null;
+            if (!HasUser(o)) AddUser(o);
+            return users[o];
         }
 
         public override void DepositGoods(Ship s, Good good, int amount)
         {
             if (s.DockedStation != this) return;
             if (s.Cargo.GetItemCount(good) < amount) return;
-            if (!HasUser(s.Owner)) AddUser(s.Owner);
 
             s.Cargo.RemoveItem(good, amount);
-            users[s.Owner].StoredGoods.AddItem(good, amount);
+            GetUserAccount(s.Owner).StoredGoods.AddItem(good, amount);
         }
 
         public override void WithdrawGoods(Ship s, Good good, int amount)
         {
             if (s.DockedStation != this) return;
-            if (!HasUser(s.Owner)) AddUser(s.Owner);
-            if (users[s.Owner].StoredGoods.GetItemCount(good) < amount) return;
+            if (GetUserAccount(s.Owner).StoredGoods.GetItemCount(good) < amount) return;
 
             //TODO: what if the ship doesn't have any space?
-            users[s.Owner].StoredGoods.RemoveItem(good, amount);
+            GetUserAccount(s.Owner).StoredGoods.RemoveItem(good, amount);
             s.Cargo.AddItem(good, amount);
         }
 
         public override int AvailableGoodsFor(Ship s, Good g)
         {
-            if (!HasUser(s.Owner)) return 0;
-            return users[s.Owner].StoredGoods.GetItemCount(g);
+            return GetUserAccount(s.Owner).StoredGoods.GetItemCount(g);
         }
 
         public BuyOrder PlaceBuyOrder(Owner owner, Good good, int volume, int price)
         {
             if (owner.Balance < volume * price) return null;
-            if (!HasUser(owner)) AddUser(owner);
 
             BuyOrder buyOrder = new BuyOrder(owner, good, volume, price, Universe.GameTime);
 
             owner.Balance -= volume * price;
-            users[owner].EscrowMoney += volume * price;
+            GetUserAccount(owner).EscrowMoney += volume * price;
 
             if (!orderBooks.ContainsKey(good)) orderBooks[good] = new OrderBook(good, this);
             orderBooks[good].AddBuyOrder(buyOrder);
@@ -87,13 +83,12 @@ namespace spess.ExchangeData
 
         public SellOrder PlaceSellOrder(Owner owner, Good good, int volume, int price)
         {
-            if (!HasUser(owner)) AddUser(owner);
-            if (users[owner].StoredGoods.GetItemCount(good) < volume) return null;
+            if (GetUserAccount(owner).StoredGoods.GetItemCount(good) < volume) return null;
 
             SellOrder sellOrder = new SellOrder(owner, good, volume, price, Universe.GameTime);
 
-            users[owner].StoredGoods.RemoveItem(good, volume);
-            users[owner].EscrowGoods.AddItem(good, volume);
+            GetUserAccount(owner).StoredGoods.RemoveItem(good, volume);
+            GetUserAccount(owner).EscrowGoods.AddItem(good, volume);
 
             if (!orderBooks.ContainsKey(good)) orderBooks[good] = new OrderBook(good, this);
             orderBooks[good].AddSellOrder(sellOrder);
