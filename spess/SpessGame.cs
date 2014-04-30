@@ -249,7 +249,7 @@ namespace spess
 
             testSector1.ForcePropagateChanges();
 
-            universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
+            //universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
             cabbageSeller.Balance = 200;
         }
 
