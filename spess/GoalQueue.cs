@@ -65,6 +65,8 @@ namespace spess.AI
             // Keep removing complete goals from the pending goal queue
             while (pendingGoals.Any() && pendingGoals.First.Value.IsComplete())
             {
+                // TODO: never notified about the parent goal being completed if
+                // all child subgoals have completed
                 if (OnOrderCompleted != null) OnOrderCompleted(pendingGoals.First());
                 pendingGoals.RemoveFirst();
             }

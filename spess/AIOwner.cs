@@ -59,8 +59,14 @@ namespace spess.AI
             // remove the order from the list of outstanding orders that the station is expecting
             // and remove the goods that have arrived from the list of expected goods
             OrderCompleted depositCompleted = null;
+
+            // TODO: delegate triggered twice on the first arrival of the ship, removing both
+            // expected items from the list (should be only one)
             depositCompleted = delegate(IGoal g) {
-                if (g != depositGoal) return;
+                // Dirty hack: need to notify about the end of the overall goal instead
+                // (exposes internals of the goal system and doesn't work if the ship visits several
+                // stations before the target one)
+                if (!(g is DepositGoods)) return;
                 if (bo.Volume == 0) clientOrders.Remove(bo);
                 clientOrdered.RemoveItem(bo.Good, match.FillVolume);
                 closestShip.GoalQueue.OnOrderCompleted -= depositCompleted;
@@ -88,6 +94,9 @@ namespace spess.AI
                         {
                             requiredInventory[ps].AddItem(required.Key, required.Value);
                         }
+
+                        // Remove those items that we already have
+                        requiredInventory[ps].SubtractInventory(ps.Inventory);
                     }
                 }
             }
