@@ -21,7 +21,7 @@ namespace spess
 
         public void SetItemCount(Good good, int amount)
         {
-            if (amount == 0) items.Remove(good);
+            if (amount <= 0) items.Remove(good);
             else items[good] = amount;
         }
 
@@ -33,6 +33,14 @@ namespace spess
         public void RemoveItem(Good good, int amount)
         {
             AddItem(good, -amount);
+        }
+
+        public void SubtractInventory(Inventory i)
+        {
+            foreach (KeyValuePair<Good, int> kv in i.items)
+            {
+                RemoveItem(kv.Key, kv.Value);
+            }
         }
 
         public Inventory()

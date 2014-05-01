@@ -10,16 +10,17 @@ namespace spess.AI
 
     public class AIOwner : Owner
     {
-        private Dictionary<ProductionStation, Inventory> requiredInventory;
-        private Dictionary<ProductionStation, List<BuyOrder>> outstandingBuyOrders;
+        // List of orders that we placed to cover our requirements and all items
+        // that these orders imply (can't use the order volume since it can change)
+        private Dictionary<ProductionStation, Tuple<List<BuyOrder>, Inventory>> outstandingBuyOrders;
 
         public AIOwner(Universe universe)
             : base(universe)
         {
-            requiredInventory = new Dictionary<ProductionStation, Inventory>();
-            outstandingBuyOrders = new Dictionary<ProductionStation, List<BuyOrder>>();
+            outstandingBuyOrders = new Dictionary<ProductionStation, Tuple<List<BuyOrder>, Inventory>>();
         }
 
+        // TODO: station now doesn't keep placing buy orders, but the ship only makes one trip after matching
         public override void NotifyMatch(Match match)
         {
             if (match.SellOrder.Owner == this) return; // Don't care about our goods being sold on the market
@@ -28,13 +29,15 @@ namespace spess.AI
             BuyOrder bo = match.BuyOrder;
             ProductionStation client = null;
             List<BuyOrder> clientOrders = null;
+            Inventory clientOrdered = null;
 
-            foreach (KeyValuePair<ProductionStation, List<BuyOrder>> orders in outstandingBuyOrders)
+            foreach (KeyValuePair<ProductionStation, Tuple<List<BuyOrder>, Inventory>> orders in outstandingBuyOrders)
             {
-                if (orders.Value.Contains(bo))
+                if (orders.Value.Item1.Contains(bo))
                 {
                     client = orders.Key;
-                    clientOrders = orders.Value;
+                    clientOrders = orders.Value.Item1;
+                    clientOrdered = orders.Value.Item2;
                     break;
                 }
             }
@@ -53,12 +56,13 @@ namespace spess.AI
             closestShip.GoalQueue.AddGoal(depositGoal);
 
             // Add a one-time action to the ship when the contents have been moved to the station:
-            // remove the order from the list of outstanding orders that the station is expecting.
-            // TODO: doesn't fix the station placing orders forever bug
+            // remove the order from the list of outstanding orders that the station is expecting
+            // and remove the goods that have arrived from the list of expected goods
             OrderCompleted depositCompleted = null;
             depositCompleted = delegate(IGoal g) {
                 if (g != depositGoal) return;
                 if (bo.Volume == 0) clientOrders.Remove(bo);
+                clientOrdered.RemoveItem(bo.Good, match.FillVolume);
                 closestShip.GoalQueue.OnOrderCompleted -= depositCompleted;
             };
 
@@ -67,7 +71,7 @@ namespace spess.AI
 
         private void PlaceStationBuyOrders()
         {
-            requiredInventory.Clear();
+            Dictionary<ProductionStation, Inventory> requiredInventory = new Dictionary<ProductionStation, Inventory>();
 
             // Get a list of goods that our stations require
             foreach (Sector s in Universe.Sectors)
@@ -89,14 +93,11 @@ namespace spess.AI
             }
 
             // Subtract the list of goods that we already placed the orders for
-            foreach (KeyValuePair<ProductionStation, List<BuyOrder>> orders in outstandingBuyOrders)
+            foreach (KeyValuePair<ProductionStation, Tuple<List<BuyOrder>, Inventory>> orders in outstandingBuyOrders)
             {
                 if (requiredInventory.ContainsKey(orders.Key))
                 {
-                    foreach (BuyOrder bo in orders.Value)
-                    {
-                        requiredInventory[orders.Key].RemoveItem(bo.Good, bo.Volume);
-                    }
+                    requiredInventory[orders.Key].SubtractInventory(orders.Value.Item2);
                 }
             }
 
@@ -114,8 +115,9 @@ namespace spess.AI
                     if (bo == null) continue;
 
                     if (!outstandingBuyOrders.ContainsKey(required.Key))
-                        outstandingBuyOrders[required.Key] = new List<BuyOrder>();
-                    outstandingBuyOrders[required.Key].Add(bo);
+                        outstandingBuyOrders[required.Key] = new Tuple<List<BuyOrder>, Inventory>(new List<BuyOrder>(), new Inventory());
+                    outstandingBuyOrders[required.Key].Item1.Add(bo);
+                    outstandingBuyOrders[required.Key].Item2.AddItem(bo.Good, bo.Volume);
                 }
             }
         }
