@@ -20,7 +20,6 @@ namespace spess.AI
             outstandingBuyOrders = new Dictionary<ProductionStation, Tuple<List<BuyOrder>, Inventory>>();
         }
 
-        // TODO: station now doesn't keep placing buy orders, but the ship only makes one trip after matching
         public override void NotifyMatch(Match match)
         {
             if (match.SellOrder.Owner == this) return; // Don't care about our goods being sold on the market
@@ -60,13 +59,12 @@ namespace spess.AI
             // and remove the goods that have arrived from the list of expected goods
             OrderCompleted depositCompleted = null;
 
-            // TODO: delegate triggered twice on the first arrival of the ship, removing both
-            // expected items from the list (should be only one)
             depositCompleted = delegate(IGoal g) {
                 // Dirty hack: need to notify about the end of the overall goal instead
                 // (exposes internals of the goal system and doesn't work if the ship visits several
                 // stations before the target one)
                 if (!(g is DepositGoods)) return;
+                if (g.Parent != depositGoal) return;
                 if (bo.Volume == 0) clientOrders.Remove(bo);
                 clientOrdered.RemoveItem(bo.Good, match.FillVolume);
                 closestShip.GoalQueue.OnOrderCompleted -= depositCompleted;

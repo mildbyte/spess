@@ -205,8 +205,6 @@ namespace spess
 
             for (int i = 0; i < 5; i++)
             {
-                //TODO: production station has no owner
-                //TODO: sector has AddShips for ships and have to use the List object to add gates and stations
                 ProductionStation testStation = universe.AddProductionStation("Station " + i, testSector1,
                     RandomVector(10.0f), universe.GetPlayer(), dummy, 100);
             }
