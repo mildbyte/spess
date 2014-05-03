@@ -32,6 +32,7 @@ namespace spess.AI
     {
         LinkedList<Goal> goals;
         LinkedList<IBaseGoal> pendingGoals;
+        Dictionary<ICompositeGoal, int> pendingChildren;
 
         public IEnumerable<Goal> Goals { get { return goals; } }
         public IEnumerable<IBaseGoal> PendingGoals { get { return pendingGoals; } }
@@ -41,6 +42,7 @@ namespace spess.AI
 
         public void AddGoal(Goal g)
         {
+            if (g.Parent != null) return; // User can only add root goals
             goals.AddLast(g);
         }
 
@@ -48,6 +50,7 @@ namespace spess.AI
         {
             goals = new LinkedList<Goal>();
             pendingGoals = new LinkedList<IBaseGoal>();
+            pendingChildren = new Dictionary<ICompositeGoal, int>();
         }
 
         public void CancelAllOrders() {
@@ -65,9 +68,20 @@ namespace spess.AI
             // Keep removing complete goals from the pending goal queue
             while (pendingGoals.Any() && pendingGoals.First.Value.IsComplete())
             {
-                // TODO: never notified about the parent goal being completed if
-                // all child subgoals have completed
-                if (OnOrderCompleted != null) OnOrderCompleted(pendingGoals.First());
+                // If the goal is a root goal, notify about its completion.
+                IBaseGoal goal = pendingGoals.First();
+                if (goal.Parent == null)
+                    if (OnOrderCompleted != null) OnOrderCompleted(goal);
+                else
+                {
+                    // Otherwise, if this is the last goal spawned by a parent, notify about the parent goal completion.
+                    pendingChildren[goal.Parent]--;
+                    if (pendingChildren[goal.Parent] == 0)
+                    {
+                        pendingChildren.Remove(goal.Parent);
+                        if (OnOrderCompleted != null) OnOrderCompleted(goal.Parent);
+                    }
+                }
                 pendingGoals.RemoveFirst();
             }
             
@@ -93,7 +107,8 @@ namespace spess.AI
                 pendingGoals.RemoveAll(g => g.Parent == soughtGoal);
                 goals.RemoveAll(g => g.Parent == soughtGoal);
 
-                if (OnOrderFailed != null) OnOrderFailed(currGoal);
+                // Notify that the root goal failed
+                if (OnOrderFailed != null) OnOrderFailed(soughtGoal);
 
                 return;
             }
@@ -103,6 +118,17 @@ namespace spess.AI
             if (currGoal is ICompositeGoal)
             {
                 var newGoals = ((ICompositeGoal)currGoal).GetSubgoals();
+
+                // Increase the number of base goals that the root goal depends on
+                foreach (Goal g in newGoals)
+                {
+                    if (g is IBaseGoal)
+                    {
+                        if (!pendingChildren.ContainsKey(g.Parent)) pendingChildren[g.Parent] = 0;
+                        pendingChildren[g.Parent]++;
+                    }
+                }
+
                 goals = new LinkedList<Goal>(newGoals.Concat(goals));
             }
             else if (currGoal is IBaseGoal) {

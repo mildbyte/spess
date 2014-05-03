@@ -60,11 +60,7 @@ namespace spess.AI
             OrderCompleted depositCompleted = null;
 
             depositCompleted = delegate(IGoal g) {
-                // Dirty hack: need to notify about the end of the overall goal instead
-                // (exposes internals of the goal system and doesn't work if the ship visits several
-                // stations before the target one)
-                if (!(g is DepositGoods)) return;
-                if (g.Parent != depositGoal) return;
+                if (g != depositGoal) return;
                 if (bo.Volume == 0) clientOrders.Remove(bo);
                 clientOrdered.RemoveItem(bo.Good, match.FillVolume);
                 closestShip.GoalQueue.OnOrderCompleted -= depositCompleted;
