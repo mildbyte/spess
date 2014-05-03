@@ -71,7 +71,9 @@ namespace spess.AI
                 // If the goal is a root goal, notify about its completion.
                 IBaseGoal goal = pendingGoals.First();
                 if (goal.Parent == null)
+                {
                     if (OnOrderCompleted != null) OnOrderCompleted(goal);
+                }
                 else
                 {
                     // Otherwise, if this is the last goal spawned by a parent, notify about the parent goal completion.
