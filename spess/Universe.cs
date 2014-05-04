@@ -61,6 +61,11 @@ namespace spess
             else return sectorBestBody;
         }
 
+        public IEnumerable<SpaceBody> GetAllSpaceBodies()
+        {
+            return Sectors.Select(s => s.Contents).SelectMany(x => x);
+        }
+
         /// <summary>
         /// Gets a sequence of gates that the owner knows about that allows his ship to get from
         /// one sector to another.

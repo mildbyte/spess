@@ -137,7 +137,7 @@ namespace spess.AI
                     if (ps.OccupiedSpace() >= ps.StorageSpace)
                     {
                         // Get the closest ship to the station and the closest exchange to it
-                        AIShip closestShip = Universe.GetClosestBodyBy(sb => sb is AIShip && (sb as AIShip).Role == AIShipRole.Supplier,
+                        AIShip closestShip = Universe.GetClosestBodyBy(sb => sb is AIShip && sb.Owner == this && (sb as AIShip).Role == AIShipRole.Supplier,
                             ps.Location, this) as AIShip;
                         if (closestShip == null) return;
                         Exchange closestExchange = Universe.GetClosestBodyBy(
@@ -159,6 +159,65 @@ namespace spess.AI
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Given 2 exchanges, calculates the possible profit we can make by
+        /// buying goods at the first one and selling them at the second one
+        /// </summary>
+        private int PossibleProfit(Exchange e1, Exchange e2)
+        {
+            int result = 0;
+
+            foreach (Good g in e1.OrderBooks.Keys)
+            {
+                if (!e2.OrderBooks.ContainsKey(g)) continue;
+                List<SellOrder> offers = new List<SellOrder>(e1.OrderBooks[g].Offers);
+                List<BuyOrder> bids = new List<BuyOrder>(e2.OrderBooks[g].Bids);
+                offers.Sort();
+                bids.Sort();
+
+                // Essentially perform order matching as an OrderBook would have done
+                // We assume that we can instantaneously get the goods from one exchange and
+                // move them to the other and sell them at the exact price.
+                while (bids.Any() && offers.Any() && bids[0].Price >= offers[0].Price)
+                {
+                    BuyOrder currBid = bids[0];
+                    SellOrder currAsk = offers[0];
+
+                    int fillVolume = Math.Min(currAsk.Volume, currBid.Volume);
+
+                    currAsk.Volume -= fillVolume;
+                    currBid.Volume -= fillVolume;
+
+                    if (currBid.Volume == 0) bids.RemoveAt(0);
+                    if (currAsk.Volume == 0) offers.RemoveAt(0);
+
+                    result += fillVolume * (currBid.Price - currAsk.Price);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Assign buy-sell orders to our arbitrageur ships that don't have any orders
+        /// </summary>
+        private void PlaceArbitrageurOrders()
+        {
+            IEnumerable<AIShip> availableShips =
+                Universe.GetAllSpaceBodies().Where(s => s.Owner == this && s is AIShip
+                    && (s as AIShip).Role == AIShipRole.Arbitrageur 
+                    && (s as AIShip).GoalQueue.IsEmpty()).Cast<AIShip>();
+
+            IEnumerable<Exchange> exchanges =
+                Universe.GetAllSpaceBodies().Where(b => b is Exchange).Cast<Exchange>();
+
+            // TODO: sort pairs of exchanges by greatest profit
+            // assign a ship to every pair
+            // give the ships the necessary goals (problem: the goods being arbitraged
+            // might not fit inside the hull completely)
+
         }
 
         public override void Update(float timePassed)

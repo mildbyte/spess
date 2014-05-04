@@ -46,6 +46,11 @@ namespace spess.AI
             goals.AddLast(g);
         }
 
+        public bool IsEmpty()
+        {
+            return (!goals.Any() && !pendingGoals.Any());
+        }
+
         public GoalQueue()
         {
             goals = new LinkedList<Goal>();

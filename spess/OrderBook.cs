@@ -21,6 +21,9 @@ namespace spess.ExchangeData
             asks = new List<SellOrder>();
         }
 
+        public List<BuyOrder> Bids { get { return bids; } }
+        public List<SellOrder> Offers { get { return asks; } }
+
         public BuyOrder GetBestBid()
         {
             return bids.Min();

@@ -28,6 +28,7 @@ namespace spess.ExchangeData
         }
 
         public Dictionary<Good, int> LastTradedPrices { get { return lastTradedPrices; } }
+        public Dictionary<Good, OrderBook> OrderBooks { get { return orderBooks; } }
 
         public void AddUser(Owner o)
         {
