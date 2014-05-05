@@ -3,12 +3,14 @@ spess
 
 a spess trading game
 
+development is sort of suspended because Easter Term and exams, but I try to make at least one commit a day to not break the streak (eugh).
+
 spess?
 ------
 
 Inspired by [this paper](http://larc.unt.edu/techreports/LARC-2010-03.pdf), the X series, Mount & Blade and maybe something else.
 
-The main idea behind this is to create a game with a fully simulated dynamic economy, sort of like the X series but with even more freedom and emergent&trade; gameplay&trade; The problem with X's economy was that the goods had a minimum and a maximum value, so buying something at its lowest value (like energy cells for 12 credits) was a sure way to a profit. I also liked the stock market in X3AP, but it had a similar problem, as well as the fact that the value of the companies in the stock market wasn't actually related to the actual state of the game.
+The main idea behind this is to create a game with a fully simulated dynamic economy, sort of like the X series but with even more freedom and emergent&trade; gameplay&trade; The problem with X's economy was that the goods had a minimum and a maximum value, so buying something at its lowest value (like energy cells for 12 credits) was a sure way to a profit. I also liked the stock market in X3AP, but it had a similar problem, as well as the fact that the value of the companies in the stock market wasn't actually related to the state of the game.
 
 The stock market, or the space exchange, is now where all the action happens. Owners of stations sell their goods and buy resources, speculators try to profit by moving goods between exchanges and traders buy and sell goods without ever touching or using them in an attempt to make money on the price movements. The exchange operates similarly to the real-world stock market with limit orders and order matching.
 
