@@ -162,42 +162,34 @@ namespace spess.AI
         }
 
         /// <summary>
-        /// Given 2 exchanges, calculates the possible profit we can make by
-        /// buying goods at the first one and selling them at the second one
+        /// Given 2 exchanges, calculates the largest profit we can have
+        /// buying one type of good at the first one and selling it 
+        /// at the second one (at most taking maxCargoSpace).
+        /// <returns>Tuple of good, volume, buy price, sell price</returns>
         /// </summary>
-        private int PossibleProfit(Exchange e1, Exchange e2)
+        private Tuple<Good, int, int, int> PossibleProfit(Exchange e1, Exchange e2, int maxCargoSpace)
         {
-            int result = 0;
+            Tuple<Good, int, int, int> best = null;
 
             foreach (Good g in e1.OrderBooks.Keys)
             {
                 if (!e2.OrderBooks.ContainsKey(g)) continue;
-                List<SellOrder> offers = new List<SellOrder>(e1.OrderBooks[g].Offers);
-                List<BuyOrder> bids = new List<BuyOrder>(e2.OrderBooks[g].Bids);
-                offers.Sort();
-                bids.Sort();
+                BuyOrder bestBid = e2.OrderBooks[g].GetBestBid();
+                SellOrder bestAsk = e1.OrderBooks[g].GetBestOffer();
 
-                // Essentially perform order matching as an OrderBook would have done
-                // We assume that we can instantaneously get the goods from one exchange and
-                // move them to the other and sell them at the exact price.
-                while (bids.Any() && offers.Any() && bids[0].Price >= offers[0].Price)
+                if (bestBid.Price < bestAsk.Price) continue; // Can't make a profit
+
+                // The largest amount we can buy
+                int volume = Math.Min(Math.Min(bestBid.Volume, bestAsk.Volume), maxCargoSpace / g.Size);
+
+                // Update the best action tuple (buy at the ask, sell at the bid)
+                if (best == null || (best.Item4 - best.Item3) * best.Item2 < volume * (bestBid.Price - bestAsk.Price))
                 {
-                    BuyOrder currBid = bids[0];
-                    SellOrder currAsk = offers[0];
-
-                    int fillVolume = Math.Min(currAsk.Volume, currBid.Volume);
-
-                    currAsk.Volume -= fillVolume;
-                    currBid.Volume -= fillVolume;
-
-                    if (currBid.Volume == 0) bids.RemoveAt(0);
-                    if (currAsk.Volume == 0) offers.RemoveAt(0);
-
-                    result += fillVolume * (currBid.Price - currAsk.Price);
+                    best = new Tuple<Good, int, int, int>(g, volume, bestAsk.Price, bestBid.Price);
                 }
             }
 
-            return result;
+            return best;
         }
 
         /// <summary>
@@ -215,8 +207,7 @@ namespace spess.AI
 
             // TODO: sort pairs of exchanges by greatest profit
             // assign a ship to every pair
-            // give the ships the necessary goals (problem: the goods being arbitraged
-            // might not fit inside the hull completely)
+            // give the ships the necessary goals
 
         }
 
