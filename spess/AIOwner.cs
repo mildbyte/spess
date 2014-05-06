@@ -7,12 +7,15 @@ using spess.ExchangeData;
 
 namespace spess.AI
 {
-
     public class AIOwner : Owner
     {
+        delegate void OnMatch(Match m);
+
         // List of orders that we placed to cover our requirements and all items
         // that these orders imply (can't use the order volume since it can change)
         private Dictionary<ProductionStation, Tuple<List<BuyOrder>, Inventory>> outstandingBuyOrders;
+
+        private OnMatch onMatch;
 
         public AIOwner(Universe universe)
             : base(universe)
@@ -22,6 +25,9 @@ namespace spess.AI
 
         public override void NotifyMatch(Match match)
         {
+            // Call the relevant delegates (for the exchange arbitrageur ships)
+            if (onMatch != null) onMatch(match);
+
             if (match.SellOrder.Owner == this) return; // Don't care about our goods being sold on the market
 
             // Find the station that placed the order
@@ -205,9 +211,59 @@ namespace spess.AI
             IEnumerable<Exchange> exchanges =
                 Universe.GetAllSpaceBodies().Where(b => b is Exchange).Cast<Exchange>();
 
-            // TODO: sort pairs of exchanges by greatest profit
-            // assign a ship to every pair
-            // give the ships the necessary goals
+            HashSet<Exchange> assignedExchanges = new HashSet<Exchange>();
+
+            // Assign an arbitrage task to every ship
+            foreach (AIShip ship in availableShips)
+            {
+                // Get the closest exchange to the ship
+                Exchange closestExchange =
+                    Universe.GetClosestBodyBy(b => b is Exchange && 
+                        !assignedExchanges.Contains(b as Exchange), ship.Location, this) as Exchange;
+
+                if (closestExchange == null) continue;
+
+                // Get the most profitable run we can do with this exchange
+                Exchange bestExchange = null;
+                Tuple<Good, int, int, int> bestRun = null;
+
+                foreach (Exchange e in exchanges.Where(e => e != closestExchange && !assignedExchanges.Contains(e)))
+                {
+                    Tuple<Good, int, int, int> currRun = PossibleProfit(bestExchange, e, ship.CargoSpace);
+                    if (currRun == null) continue;
+
+                    if (bestRun == null || (bestRun.Item4 - bestRun.Item3) * bestRun.Item2 < (currRun.Item4 - currRun.Item3) * currRun.Item2)
+                    {
+                        bestRun = currRun;
+                        bestExchange = e;
+                    }
+                }
+
+                if (bestExchange == null) continue;
+
+                // Place the buy order and make the ship collect it when it is matched
+                BuyOrder buyOrder = bestExchange.PlaceBuyOrder(this, bestRun.Item1, bestRun.Item2, bestRun.Item3);
+                if (buyOrder == null) continue;
+
+                OnMatch om = null;
+                om = delegate(Match m)
+                {
+                    if (m.BuyOrder != buyOrder) return;
+                    onMatch -= om;
+
+                    ship.GoalQueue.AddGoal(new MoveAndWithdrawGoods(ship, closestExchange, bestRun.Item1, bestRun.Item2, null));
+                    ship.GoalQueue.AddGoal(new MoveAndDepositGoods(ship, bestExchange, bestRun.Item1, bestRun.Item2, null));
+                    ship.GoalQueue.AddGoal(new MoveAndPlaceSellOrder(ship, bestExchange, bestRun.Item1, bestRun.Item2, bestRun.Item4, null));
+                };
+
+                onMatch += om;
+
+                // These exchanges are taken
+                // TODO: bestExchange (the one with the sell order) may be used again
+                // on the next round
+                assignedExchanges.Add(bestExchange);
+                assignedExchanges.Add(closestExchange);
+            }
 
         }
 

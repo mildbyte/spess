@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace spess.ExchangeData
 {
-    class OrderBook
+    public class OrderBook
     {
         Good good;
         List<BuyOrder> bids;
