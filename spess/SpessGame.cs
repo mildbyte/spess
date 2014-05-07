@@ -191,63 +191,58 @@ namespace spess
 
             universe = new Universe();
 
-            Sector testSector1 = universe.AddSector("Sector 1");
-            Sector testSector2 = universe.AddSector("Sector 2");
-            testSector2.Dimensions = new BoundingBox(new Vector3(-40, -40, -40), new Vector3(40, 40, 40));
+            Sector[,] sectors = new Sector[5,5];
+
+            for (int i = 0; i < 5; i++) {
+                for (int j = 0; j < 5; j++) {
+                    sectors[i, j] = universe.AddSector("Sector (" + i + ", " + j + ")");
+                    sectors[i, j].Dimensions = new BoundingBox(new Vector3(-30, -30, -30), new Vector3(30, 30, 30));
+                }
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    universe.JoinSectors(sectors[i, j], sectors[i + 1, j], new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
+                    universe.JoinSectors(sectors[i, j], sectors[i, j + 1], new Vector3(0, 0, 30), new Vector3(0, 0, -30));
+                }
+            }
 
             cabbageProd = new ProductionRule(new Dictionary<Good, int>() { {earth, 1}, {seeds, 1} }, new Dictionary<Good, int>() { {cabbages, 1} }, 1.0f);
 
-            universe.JoinSectors(testSector1, testSector2, new Vector3(30, 0, 0), new Vector3(-30, 0, 0));
-
-            sectorScreen.CurrentSector = testSector2;
+            sectorScreen.CurrentSector = sectors[0, 1];
 
             ProductionRule dummy = new ProductionRule(new Dictionary<Good, int>(), new Dictionary<Good, int>(), 9000.0f);
 
             for (int i = 0; i < 5; i++)
             {
-                ProductionStation testStation = universe.AddProductionStation("Station " + i, testSector1,
+                ProductionStation testStation = universe.AddProductionStation("Station " + i, sectors[0, 0],
                     RandomVector(10.0f), universe.GetPlayer(), dummy, 100);
             }
 
             Owner cabbageSeller = universe.AddOwner();
 
-            ProductionStation destStation = universe.AddProductionStation("Cabbage Farm", testSector2,
+            ProductionStation destStation = universe.AddProductionStation("Cabbage Farm", sectors[0, 1],
                 Vector3.Zero, cabbageSeller, cabbageProd, 100);
-            Exchange exchange = universe.AddExchange("Space Exchange", testSector2, RandomVector(30.0f));
+            Exchange exchange = universe.AddExchange("Space Exchange", sectors[0, 1], RandomVector(30.0f));
 
             for (int i = 0; i < 10; i++)
             {
-                Ship testShip = universe.AddShip("Ship #" + i, testSector1, RandomVector(20.0f), universe.GetPlayer(), 1.0f);
+                Ship testShip = universe.AddShip("Ship #" + i, sectors[0, 0], RandomVector(20.0f), universe.GetPlayer(), 1.0f);
                 testShip.Velocity = RandomVector(0.5f);
             }
 
-            // Test scenario:
-            // * Cabbage farm supplier deposits earth and seeds to the cabbage farm
-            // * Cabbage farm turns it into cabbages
-            // * Cabbage farm seller takes the cabbages, brings them to the exchange and places a sell order
-            // * Cabbage buyer places a buy order in the exchange
-            // * The orders are matched
-            // * Cabbage buyer withdraws the cabbages from the exchange
-
-            universe.AddShip("Exchange buyer ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), cabbageSeller, 1.0f);
-            
-            Ship sellerShip = universe.AddShip("Exchange seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f), cabbageSeller, 1.0f);
-
-            Ship supplierShip = universe.AddShip("Seeds and Earth seller ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f),
+            Ship supplierShip = universe.AddShip("Seeds and Earth seller ship", sectors[0, 1], exchange.Location.Coordinates + RandomVector(3.0f),
                 universe.GetPlayer(), 1.0f);
 
             supplierShip.Cargo.AddItem(earth, 10);
             supplierShip.Cargo.AddItem(seeds, 10);
 
-            AIShip stationSupplierShip = universe.AddAIShip("Station supplier ship", testSector2, exchange.Location.Coordinates + RandomVector(3.0f),
+            AIShip stationSupplierShip = universe.AddAIShip("Station supplier ship", sectors[0, 1], exchange.Location.Coordinates + RandomVector(3.0f),
                 cabbageSeller, 1.0f);
             stationSupplierShip.Role = AIShipRole.Supplier;
 
-            //Need to update the sector for the additions to propagate to the actual bodies' list
-
-            testSector1.ForcePropagateChanges();
-
-            //universe.DiscoverGate(universe.GetPlayer(), testSector1.Contents.OfType<Gate>().First());
             cabbageSeller.Balance = 200;
         }
 
