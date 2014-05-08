@@ -62,7 +62,7 @@ namespace spess.ExchangeData
         }
     }
 
-    public class SellOrder : Order
+    public class SellOrder : Order, IComparable
     {
         public SellOrder(Owner owner, Good good, int volume, int price, float timestamp) : base(owner, good, volume, price, timestamp) { }
 

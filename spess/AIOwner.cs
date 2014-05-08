@@ -49,7 +49,7 @@ namespace spess.AI
             if (client == null) return;
 
             // Find the closest ship to the exchange to take the goods away
-            AIShip closestShip = Universe.GetClosestBodyBy(b => b is AIShip && (b as AIShip).Role == AIShipRole.Supplier,
+            AIShip closestShip = Universe.GetClosestBodyBy(b => b.Owner == this && b is AIShip && (b as AIShip).Role == AIShipRole.Supplier,
                 match.Exchange.Location, this) as AIShip;
             if (closestShip == null) return;
 

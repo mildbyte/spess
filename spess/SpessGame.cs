@@ -31,7 +31,16 @@ namespace spess
         Good cabbages = new Good("Space Cabbages", "Cabbages in space!!1", 10);
         Good earth = new Good("Space Cabbage Seeds", "Makes cabbages!", 2);
         Good seeds = new Good("Space Earth", "A box of earth. In space. Taken from Earth.", 8);
+        Good metal = new Good("Metal", "I am a metal fan", 2);
+        Good crystals = new Good("Crystals", "Crystals!", 1);
+        Good lasergun = new Good("Laser gun", "firing mah etc", 1);
+        Good cabbageAmmo = new Good("Cabbage charges", "Used in laser guns", 1);
+
         ProductionRule cabbageProd;
+        ProductionRule lasergunProd;
+        ProductionRule metalProd;
+        ProductionRule crystalProd;
+        ProductionRule cabbageAmmoProd;
 
         public SpessGame()
             : base()
@@ -210,28 +219,26 @@ namespace spess
             }
 
             cabbageProd = new ProductionRule(new Dictionary<Good, int>() { {earth, 1}, {seeds, 1} }, new Dictionary<Good, int>() { {cabbages, 1} }, 1.0f);
+            cabbageAmmoProd = new ProductionRule(new Dictionary<Good, int>() { { cabbages, 1 } }, new Dictionary<Good, int>() { { cabbageAmmo, 1 } }, 10.0f);
+            crystalProd = new ProductionRule(new Dictionary<Good, int>(), new Dictionary<Good, int>() { { crystals, 1 } }, 10.0f);
+            lasergunProd = new ProductionRule(new Dictionary<Good, int>() { { metal, 1 }, { crystals, 2 } }, new Dictionary<Good, int>() { { lasergun, 1 } }, 15.0f);
+            metalProd = new ProductionRule(new Dictionary<Good, int>(), new Dictionary<Good, int>() { { metal, 1 } }, 10.0f);
+
+            Owner cabbageFarmer = universe.AddOwner();
+            Owner metalMiner = universe.AddOwner();
+            Owner crystalMiner = universe.AddOwner();
+            Owner gunMaker = universe.AddOwner();
+            Owner cabbageAmmoMaker = universe.AddOwner();
+
+            universe.AddProductionStation("Cabbage Farm", sectors[0, 1], RandomVector(10.0f), cabbageFarmer, cabbageProd, 20);
+            universe.AddProductionStation("Crystal Mine", sectors[0, 1], RandomVector(10.0f), crystalMiner, crystalProd, 20);
+            universe.AddProductionStation("Metal Mine", sectors[0, 1], RandomVector(10.0f), metalMiner, metalProd, 20);
+            universe.AddProductionStation("Lasgun Factory", sectors[0, 1], RandomVector(10.0f), gunMaker, lasergunProd, 20);
+            universe.AddProductionStation("Lasgun Ammo Foundry", sectors[0, 1], RandomVector(10.0f), cabbageAmmoMaker, cabbageAmmoProd, 20);
 
             sectorScreen.CurrentSector = sectors[0, 1];
 
-            ProductionRule dummy = new ProductionRule(new Dictionary<Good, int>(), new Dictionary<Good, int>(), 9000.0f);
-
-            for (int i = 0; i < 5; i++)
-            {
-                ProductionStation testStation = universe.AddProductionStation("Station " + i, sectors[0, 0],
-                    RandomVector(10.0f), universe.GetPlayer(), dummy, 100);
-            }
-
-            Owner cabbageSeller = universe.AddOwner();
-
-            ProductionStation destStation = universe.AddProductionStation("Cabbage Farm", sectors[0, 1],
-                Vector3.Zero, cabbageSeller, cabbageProd, 100);
-            Exchange exchange = universe.AddExchange("Space Exchange", sectors[0, 1], RandomVector(30.0f));
-
-            for (int i = 0; i < 10; i++)
-            {
-                Ship testShip = universe.AddShip("Ship #" + i, sectors[0, 0], RandomVector(20.0f), universe.GetPlayer(), 1.0f);
-                testShip.Velocity = RandomVector(0.5f);
-            }
+            Exchange exchange = universe.AddExchange("Space Exchange", sectors[0, 1], RandomVector(20.0f));
 
             Ship supplierShip = universe.AddShip("Seeds and Earth seller ship", sectors[0, 1], exchange.Location.Coordinates + RandomVector(3.0f),
                 universe.GetPlayer(), 1.0f);
@@ -239,11 +246,27 @@ namespace spess
             supplierShip.Cargo.AddItem(earth, 10);
             supplierShip.Cargo.AddItem(seeds, 10);
 
-            AIShip stationSupplierShip = universe.AddAIShip("Station supplier ship", sectors[0, 1], exchange.Location.Coordinates + RandomVector(3.0f),
-                cabbageSeller, 1.0f);
+            AIShip stationSupplierShip = universe.AddAIShip("Cabbage Farm supplier", sectors[0, 1], exchange.Location.Coordinates + RandomVector(10.0f),
+                cabbageFarmer, 5.0f);
             stationSupplierShip.Role = AIShipRole.Supplier;
+            AIShip metalMinerShip = universe.AddAIShip("Metal Mine supplier", sectors[0, 1], exchange.Location.Coordinates + RandomVector(10.0f),
+                metalMiner, 5.0f);
+            metalMinerShip.Role = AIShipRole.Supplier;
+            AIShip crystalMinerShip = universe.AddAIShip("Crystal Mine supplier", sectors[0, 1], exchange.Location.Coordinates + RandomVector(10.0f),
+                crystalMiner, 5.0f);
+            crystalMinerShip.Role = AIShipRole.Supplier;
+            AIShip lasgunAmmoShip = universe.AddAIShip("Lasgun Ammo Foundry supplier", sectors[0, 1], exchange.Location.Coordinates + RandomVector(10.0f),
+                cabbageAmmoMaker, 5.0f);
+            lasgunAmmoShip.Role = AIShipRole.Supplier;
+            AIShip lasgunShip = universe.AddAIShip("Lasgun Factory supplier", sectors[0, 1], exchange.Location.Coordinates + RandomVector(10.0f),
+                gunMaker, 5.0f);
+            lasgunShip.Role = AIShipRole.Supplier;
 
-            cabbageSeller.Balance = 200;
+            cabbageFarmer.Balance = 200;
+            metalMiner.Balance = 200;
+            crystalMiner.Balance = 200;
+            gunMaker.Balance = 200;
+            cabbageAmmoMaker.Balance = 200;
         }
 
         /// <summary>
