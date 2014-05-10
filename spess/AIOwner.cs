@@ -120,7 +120,19 @@ namespace spess.AI
                 foreach (KeyValuePair<Good, int> good in required.Value)
                 {
                     // TODO: pricing algorithms. Does the station aim to make a profit from its inputs?
-                    BuyOrder bo = closestExchange.PlaceBuyOrder(this, good.Key, good.Value, 10);
+                    int price;
+                    try
+                    {
+                        price = closestExchange.OrderBooks[good.Key].GetBestOffer().Price;
+                    } catch (NullReferenceException e) {
+                        price = 10;
+                    }
+                    catch (KeyNotFoundException e)
+                    {
+                        price = 10;
+                    }
+
+                    BuyOrder bo = closestExchange.PlaceBuyOrder(this, good.Key, good.Value, price);
                     if (bo == null) continue;
 
                     if (!outstandingBuyOrders.ContainsKey(required.Key))
@@ -139,8 +151,8 @@ namespace spess.AI
                 {
                     ProductionStation ps = b as ProductionStation;
 
-                    // Storage space full, need to sell some of the stock
-                    if (ps.OccupiedSpace() >= ps.StorageSpace)
+                    // More than half of the storage space is produced goods
+                    if (ps.OccupiedSpace()/ps.StorageSpace >= 0.5)
                     {
                         // Get the closest ship to the station and the closest exchange to it
                         AIShip closestShip = Universe.GetClosestBodyBy(sb => sb is AIShip && sb.Owner == this && (sb as AIShip).Role == AIShipRole.Supplier,
@@ -157,10 +169,22 @@ namespace spess.AI
                             // Deposit them at the exchange
                             closestShip.GoalQueue.AddGoal(
                                 new MoveAndDepositGoods(closestShip, closestExchange, output.Key, ps.Inventory.GetItemCount(output.Key), null));
+                            int price;
+                            try {
+                                price = closestExchange.OrderBooks[output.Key].GetBestBid().Price;
+                            }
+                            catch (NullReferenceException e)
+                            {
+                                price = 10;
+                            }
+                            catch (KeyNotFoundException e)
+                            {
+                                price = 10;
+                            }
+
                             // Sell the goods
-                            // TODO: price?
                             closestShip.GoalQueue.AddGoal(
-                                new MoveAndPlaceSellOrder(closestShip, closestExchange, output.Key, ps.Inventory.GetItemCount(output.Key), 10, null));
+                                new MoveAndPlaceSellOrder(closestShip, closestExchange, output.Key, ps.Inventory.GetItemCount(output.Key), price, null));
                         }
                     }
                 }
