@@ -87,6 +87,41 @@ namespace spess.AI
                     ProductionStation ps = b as ProductionStation;
                     if (!ps.CanProduce())
                     {
+                        // See if we can make a profit by performing a production cycle
+                        Exchange closestExchange = Universe.GetClosestBodyBy(
+                            sb => sb is Exchange, ps.Location, this) as Exchange;
+
+                        int expenses = 0;
+                        int income = 0;
+                        bool profitable = false;
+                        foreach (KeyValuePair<Good, int> required in ps.Production.Input)
+                        {
+                            // Something is missing at the exchange -- risk it and try producing
+                            if (!closestExchange.OrderBooks.ContainsKey(required.Key) || closestExchange.OrderBooks[required.Key].GetBestOffer() == null)
+                            {
+                                profitable = true;
+                                break;
+                            }
+
+                            // Don't think about the volume for now
+                            expenses += required.Value * closestExchange.OrderBooks[required.Key].GetBestOffer().Price;
+                        }
+
+                        foreach (KeyValuePair<Good, int> result in ps.Production.Output)
+                        {
+                            // Something is missing at the exchange -- risk it and try producing
+                            if (!closestExchange.OrderBooks.ContainsKey(result.Key) || closestExchange.OrderBooks[result.Key].GetBestBid() == null)
+                            {
+                                profitable = true;
+                                break;
+                            }
+
+                            // Don't think about the volume for now
+                            income += result.Value * closestExchange.OrderBooks[result.Key].GetBestBid().Price;
+                        }
+
+                        if (!(profitable || income >= expenses)) continue;
+
                         requiredInventory[ps] = new Inventory();
 
                         // Only order enough goods for one production cycle for now
@@ -120,14 +155,15 @@ namespace spess.AI
                 foreach (KeyValuePair<Good, int> good in required.Value)
                 {
                     // TODO: pricing algorithms. Does the station aim to make a profit from its inputs?
+                    // Moving exponentially smoothed average of offers on the exchange?
                     int price;
                     try
                     {
                         price = closestExchange.OrderBooks[good.Key].GetBestOffer().Price;
-                    } catch (NullReferenceException e) {
+                    } catch (NullReferenceException) {
                         price = 10;
                     }
-                    catch (KeyNotFoundException e)
+                    catch (KeyNotFoundException)
                     {
                         price = 10;
                     }
@@ -173,11 +209,11 @@ namespace spess.AI
                             try {
                                 price = closestExchange.OrderBooks[output.Key].GetBestBid().Price;
                             }
-                            catch (NullReferenceException e)
+                            catch (NullReferenceException)
                             {
                                 price = 10;
                             }
-                            catch (KeyNotFoundException e)
+                            catch (KeyNotFoundException)
                             {
                                 price = 10;
                             }
